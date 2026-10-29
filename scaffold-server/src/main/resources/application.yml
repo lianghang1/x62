@@ -1,0 +1,68 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: scaffold-server
+  profiles:
+    active: dev
+  # springdoc/knife4j 兼容性（Boot 2.6+ 推荐配置）
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  liquibase:
+    # dev 用 H2 + ddl-auto；生产/信创 profile 覆盖为 true（changeset 见 db/changelog）
+    enabled: false
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+scaffold:
+  data:
+    # 多实例部署时各节点必须不同（环境变量注入）
+    worker-id: 1
+    datacenter-id: 1
+  web:
+    access-log-enabled: true
+    cors:
+      # 默认关闭；需要跨域时填写来源白名单
+      allowed-origins: []
+  security:
+    internal-whitelist:
+      - /internal/auth/login
+    openapi-whitelist: []
+    online-whitelist: []
+    token-ttl-seconds: 604800
+    renew-threshold-percent: 20
+  job:
+    engine: simple
+    pool-size: 4
+  crypto:
+    # AES（默认）| SM4（国密/信创）；生产/信创环境必须用环境变量覆盖默认 key
+    type: ${SCAFFOLD_CRYPTO_TYPE:AES}
+    key: ${SCAFFOLD_CRYPTO_KEY:dev-only-key-change-me}
+  powerjob:
+    # PowerJob 适配器开关；启用前先看 README「接入 PowerJob」三步
+    enabled: false
+
+liquibase:
+  # dev 用 H2 + ddl-auto；生产/信创 profile 覆盖为 true（changeset 见 db/changelog）
+  enabled: false
+
+# PowerJob worker 本体（官方 starter 默认启用，这里默认关闭；接入见 README 与 prod profile）
+powerjob:
+  worker:
+    enabled: false
+  cache:
+    type: two-level
+    l1-ttl-seconds: 60
+    l2-ttl-seconds: 3600
+
+knife4j:
+  enable: true
+
+logging:
+  config: classpath:logback-spring.xml

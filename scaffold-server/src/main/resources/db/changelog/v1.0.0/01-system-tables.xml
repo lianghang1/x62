@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 系统模块表：统一账户 + 三张扩展表 + 角色 + 字典（与 module-system 实体一一对应） -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <!-- 统一账户：MEMBER/OPERATOR/APP 三类入口殊途同归 -->
+    <changeSet id="v1.0.0-sys-account" author="scaffold">
+        <createTable tableName="sys_account">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_sys_account"/>
+            </column>
+            <column name="account_no" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_sys_account_no"/>
+            </column>
+            <column name="type" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="VARCHAR(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)"/>
+            <!-- 审计字段（BaseEntity） -->
+            <column name="create_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_time" type="TIMESTAMP"/>
+            <column name="create_by" type="VARCHAR(64)"/>
+            <column name="update_by" type="VARCHAR(64)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-sys-role" author="scaffold">
+        <createTable tableName="sys_role">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_sys_role"/>
+            </column>
+            <column name="role_code" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_sys_role_code"/>
+            </column>
+            <column name="role_name" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="permissions" type="VARCHAR(2048)"/>
+            <column name="create_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_time" type="TIMESTAMP"/>
+            <column name="create_by" type="VARCHAR(64)"/>
+            <column name="update_by" type="VARCHAR(64)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-sys-account-role" author="scaffold">
+        <createTable tableName="sys_account_role">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_sys_account_role"/>
+            </column>
+            <column name="account_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_account_role_account" tableName="sys_account_role">
+            <column name="account_id"/>
+        </createIndex>
+        <createIndex indexName="idx_account_role_role" tableName="sys_account_role">
+            <column name="role_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="v1.0.0-member-info" author="scaffold">
+        <createTable tableName="member_info">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_member_info"/>
+            </column>
+            <column name="account_id" type="BIGINT">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_member_info_account"/>
+            </column>
+            <column name="open_id" type="VARCHAR(128)"/>
+            <column name="union_id" type="VARCHAR(128)"/>
+            <column name="nickname" type="VARCHAR(64)"/>
+            <column name="avatar" type="VARCHAR(512)"/>
+            <column name="phone" type="VARCHAR(64)"/>
+            <column name="create_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_time" type="TIMESTAMP"/>
+            <column name="create_by" type="VARCHAR(64)"/>
+            <column name="update_by" type="VARCHAR(64)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-app-info" author="scaffold">
+        <createTable tableName="app_info">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_app_info"/>
+            </column>
+            <column name="account_id" type="BIGINT">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_app_info_account"/>
+            </column>
+            <column name="app_name" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="app_key" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_app_info_key"/>
+            </column>
+            <!-- 库里存加密结果（DataCipher），列长按密文放宽 -->
+            <column name="app_secret" type="VARCHAR(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="scopes" type="VARCHAR(512)"/>
+            <column name="ip_whitelist" type="VARCHAR(512)"/>
+            <column name="create_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_time" type="TIMESTAMP"/>
+            <column name="create_by" type="VARCHAR(64)"/>
+            <column name="update_by" type="VARCHAR(64)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="v1.0.0-sys-dict" author="scaffold">
+        <createTable tableName="sys_dict">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_sys_dict"/>
+            </column>
+            <column name="dict_type" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="label" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sort_no" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_time" type="TIMESTAMP"/>
+            <column name="create_by" type="VARCHAR(64)"/>
+            <column name="update_by" type="VARCHAR(64)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_sys_dict_type" tableName="sys_dict">
+            <column name="dict_type"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

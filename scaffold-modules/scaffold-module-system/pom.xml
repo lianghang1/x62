@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.scaffold</groupId>
+        <artifactId>scaffold-modules</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scaffold-module-system</artifactId>
+    <packaging>pom</packaging>
+    <name>scaffold-module-system</name>
+    <description>系统模块：统一账户 / RBAC / 字典 / 三方应用管理（api + biz 分离，跨模块只依赖 api）</description>
+
+    <modules>
+        <module>scaffold-module-system-api</module>
+        <module>scaffold-module-system-biz</module>
+    </modules>
+</project>

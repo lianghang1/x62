@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Liquibase 主 changelog：多方言（MySQL / 达梦 DM8 / 人大金仓 / openGauss）共用一套 changeset。
+
+  达梦规约（重要）：
+  1. 需要达梦 Liquibase 扩展才能识别 DM 数据库：优先用达梦安装包自带的 liquibase-dm jar
+     （install 到内网私服），或社区方案 mengweijin/db-migration-dameng-liquibase（Gitee）；
+  2. 连接串加 CASE_SENSITIVE=0（大小写不敏感），标识符统一小写、脚本不带引号；
+  3. 禁止在本目录写数据库方言专属 SQL；确需方言差异时拆 context/ independent changeset。
+-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <include file="db/changelog/v1.0.0/01-system-tables.xml"/>
+    <include file="db/changelog/v1.0.0/02-job-and-demo-tables.xml"/>
+    <include file="db/changelog/v1.0.0/03-seed-data.xml"/>
+
+</databaseChangeLog>

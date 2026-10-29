@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    # dev 默认 H2 内存库（MySQL 模式），零依赖启动；接真实库时用 .env 注入
+    url: jdbc:h2:mem:scaffold;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      # 生产/信创环境必须为 validate 或 none（建表走 Liquibase）
+      ddl-auto: update
+    show-sql: false
+
+logging:
+  level:
+    com.scaffold: debug

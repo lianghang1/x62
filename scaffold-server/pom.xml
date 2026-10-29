@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.scaffold</groupId>
+        <artifactId>scaffold</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scaffold-server</artifactId>
+    <packaging>jar</packaging>
+    <name>scaffold-server</name>
+    <description>启动模块：三入口 demo + 多环境 profile</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-module-system-biz</artifactId>
+        </dependency>
+
+        <!-- 敏感字段加密（AES 默认 / SM4 国密，scaffold.crypto.key 环境变量注入） -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-crypto</artifactId>
+        </dependency>
+
+        <!-- PowerJob 执行器适配：scaffold.powerjob.enabled=false 时零开销，接入见 README -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-powerjob</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Liquibase：生产/信创环境建表走 changeset（dev 用 H2 + ddl-auto，已关闭） -->
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+
+        <!-- H2：dev 环境零依赖可启动；生产/信创环境换 MySQL/达梦驱动 + 对应 profile -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>scaffold-server</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

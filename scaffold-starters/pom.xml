@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.scaffold</groupId>
+        <artifactId>scaffold</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scaffold-starters</artifactId>
+    <packaging>pom</packaging>
+    <name>scaffold-starters</name>
+    <description>技术组件聚合目录：全部 starter 收拢于此</description>
+
+    <modules>
+        <module>scaffold-starter-web</module>
+        <module>scaffold-starter-data-jpa</module>
+        <module>scaffold-starter-security</module>
+        <module>scaffold-starter-cache</module>
+        <module>scaffold-starter-protection</module>
+        <module>scaffold-starter-job</module>
+        <module>scaffold-starter-crypto</module>
+        <module>scaffold-starter-excel</module>
+        <module>scaffold-starter-storage</module>
+        <module>scaffold-starter-message</module>
+        <module>scaffold-starter-powerjob</module>
+    </modules>
+</project>

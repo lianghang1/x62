@@ -1,0 +1,2 @@
+org.dromara.x.file.storage.spring.XFileStorageSpringAutoConfiguration
+com.scaffold.starter.storage.config.StorageAutoConfiguration

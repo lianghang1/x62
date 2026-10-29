@@ -1,0 +1,31 @@
+version: "3.8"
+
+# PowerJob 调度中心（生产默认引擎）。
+# 上线前替换 POSTGRES/DB 连接为目标国产库（达梦/金仓按官方 JPA 方言配置 server 端）。
+# 启动：docker compose -f docker-compose-powerjob.yml up -d，控制台 http://localhost:7700
+services:
+  powerjob-server:
+    image: tjqq/powerjob-server:4.3.6
+    ports:
+      - "7700:7700"
+      - "10010:10010"
+    environment:
+      --spring.datasource.core.driver-class-name: com.mysql.cj.jdbc.Driver
+      --spring.datasource.core.jdbc-url: jdbc:mysql://mysql:3306/powerjob?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+      --spring.datasource.core.username: scaffold
+      --spring.datasource.core.password: change-me
+      # 达梦示例（信创）：
+      # driver-class-name: dm.jdbc.driver.DmDriver
+      # jdbc-url: jdbc:dm://dm-server:5236/powerjob?schema=POWERJOB
+      --oms.env: DAILY
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: change-me
+      MYSQL_DATABASE: powerjob
+      MYSQL_USER: scaffold
+      MYSQL_PASSWORD: change-me
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci

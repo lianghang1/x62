@@ -1,0 +1,2 @@
+com.scaffold.starter.web.config.WebAutoConfiguration
+com.scaffold.starter.web.config.OpenApiAutoConfiguration

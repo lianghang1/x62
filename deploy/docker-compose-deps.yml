@@ -1,0 +1,21 @@
+version: "3.8"
+
+# 本地联调依赖（dev 用 H2 内存库可跳过 MySQL；Redis 为安全/缓存/限流必依赖）
+# 启动：docker compose -f docker-compose-deps.yml up -d
+services:
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass change-me
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: change-me
+      MYSQL_DATABASE: scaffold
+      MYSQL_USER: scaffold
+      MYSQL_PASSWORD: change-me
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci

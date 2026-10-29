@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/scaffold?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:com.mysql.cj.jdbc.Driver}
+    username: ${SPRING_DATASOURCE_USERNAME:scaffold}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      # 生产禁用 ddl-auto，建表走 Liquibase（含达梦/金仓方言脚本）
+      ddl-auto: none
+    show-sql: false
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+# PowerJob 接入（启用时同时把 scaffold.powerjob.enabled 置 true、scaffold.job.engine 置 none）：
+# powerjob:
+#   worker:
+#     enabled: true
+#     server-address: ${POWERJOB_SERVER:127.0.0.1:7700}
+#     app-name: scaffold
+#     access-token: ${POWERJOB_ACCESS_TOKEN:}
+
+knife4j:
+  # 生产关闭接口文档
+  production: true
+
+logging:
+  level:
+    com.scaffold: info
