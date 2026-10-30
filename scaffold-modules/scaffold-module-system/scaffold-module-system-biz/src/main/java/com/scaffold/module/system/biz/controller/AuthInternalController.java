@@ -1,6 +1,6 @@
 package com.scaffold.module.system.biz.controller;
 
-import com.scaffold.core.result.R;
+import com.scaffold.common.result.R;
 import com.scaffold.module.system.biz.service.AuthService;
 import com.scaffold.starter.security.captcha.CaptchaService;
 import io.swagger.v3.oas.annotations.Operation;

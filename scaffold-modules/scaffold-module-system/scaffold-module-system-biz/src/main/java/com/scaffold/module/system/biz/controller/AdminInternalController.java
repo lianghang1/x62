@@ -1,6 +1,6 @@
 package com.scaffold.module.system.biz.controller;
 
-import com.scaffold.core.result.R;
+import com.scaffold.common.result.R;
 import com.scaffold.module.system.biz.entity.AppInfo;
 import com.scaffold.module.system.biz.service.AccountAdminService;
 import com.scaffold.module.system.biz.service.AccountServiceImpl;
@@ -119,7 +119,7 @@ public class AdminInternalController {
 
     @Operation(summary = "账号分页查询（账号模糊/类型/状态过滤，不含密码）")
     @GetMapping("/accounts")
-    public R<com.scaffold.core.result.PageResult<Map<String, Object>>> accounts(
+    public R<com.scaffold.common.result.PageResult<Map<String, Object>>> accounts(
             @RequestParam(required = false) String accountNo,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String status,
@@ -187,7 +187,7 @@ public class AdminInternalController {
 
     @Operation(summary = "执行日志分页（jobName 可空 = 全部任务混排，最新在前）")
     @GetMapping("/jobs/run-logs")
-    public R<com.scaffold.core.result.PageResult<com.scaffold.starter.job.JobRunLog>> jobRunLogs(
+    public R<com.scaffold.common.result.PageResult<com.scaffold.starter.job.JobRunLog>> jobRunLogs(
             @RequestParam(required = false) String jobName,
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize) {

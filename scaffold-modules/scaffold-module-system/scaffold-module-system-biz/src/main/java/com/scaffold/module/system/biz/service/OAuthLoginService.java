@@ -1,7 +1,7 @@
 package com.scaffold.module.system.biz.service;
 
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.security.online.ExternalIdentity;
 import com.scaffold.starter.security.online.OAuthIdentityProvider;
 import org.slf4j.Logger;

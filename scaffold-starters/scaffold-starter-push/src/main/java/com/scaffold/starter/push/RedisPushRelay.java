@@ -1,6 +1,6 @@
 package com.scaffold.starter.push;
 
-import com.scaffold.core.util.JsonUtils;
+import com.scaffold.common.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.Message;

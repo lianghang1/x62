@@ -1,7 +1,7 @@
 package com.scaffold.starter.protection.abuse;
 
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
 
 /**
  * 防刷阈值触发异常（HTTP 429 语义）。

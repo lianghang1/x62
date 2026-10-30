@@ -24,7 +24,7 @@ public class LoginFailureGuard {
 
     private static final String KEY_PREFIX = "scaffold:security:login:fail:";
     private static final String IP_KEY_PREFIX = "scaffold:security:login:ip:";
-    private static final String FAIL_METRIC = "scaffold.security.login.failures";
+    private static final String FAIL_METRIC = com.scaffold.common.constant.MetricsNames.LOGIN_FAILURES;
 
     private final StringRedisTemplate redisTemplate;
     private final SecurityProperties.PasswordPolicy policy;

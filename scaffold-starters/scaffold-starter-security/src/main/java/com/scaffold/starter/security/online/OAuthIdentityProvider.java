@@ -17,7 +17,7 @@ public interface OAuthIdentityProvider {
     /**
      * 用授权码换取外部身份。
      *
-     * @throws com.scaffold.core.exception.BizException 换取失败（code 无效等）
+     * @throws com.scaffold.common.exception.BizException 换取失败（code 无效等）
      */
     ExternalIdentity exchange(String code);
 }

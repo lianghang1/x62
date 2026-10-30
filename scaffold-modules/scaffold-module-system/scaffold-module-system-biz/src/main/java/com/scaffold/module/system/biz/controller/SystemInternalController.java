@@ -1,6 +1,6 @@
 package com.scaffold.module.system.biz.controller;
 
-import com.scaffold.core.result.R;
+import com.scaffold.common.result.R;
 import com.scaffold.module.system.api.dto.DictDataDTO;
 import com.scaffold.module.system.biz.entity.SysDict;
 import com.scaffold.module.system.biz.service.DictServiceImpl;

@@ -1,7 +1,7 @@
 package com.scaffold.server.demo.order.controller;
 
-import com.scaffold.core.result.PageResult;
-import com.scaffold.core.result.R;
+import com.scaffold.common.result.PageResult;
+import com.scaffold.common.result.R;
 import com.scaffold.server.demo.order.DemoOrderService;
 import com.scaffold.server.demo.order.entity.DemoOrder;
 import io.swagger.v3.oas.annotations.Operation;

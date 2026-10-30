@@ -1,7 +1,7 @@
 package com.scaffold.starter.crypto;
 
-import com.scaffold.core.crypto.DataCipher;
-import com.scaffold.core.crypto.DataCipherHolder;
+import com.scaffold.common.crypto.DataCipher;
+import com.scaffold.common.crypto.DataCipherHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

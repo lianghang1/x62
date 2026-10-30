@@ -1,6 +1,6 @@
 package com.scaffold.module.system.biz;
 
-import com.scaffold.core.exception.BizException;
+import com.scaffold.common.exception.BizException;
 import com.scaffold.module.system.biz.entity.SysAccount;
 import com.scaffold.module.system.biz.repository.SysAccountRepository;
 import com.scaffold.module.system.biz.service.AccountAdminService;

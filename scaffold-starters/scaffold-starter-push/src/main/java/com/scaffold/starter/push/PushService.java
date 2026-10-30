@@ -1,6 +1,6 @@
 package com.scaffold.starter.push;
 
-import com.scaffold.core.util.JsonUtils;
+import com.scaffold.common.util.JsonUtils;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

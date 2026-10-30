@@ -54,7 +54,7 @@ final class AuthenticationSupport {
     }
 
     static void writeJson(javax.servlet.http.HttpServletResponse response,
-                          com.scaffold.core.exception.ErrorCode errorCode) throws IOException {
+                          com.scaffold.common.exception.ErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getHttpStatus() == -1 ? 200 : errorCode.getHttpStatus());
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         response.getWriter().write(

@@ -180,8 +180,8 @@ public class JobRegistrar implements SmartInitializingSingleton {
             return;
         }
         String jobKey = job.metadata().jobKey;
-        meterRegistry.counter("scaffold.job.executions", "job", jobKey, "outcome", outcome).increment();
-        Timer.builder("scaffold.job.duration").tag("job", jobKey).register(meterRegistry)
+        meterRegistry.counter(com.scaffold.common.constant.MetricsNames.JOB_EXECUTIONS, "job", jobKey, "outcome", outcome).increment();
+        Timer.builder(com.scaffold.common.constant.MetricsNames.JOB_DURATION).tag("job", jobKey).register(meterRegistry)
                 .record(costMillis, TimeUnit.MILLISECONDS);
     }
 

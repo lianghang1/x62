@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-core</artifactId>
+            <artifactId>scaffold-common</artifactId>
         </dependency>
 
         <!-- 本模块本身就是测试工具包，starter-test 全量编译依赖（使用方以 test scope 引入本模块） -->

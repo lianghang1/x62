@@ -1,7 +1,7 @@
 package com.scaffold.starter.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.security.filter.InternalAuthenticationFilter;
 import com.scaffold.starter.security.filter.OnlineTokenFilter;
 import com.scaffold.starter.security.filter.OpenApiSignFilter;

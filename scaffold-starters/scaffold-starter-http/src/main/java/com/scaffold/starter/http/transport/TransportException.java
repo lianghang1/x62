@@ -1,7 +1,7 @@
 package com.scaffold.starter.http.transport;
 
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
 
 /**
  * 传输层异常：建连/超时/IO 失败的唯一表达。

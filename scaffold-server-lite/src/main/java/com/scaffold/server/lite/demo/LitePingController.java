@@ -1,6 +1,6 @@
 package com.scaffold.server.lite.demo;
 
-import com.scaffold.core.result.R;
+import com.scaffold.common.result.R;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

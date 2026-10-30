@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-core</artifactId>
+            <artifactId>scaffold-common</artifactId>
         </dependency>
         <!-- 短信防刷复用 protection 的 AbuseGuard -->
         <dependency>

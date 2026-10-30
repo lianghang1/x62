@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-core</artifactId>
+            <artifactId>scaffold-common</artifactId>
         </dependency>
         <!-- PushService / PushChannel / 多实例转发复用 -->
         <dependency>

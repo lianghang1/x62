@@ -1,6 +1,7 @@
 package com.scaffold.starter.http;
 
-import com.scaffold.core.util.JsonUtils;
+import com.scaffold.common.constant.TraceConstants;
+import com.scaffold.common.util.JsonUtils;
 import com.scaffold.starter.http.sign.RequestSigner;
 import com.scaffold.starter.http.transport.HttpTransport;
 import com.scaffold.starter.http.transport.TransportException;
@@ -30,7 +31,7 @@ public class ScaffoldHttpClient {
     private static final Logger log = LoggerFactory.getLogger(ScaffoldHttpClient.class);
 
     /** 跨系统链路透传头 */
-    public static final String TRACE_ID_HEADER = "X-Trace-Id";
+    public static final String TRACE_ID_HEADER = TraceConstants.TRACE_ID_HEADER;
 
     private final HttpTransport transport;
     private final HttpProperties properties;

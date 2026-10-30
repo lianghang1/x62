@@ -1,8 +1,8 @@
 package com.scaffold.module.system.biz.service;
 
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
-import com.scaffold.core.result.PageResult;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
+import com.scaffold.common.result.PageResult;
 import com.scaffold.module.system.biz.entity.SysAccount;
 import com.scaffold.module.system.biz.repository.SysAccountRepository;
 import com.scaffold.starter.security.identity.AccountType;

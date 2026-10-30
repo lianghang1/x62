@@ -1,6 +1,6 @@
 package com.scaffold.starter.crypto;
 
-import com.scaffold.core.crypto.DataCipher;
+import com.scaffold.common.crypto.DataCipher;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;

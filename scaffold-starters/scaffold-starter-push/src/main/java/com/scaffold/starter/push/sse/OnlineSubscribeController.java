@@ -1,7 +1,7 @@
 package com.scaffold.starter.push.sse;
 
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.security.identity.LoginContext;
 import com.scaffold.starter.security.identity.LoginUser;
 import org.springframework.http.MediaType;

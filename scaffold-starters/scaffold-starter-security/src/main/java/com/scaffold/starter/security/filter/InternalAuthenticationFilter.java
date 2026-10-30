@@ -1,6 +1,6 @@
 package com.scaffold.starter.security.filter;
 
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.security.config.SecurityProperties;
 import com.scaffold.starter.security.token.SessionInfo;
 import com.scaffold.starter.security.token.TokenService;

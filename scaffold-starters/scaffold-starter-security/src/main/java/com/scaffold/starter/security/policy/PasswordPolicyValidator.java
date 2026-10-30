@@ -1,7 +1,7 @@
 package com.scaffold.starter.security.policy;
 
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.security.config.SecurityProperties;
 
 /**

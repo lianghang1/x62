@@ -1,6 +1,7 @@
 package com.scaffold.starter.web.trace;
 
-import com.scaffold.core.result.R;
+import com.scaffold.common.constant.TraceConstants;
+import com.scaffold.common.result.R;
 import org.slf4j.MDC;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -23,7 +24,7 @@ import java.util.UUID;
  */
 public class TraceIdFilter extends OncePerRequestFilter {
 
-    public static final String TRACE_ID_HEADER = "X-Trace-Id";
+    public static final String TRACE_ID_HEADER = TraceConstants.TRACE_ID_HEADER;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,

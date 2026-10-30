@@ -1,6 +1,6 @@
 package com.scaffold.starter.push.sse;
 
-import com.scaffold.core.util.JsonUtils;
+import com.scaffold.common.util.JsonUtils;
 import com.scaffold.starter.push.PushProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

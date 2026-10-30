@@ -13,7 +13,7 @@
 
     <modules>
         <module>scaffold-dependencies</module>
-        <module>scaffold-core</module>
+        <module>scaffold-common</module>
         <module>scaffold-starters</module>
         <module>scaffold-modules</module>
         <module>scaffold-server</module>
@@ -42,7 +42,7 @@
             <!-- 本项目模块 -->
             <dependency>
                 <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-core</artifactId>
+                <artifactId>scaffold-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -73,11 +73,6 @@
             <dependency>
                 <groupId>com.scaffold</groupId>
                 <artifactId>scaffold-starter-job</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-excel</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

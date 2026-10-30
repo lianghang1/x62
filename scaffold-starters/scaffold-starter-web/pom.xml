@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-core</artifactId>
+            <artifactId>scaffold-common</artifactId>
         </dependency>
 
         <dependency>

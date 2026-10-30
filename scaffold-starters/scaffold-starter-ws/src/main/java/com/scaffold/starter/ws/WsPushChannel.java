@@ -2,7 +2,7 @@ package com.scaffold.starter.ws;
 
 import com.scaffold.starter.push.PushChannel;
 import com.scaffold.starter.push.PushMessage;
-import com.scaffold.core.util.JsonUtils;
+import com.scaffold.common.util.JsonUtils;
 
 /**
  * WebSocket 推送通道：挂入 {@link com.scaffold.starter.push.PushService}

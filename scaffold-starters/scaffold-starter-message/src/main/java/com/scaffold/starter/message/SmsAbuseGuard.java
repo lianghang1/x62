@@ -1,6 +1,6 @@
 package com.scaffold.starter.message;
 
-import com.scaffold.core.util.IpUtils;
+import com.scaffold.common.util.IpUtils;
 import com.scaffold.starter.protection.abuse.AbuseGuard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

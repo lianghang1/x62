@@ -9,7 +9,7 @@
 ```
 scaffold/
 ├── scaffold-dependencies/    BOM：三方依赖版本唯一出口
-├── scaffold-core/            统一响应 R / PageResult / 错误码分段 / BizException / 工具类（hutool 底座 + JsonUtils/MaskUtils/BizAssert/IpUtils）
+├── scaffold-common/          公共地基（纯工具层，非 starter）：全局常量(traceId/指标名契约) / R / PageResult / 错误码分段 / BizException / 域工具类（excel/json/mask/ip）
 ├── scaffold-starters/        技术组件（全部可插拔，自动装配）
 │   ├── starter-web           traceId 全链路 / 全局异常 / 访问日志 / Jackson / CORS / knife4j
 │   ├── starter-data-jpa      雪花 ID / 审计基类 BaseEntity / 乐观锁 VersionedEntity / EncryptedStringConverter
@@ -19,7 +19,6 @@ scaffold/
 │   ├── starter-job           AbstractJob 继承体系 + 执行日志 + 分布式锁
 │   ├── starter-crypto        敏感字段加密：AES-256-GCM（默认）/ SM4 国密 + SM3 摘要
 │   ├── starter-powerjob      PowerJob 执行器适配（AbstractJob 零改动接入）
-│   ├── starter-excel         EasyExcel 导入导出
 │   ├── starter-storage       x-file-storage 封装（30+ 存储平台配置化切换）
 │   ├── starter-message       短信(sms4j 可选) + 邮件，业务只面向 NotificationService
 │   ├── starter-http          出站 HTTP 客户端（okhttp）：超时/幂等重试/traceId 透传/签名 SPI

@@ -2,8 +2,8 @@ package com.scaffold.module.system.biz.service;
 
 import com.scaffold.module.system.api.api.DictApi;
 import com.scaffold.module.system.api.dto.DictDataDTO;
-import com.scaffold.core.exception.BizException;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.BizException;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.module.system.biz.convert.DictConverter;
 import com.scaffold.module.system.biz.entity.SysDict;
 import com.scaffold.module.system.biz.repository.SysDictRepository;

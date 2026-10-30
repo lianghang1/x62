@@ -2,7 +2,7 @@ package com.scaffold.starter.test.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scaffold.core.result.R;
+import com.scaffold.common.result.R;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;

@@ -1,7 +1,7 @@
 package com.scaffold.starter.test;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.test.annotation.ScaffoldWebSlice;
 import com.scaffold.starter.test.client.ScaffoldMockMvc;
 import org.junit.jupiter.api.Test;

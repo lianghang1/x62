@@ -1,6 +1,6 @@
 package com.scaffold.starter.crypto;
 
-import com.scaffold.core.crypto.DataCipher;
+import com.scaffold.common.crypto.DataCipher;
 import org.bouncycastle.crypto.engines.SM4Engine;
 import org.bouncycastle.crypto.modes.CBCBlockCipher;
 import org.bouncycastle.crypto.paddings.PKCS7Padding;

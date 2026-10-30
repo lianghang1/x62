@@ -1,6 +1,6 @@
 package com.scaffold.starter.data.jpa.converter;
 
-import com.scaffold.core.crypto.DataCipherHolder;
+import com.scaffold.common.crypto.DataCipherHolder;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;

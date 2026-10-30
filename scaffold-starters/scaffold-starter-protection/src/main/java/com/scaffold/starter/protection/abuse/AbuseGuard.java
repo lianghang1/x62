@@ -29,7 +29,7 @@ public class AbuseGuard {
 
     private static final String KEY_PREFIX = "scaffold:abuse:";
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static final String REJECT_METRIC = "scaffold.protection.abuse.rejected";
+    private static final String REJECT_METRIC = com.scaffold.common.constant.MetricsNames.ABUSE_REJECTED;
 
     private final StringRedisTemplate redisTemplate;
     /** 可选指标注册表：null 表示本环境未启用可观测性 */

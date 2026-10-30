@@ -1,8 +1,8 @@
 package com.scaffold.server.demo.order;
 
-import com.scaffold.core.exception.BizException;
+import com.scaffold.common.exception.BizException;
 import com.scaffold.server.demo.order.entity.DemoOrder;
-import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.module.system.api.api.DictApi;
 import com.scaffold.starter.protection.idempotent.Idempotent;
 import com.scaffold.starter.protection.lock.DistributedLock;
