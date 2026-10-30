@@ -57,19 +57,29 @@ scaffold:
   powerjob:
     # PowerJob 适配器开关；启用前先看 README「接入 PowerJob」三步
     enabled: false
-
-liquibase:
-  # dev 用 H2 + ddl-auto；生产/信创 profile 覆盖为 true（changeset 见 db/changelog）
-  enabled: false
+  push:
+    # SSE 实时推送；多实例部署时置 multi-instance=true（Redis pub/sub 扇出）
+    enabled: true
+    heartbeat-seconds: 30
+    multi-instance: false
+  ws:
+    # WebSocket 双向通道默认关闭（SSE 覆盖大部分场景），需要双向通信时开启
+    enabled: false
+    path: /online/ws
+  http:
+    # 出站 HTTP 客户端（okhttp），业务面向 ScaffoldHttpClient
+    connect-timeout-ms: 5000
+    read-timeout-ms: 10000
+    retry-max-attempts: 2
+  cache:
+    type: two-level
+    l1-ttl-seconds: 60
+    l2-ttl-seconds: 3600
 
 # PowerJob worker 本体（官方 starter 默认启用，这里默认关闭；接入见 README 与 prod profile）
 powerjob:
   worker:
     enabled: false
-  cache:
-    type: two-level
-    l1-ttl-seconds: 60
-    l2-ttl-seconds: 3600
 
 knife4j:
   enable: true

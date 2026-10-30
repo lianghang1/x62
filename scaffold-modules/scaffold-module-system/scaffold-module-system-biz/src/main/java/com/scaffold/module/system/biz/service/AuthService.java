@@ -2,6 +2,7 @@ package com.scaffold.module.system.biz.service;
 
 import com.scaffold.core.exception.BizException;
 import com.scaffold.core.exception.GlobalErrorCode;
+import com.scaffold.core.util.IpUtils;
 import com.scaffold.module.system.biz.entity.LoginLog;
 import com.scaffold.module.system.biz.entity.MemberInfo;
 import com.scaffold.module.system.biz.entity.SysAccount;
@@ -169,12 +170,8 @@ public class AuthService {
         }
     }
 
-    /** 取真实 IP：优先 X-Forwarded-For 首段（经网关/代理），其次 remoteAddr；OperLogAspect 复用。 */
+    /** 取真实 IP：委托 core 的 IpUtils（XFF 首段 → X-Real-IP → remoteAddr），OperLogAspect 复用。 */
     public static String clientIp(HttpServletRequest request) {
-        String forwarded = request.getHeader("X-Forwarded-For");
-        if (forwarded != null && !forwarded.isEmpty()) {
-            return forwarded.split(",")[0].trim();
-        }
-        return request.getRemoteAddr();
+        return IpUtils.clientIp(request);
     }
 }

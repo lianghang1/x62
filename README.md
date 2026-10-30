@@ -9,7 +9,7 @@
 ```
 scaffold/
 ├── scaffold-dependencies/    BOM：三方依赖版本唯一出口
-├── scaffold-core/            统一响应 R / PageResult / 错误码分段 / BizException
+├── scaffold-core/            统一响应 R / PageResult / 错误码分段 / BizException / 工具类（hutool 底座 + JsonUtils/MaskUtils/BizAssert/IpUtils）
 ├── scaffold-starters/        技术组件（全部可插拔，自动装配）
 │   ├── starter-web           traceId 全链路 / 全局异常 / 访问日志 / Jackson / CORS / knife4j
 │   ├── starter-data-jpa      雪花 ID / 审计基类 BaseEntity / 乐观锁 VersionedEntity / EncryptedStringConverter
@@ -21,7 +21,10 @@ scaffold/
 │   ├── starter-powerjob      PowerJob 执行器适配（AbstractJob 零改动接入）
 │   ├── starter-excel         EasyExcel 导入导出
 │   ├── starter-storage       x-file-storage 封装（30+ 存储平台配置化切换）
-│   └── starter-message       短信(sms4j 可选) + 邮件，业务只面向 NotificationService
+│   ├── starter-message       短信(sms4j 可选) + 邮件，业务只面向 NotificationService
+│   ├── starter-http          出站 HTTP 客户端（okhttp）：超时/幂等重试/traceId 透传/签名 SPI
+│   ├── starter-push          SSE 实时推送：连接注册表 + 心跳 + Redis 多实例转发，认证复用统一账户
+│   └── starter-ws            WebSocket 双向通道（默认关闭）：握手复用 token 会话，与 SSE 同一推送体系
 ├── scaffold-modules/
 │   └── module-system         统一账户(sys_account: MEMBER/OPERATOR/APP) + RBAC + 字典 + 三方应用管理
 │                             （api/biz 分离：其他业务模块只依赖 system-api）
@@ -96,6 +99,44 @@ scaffold:
 3. PowerJob 控制台建任务：处理器全限定类名填
    `com.scaffold.starter.powerjob.PowerJobJobAdapter`，任务参数填 `{"jobName":"对账任务"}`
    （与 `@Job.name` 一致）。业务任务类零改动，同一份代码可在 simple/PowerJob 两种引擎间切换。
+
+## 出站 HTTP 客户端（starter-http）
+
+```java
+@Autowired private ScaffoldHttpClient http;
+
+// GET（幂等，网络类失败自动重试）、POST JSON（不重试，防重复下单）
+TransportResponse resp = http.get("https://api.third.com/pay/query");
+TransportResponse created = http.postJson("https://api.third.com/order", orderDto);
+```
+
+- 实现基于 okhttp；自定义 `HttpTransport` Bean 可整体替换；
+- 自动携带 `X-Trace-Id` 出站（跨系统排障）；错误分类 CONNECT/TIMEOUT/RETRYABLE_IO，收敛为 TransportException；
+- 对接三方签名：实现 `RequestSigner` 注册为 Bean 即全局生效（内置 HMAC 签名器参考 openapi 协议）；
+- 【规约】禁止在数据库事务内发起 HTTP 外呼——事务内等待三方会长时间占用连接池。
+
+## 实时推送（starter-push / starter-ws）
+
+**SSE（默认启用）**：前端连 `/online/subscribe`（Authorization 头带 token 会话），服务端一行推送：
+
+```java
+@Autowired private PushService push;
+
+push.pushToUser(accountId, "order.paid", Map.of("orderId", "D1"));  // 定向
+push.broadcast("notice", "系统维护通知");                             // 广播
+```
+
+- 心跳 `hb` 事件每 30s（`scaffold.push.heartbeat-seconds`），防代理掐断空闲连接；
+- 多实例部署：`scaffold.push.multi-instance: true`（Redis pub/sub 扇出，各节点本机投递）；
+- 断连自动清理；推送是「实时加速」，必达消息请以落库 + 轮询/补偿为准。
+
+**WebSocket（默认关闭，需要双向通信时开启）**：
+
+```yaml
+scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushService
+```
+
+上下行协议统一为 `PushMessage` JSON；业务收上行实现 `WsMessageListener`，发下行仍走 `PushService`——两通道并列，业务代码零改动。
 
 ## Liquibase 建表（生产/信创）
 

@@ -27,5 +27,8 @@
         <module>scaffold-starter-storage</module>
         <module>scaffold-starter-message</module>
         <module>scaffold-starter-powerjob</module>
+        <module>scaffold-starter-http</module>
+        <module>scaffold-starter-push</module>
+        <module>scaffold-starter-ws</module>
     </modules>
 </project>

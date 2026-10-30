@@ -99,6 +99,24 @@
                 <artifactId>scaffold-starter-powerjob</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-http</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-push</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-ws</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.scaffold</groupId>
                 <artifactId>scaffold-module-system-api</artifactId>

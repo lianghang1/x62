@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.scaffold.core.util.MaskUtils;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -19,8 +20,6 @@ import java.util.Objects;
  * @author lianghang
  */
 public class DesensitizeSerializer extends JsonSerializer<String> implements ContextualSerializer {
-
-    private static final String MASK = "****";
 
     private DesensitizeType type;
     private int prefixKeep;
@@ -46,29 +45,18 @@ public class DesensitizeSerializer extends JsonSerializer<String> implements Con
         }
         switch (type) {
             case PHONE:
-                return value.length() <= 7 ? MASK
-                        : value.substring(0, 3) + MASK + value.substring(value.length() - 4);
-            case EMAIL: {
-                int at = value.indexOf('@');
-                return at <= 0 ? MASK
-                        : value.charAt(0) + MASK + value.substring(at);
-            }
+                return MaskUtils.phone(value);
+            case EMAIL:
+                return MaskUtils.email(value);
             case ID_CARD:
-                return value.length() <= 10 ? MASK
-                        : value.substring(0, 6) + MASK + value.substring(value.length() - 4);
+                return MaskUtils.idCard(value);
             case BANK_CARD:
-                return value.length() <= 8 ? MASK
-                        : value.substring(0, 4) + MASK + value.substring(value.length() - 4);
+                return MaskUtils.bankCard(value);
             case NAME:
-                return value.length() == 1 ? MASK
-                        : value.charAt(0) + MASK;
+                return MaskUtils.name(value);
             case CUSTOM:
-            default: {
-                int prefix = Math.min(prefixKeep, value.length());
-                int suffix = value.length() - prefix >= suffixKeep ? suffixKeep : 0;
-                return value.substring(0, prefix) + MASK
-                        + (suffix > 0 ? value.substring(value.length() - suffix) : "");
-            }
+            default:
+                return MaskUtils.custom(value, prefixKeep, suffixKeep);
         }
     }
 

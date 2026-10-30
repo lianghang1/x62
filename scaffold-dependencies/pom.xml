@@ -17,6 +17,8 @@
         <ttl.version>2.14.5</ttl.version>
         <bcprov.version>1.78.1</bcprov.version>
         <powerjob.version>4.3.9</powerjob.version>
+        <hutool.version>5.8.36</hutool.version>
+        <okhttp.version>4.12.0</okhttp.version>
     </properties>
 
     <dependencyManagement>
@@ -56,6 +58,25 @@
                 <groupId>tech.powerjob</groupId>
                 <artifactId>powerjob-worker-spring-boot-starter</artifactId>
                 <version>${powerjob.version}</version>
+            </dependency>
+
+            <!-- Hutool：工具类底座，随 scaffold-core 传递到全工程 -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- OkHttp：starter-http 默认传输实现（4.x 支持 JDK8） -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>mockwebserver</artifactId>
+                <version>${okhttp.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

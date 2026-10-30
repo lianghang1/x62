@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.scaffold</groupId>
+        <artifactId>scaffold-starters</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scaffold-starter-push</artifactId>
+    <packaging>jar</packaging>
+    <name>scaffold-starter-push</name>
+    <description>服务端实时推送：SSE 连接注册表 + PushChannel 扩展点 + Redis 多实例转发，认证复用统一账户会话</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-core</artifactId>
+        </dependency>
+        <!-- LoginContext / 统一账户身份 -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <!-- 多实例转发：Redis pub/sub -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -49,6 +50,7 @@ public class JobAutoConfiguration {
     }
 
     @Bean
+    @Primary
     @ConditionalOnMissingBean(TaskScheduler.class)
     public TaskScheduler jobTaskScheduler(JobProperties properties) {
         return JobRegistrar.initScheduler(properties.getPoolSize());
