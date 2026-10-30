@@ -22,8 +22,8 @@ import java.time.Duration;
  */
 public class LoginFailureGuard {
 
-    private static final String KEY_PREFIX = "scaffold:security:login:fail:";
-    private static final String IP_KEY_PREFIX = "scaffold:security:login:ip:";
+    private static final String KEY_PREFIX = com.scaffold.common.constant.RedisKeys.SECURITY_LOGIN_FAIL;
+    private static final String IP_KEY_PREFIX = com.scaffold.common.constant.RedisKeys.SECURITY_LOGIN_IP;
     private static final String FAIL_METRIC = com.scaffold.common.constant.MetricsNames.LOGIN_FAILURES;
 
     private final StringRedisTemplate redisTemplate;

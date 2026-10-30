@@ -51,7 +51,7 @@ public class IdempotentAspect {
         String argsDigest = md5(Arrays.stream(joinPoint.getArgs())
                 .map(a -> a == null ? "null" : String.valueOf(a.hashCode()))
                 .collect(Collectors.joining("|")));
-        String key = "scaffold:idempotent:" + request.getMethod() + ":"
+        String key = com.scaffold.common.constant.RedisKeys.IDEMPOTENT + request.getMethod() + ":"
                 + request.getRequestURI() + ":" + identity + ":" + argsDigest;
 
         Boolean first = redisTemplate.opsForValue()

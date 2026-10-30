@@ -27,7 +27,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class AbuseGuard {
 
-    private static final String KEY_PREFIX = "scaffold:abuse:";
+    private static final String KEY_PREFIX = com.scaffold.common.constant.RedisKeys.ABUSE;
     private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("yyyyMMdd");
     private static final String REJECT_METRIC = com.scaffold.common.constant.MetricsNames.ABUSE_REJECTED;
 

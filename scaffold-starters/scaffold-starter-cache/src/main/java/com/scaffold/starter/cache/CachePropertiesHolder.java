@@ -27,7 +27,7 @@ public class CachePropertiesHolder {
     private long l2TtlSeconds = 3600;
 
     /** Redis key 前缀。 */
-    private String keyPrefix = "scaffold:cache:";
+    private String keyPrefix = com.scaffold.common.constant.RedisKeys.CACHE;
 
     public String getType() {
         return type;

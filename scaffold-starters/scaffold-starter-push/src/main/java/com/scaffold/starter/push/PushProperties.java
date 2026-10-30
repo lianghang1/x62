@@ -20,7 +20,7 @@ public class PushProperties {
     private boolean multiInstance = false;
 
     /** Redis 转发频道名（多实例时各节点订阅同一频道） */
-    private String relayTopic = "scaffold:push:relay";
+    private String relayTopic = com.scaffold.common.constant.RedisKeys.PUSH_RELAY;
 
     /** SSE emitter 超时（毫秒；0 表示永不超时，存活靠心跳） */
     private long sseTimeoutMs = 0L;

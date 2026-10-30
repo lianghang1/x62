@@ -32,7 +32,7 @@ public class RedisLockUtil {
      * 尝试加锁；成功返回持有值（解锁时传入），失败返回 null。
      */
     public String tryLock(String key, long waitMillis, int leaseSeconds) {
-        String fullKey = "scaffold:lock:" + key;
+        String fullKey = com.scaffold.common.constant.RedisKeys.LOCK + key;
         String holder = UUID.randomUUID().toString();
         long deadline = System.currentTimeMillis() + waitMillis;
         do {
@@ -58,7 +58,7 @@ public class RedisLockUtil {
         if (holder == null) {
             return;
         }
-        List<String> keys = Arrays.asList("scaffold:lock:" + key);
+        List<String> keys = Arrays.asList(com.scaffold.common.constant.RedisKeys.LOCK + key);
         redisTemplate.execute(UNLOCK_SCRIPT, keys, holder);
     }
 }

@@ -40,7 +40,7 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
     public static final String HEADER_NONCE = "X-Nonce";
     public static final String HEADER_SIGN = "X-Sign";
 
-    private static final String NONCE_KEY = "scaffold:openapi:nonce:";
+    private static final String NONCE_KEY = com.scaffold.common.constant.RedisKeys.OPENAPI_NONCE;
 
     private final AppSecretProvider appSecretProvider;
     private final SecurityProperties properties;

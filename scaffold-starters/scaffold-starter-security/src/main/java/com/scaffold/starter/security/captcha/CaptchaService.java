@@ -28,7 +28,7 @@ import java.util.UUID;
  */
 public class CaptchaService {
 
-    private static final String KEY_PREFIX = "scaffold:security:captcha:";
+    private static final String KEY_PREFIX = com.scaffold.common.constant.RedisKeys.SECURITY_CAPTCHA;
 
     /** 无状态算式求值器（hutool 实现：解析四则运算并与用户输入比对） */
     private static final MathGenerator MATH = new MathGenerator();

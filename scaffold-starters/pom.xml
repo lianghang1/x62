@@ -21,6 +21,7 @@
         <module>scaffold-starter-security</module>
         <module>scaffold-starter-cache</module>
         <module>scaffold-starter-protection</module>
+        <module>scaffold-starter-redis</module>
         <module>scaffold-starter-job</module>
         <module>scaffold-starter-crypto</module>
         <module>scaffold-starter-storage</module>

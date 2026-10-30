@@ -50,7 +50,7 @@ public class RateLimitAspect {
         if (dimensionValue == null) {
             return; // 无法确定维度（如无请求上下文）时放行，避免误伤内部调用
         }
-        String key = "scaffold:ratelimit:" + rateLimit.dimension() + ":"
+        String key = com.scaffold.common.constant.RedisKeys.RATE_LIMIT + rateLimit.dimension() + ":"
                 + (rateLimit.key().isEmpty() ? "" : rateLimit.key() + ":") + dimensionValue;
         List<String> keys = Arrays.asList(key);
         Long count = redisTemplate.execute(SCRIPT, keys, String.valueOf(rateLimit.windowSeconds()));

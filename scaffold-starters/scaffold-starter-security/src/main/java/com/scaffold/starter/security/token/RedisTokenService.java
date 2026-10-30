@@ -24,8 +24,8 @@ public class RedisTokenService implements TokenService {
 
     private static final Logger log = LoggerFactory.getLogger(RedisTokenService.class);
 
-    private static final String TOKEN_KEY = "scaffold:auth:token:";
-    private static final String ACCOUNT_KEY = "scaffold:auth:account:";
+    private static final String TOKEN_KEY = com.scaffold.common.constant.RedisKeys.AUTH_TOKEN;
+    private static final String ACCOUNT_KEY = com.scaffold.common.constant.RedisKeys.AUTH_ACCOUNT;
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
