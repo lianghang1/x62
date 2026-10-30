@@ -17,6 +17,7 @@
         <module>scaffold-starters</module>
         <module>scaffold-modules</module>
         <module>scaffold-server</module>
+        <module>scaffold-server-lite</module>
     </modules>
 
     <properties>

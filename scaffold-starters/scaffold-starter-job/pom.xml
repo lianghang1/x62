@@ -24,9 +24,11 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-protection</artifactId>
         </dependency>
+        <!-- 执行日志落库为可选能力：无数据库场景（server-lite）下经条件装配整体退化 -->
         <dependency>
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-data-jpa</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

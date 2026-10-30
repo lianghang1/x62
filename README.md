@@ -28,8 +28,22 @@ scaffold/
 ├── scaffold-modules/
 │   └── module-system         统一账户(sys_account: MEMBER/OPERATOR/APP) + RBAC + 字典 + 三方应用管理
 │                             （api/biz 分离：其他业务模块只依赖 system-api）
-└── scaffold-server           启动模块 + 三入口订单 demo
+├── scaffold-server           完整版启动模块 + 三入口订单 demo
+└── scaffold-server-lite      轻量版：单机零依赖（无 DB/无 Redis），本地跑任务与轻量接口
 ```
+
+## 受支持装配（两个发行版）
+
+| | scaffold-server（完整版） | scaffold-server-lite（轻量版） |
+|---|---|---|
+| 场景 | 全功能业务系统 | 单机跑任务 / 轻量接口 / 边缘节点 |
+| 外部依赖 | H2(dev)/MySQL + Redis | **零**（连 H2 都不用） |
+| 任务 | @Job 调度 + job_run_log 落库 + Redis 分布式锁 | @Job 调度，日志走应用日志，无锁 |
+| 账户/安全/缓存/推送/防刷 | 全量 | 无（security/cache 等不在类路径） |
+| 启动 | `java -jar scaffold-server.jar` | `java -jar scaffold-server-lite.jar`（秒级启动） |
+
+> 架构不变量：**每个 starter 必须可脱离全家桶独立使用**——lite 就是这条不变量的验收装配。
+> lite 下限流/幂等/锁注解静默不生效（protection 条件装配跳过），对外接口请自行鉴权。
 
 ## 快速启动（dev 零依赖：H2 内存库）
 

@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+scaffold:
+  job:
+    # simple 引擎：@Job 注解扫描注册；接入 PowerJob 时改为 none 并引入 starter-powerjob
+    engine: simple
+    pool-size: 2
+
+logging:
+  level:
+    com.scaffold: info

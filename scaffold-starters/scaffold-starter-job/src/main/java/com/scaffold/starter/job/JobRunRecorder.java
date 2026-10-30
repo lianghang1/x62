@@ -1,34 +1,30 @@
 package com.scaffold.starter.job;
 
 import com.scaffold.starter.protection.lock.RedisLockUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
- * 执行日志记录器：基类通过 ThreadLocal 感知当前运行环境（仓库/锁工具），
- * 纯单元测试场景（无 Spring）自动退化为无日志模式，业务子类无感知。
+ * 任务运行环境的线程级载体：基类通过 ThreadLocal 感知当前日志出口与锁工具。
+ *
+ * <p>本类不触碰任何 JPA 类型（落库细节在 {@link JobRunLogSink} 实现里），
+ * 无数据库、无 Redis 场景（单机零依赖运行）下各依赖为 null，
+ * 自动退化为「不落日志、不加锁放行」的单机语义，业务子类无感知。</p>
+ *
+ * @author lianghang
  */
 public final class JobRunRecorder {
 
-    private static final Logger log = LoggerFactory.getLogger(JobRunRecorder.class);
-
     private static final ThreadLocal<JobRunRecorder> CURRENT = new ThreadLocal<>();
 
-    private final JobRunLogRepository repository;
+    private final JobRunLogSink sink;
     private final RedisLockUtil lockUtil;
-    private final TransactionTemplate transactionTemplate;
 
-    private JobRunRecorder(JobRunLogRepository repository, RedisLockUtil lockUtil,
-                           TransactionTemplate transactionTemplate) {
-        this.repository = repository;
+    private JobRunRecorder(JobRunLogSink sink, RedisLockUtil lockUtil) {
+        this.sink = sink;
         this.lockUtil = lockUtil;
-        this.transactionTemplate = transactionTemplate;
     }
 
-    public static void install(JobRunLogRepository repository, RedisLockUtil lockUtil,
-                               TransactionTemplate transactionTemplate) {
-        CURRENT.set(new JobRunRecorder(repository, lockUtil, transactionTemplate));
+    public static void install(JobRunLogSink sink, RedisLockUtil lockUtil) {
+        CURRENT.set(new JobRunRecorder(sink, lockUtil));
     }
 
     static JobRunRecorder current() {
@@ -39,8 +35,18 @@ public final class JobRunRecorder {
         CURRENT.remove();
     }
 
+    /**
+     * 尝试获取分布式锁。
+     *
+     * <p>返回持锁者标识，null 表示其他节点持有中（调用方跳过本次执行）；
+     * 无 Redis 时为单机语义直接放行，返回伪持锁者 {@code local}，
+     * 避免与「获取锁失败」混淆导致任务永远不执行。</p>
+     */
     String tryLock(String key, long waitMillis, int leaseSeconds) {
-        return lockUtil == null ? null : lockUtil.tryLock(key, waitMillis, leaseSeconds);
+        if (lockUtil == null) {
+            return "local";
+        }
+        return lockUtil.tryLock(key, waitMillis, leaseSeconds);
     }
 
     void unlock(String key, String holder) {
@@ -50,50 +56,21 @@ public final class JobRunRecorder {
     }
 
     Long begin(String jobName) {
-        if (repository == null) {
+        if (sink == null) {
             return null;
         }
-        try {
-            JobRunLog runLog = new JobRunLog();
-            runLog.setJobName(jobName);
-            runLog.setStartTime(java.time.LocalDateTime.now());
-            runLog.setStatus("RUNNING");
-            return repository.save(runLog).getId();
-        } catch (Exception e) {
-            log.warn("[job] 执行日志写入失败（不影响任务执行）: {}", e.getMessage());
-            return null;
-        }
+        return sink.begin(jobName);
     }
 
     void success(Long runLogId, long costMillis) {
-        finish(runLogId, "SUCCESS", costMillis, null);
+        if (sink != null) {
+            sink.finish(runLogId, "SUCCESS", costMillis, null);
+        }
     }
 
     void fail(Long runLogId, long costMillis, Exception error) {
-        finish(runLogId, "FAIL", costMillis, error);
-    }
-
-    private void finish(Long runLogId, String status, long costMillis, Exception error) {
-        if (runLogId == null || repository == null) {
-            return;
-        }
-        try {
-            transactionTemplate.executeWithoutResult(txStatus -> {
-                JobRunLog runLog = repository.findById(runLogId).orElse(null);
-                if (runLog == null) {
-                    return;
-                }
-                runLog.setEndTime(java.time.LocalDateTime.now());
-                runLog.setCostMillis(costMillis);
-                runLog.setStatus(status);
-                if (error != null) {
-                    String message = error.toString();
-                    runLog.setErrorMessage(message.length() > 2000 ? message.substring(0, 2000) : message);
-                }
-                repository.save(runLog);
-            });
-        } catch (Exception e) {
-            log.warn("[job] 执行日志收尾失败（不影响任务执行）: {}", e.getMessage());
+        if (sink != null) {
+            sink.finish(runLogId, "FAIL", costMillis, error);
         }
     }
 }

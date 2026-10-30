@@ -1,7 +1,7 @@
 package com.scaffold.starter.job.config;
 
 import com.scaffold.starter.job.AbstractJob;
-import com.scaffold.starter.job.JobRunLogRepository;
+import com.scaffold.starter.job.JobRunLogSink;
 import com.scaffold.starter.job.JobRunRecorder;
 import com.scaffold.starter.protection.lock.RedisLockUtil;
 import org.slf4j.Logger;
@@ -12,8 +12,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
-import org.springframework.transaction.support.TransactionTemplate;
-
 import java.time.Duration;
 import java.util.Map;
 
@@ -31,24 +29,21 @@ public class JobRegistrar implements SmartInitializingSingleton {
     private final ApplicationContext applicationContext;
     private final Environment environment;
     private final TaskScheduler taskScheduler;
-    private final JobRunLogRepository runLogRepository;
+    private final JobRunLogSink runLogSink;
     private final RedisLockUtil lockUtil;
-    private final TransactionTemplate transactionTemplate;
 
     public JobRegistrar(ApplicationContext applicationContext, Environment environment,
-                        TaskScheduler taskScheduler, JobRunLogRepository runLogRepository,
-                        RedisLockUtil lockUtil, TransactionTemplate transactionTemplate) {
+                        TaskScheduler taskScheduler, JobRunLogSink runLogSink,
+                        RedisLockUtil lockUtil) {
         this.applicationContext = applicationContext;
         this.environment = environment;
         this.taskScheduler = taskScheduler;
-        this.runLogRepository = runLogRepository;
+        this.runLogSink = runLogSink;
         this.lockUtil = lockUtil;
-        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
-        JobRunRecorder.install(runLogRepository, lockUtil, transactionTemplate);
         Map<String, AbstractJob> jobs = applicationContext.getBeansOfType(AbstractJob.class);
         for (AbstractJob job : jobs.values()) {
             try {
@@ -61,13 +56,28 @@ public class JobRegistrar implements SmartInitializingSingleton {
                     log.info("[job] {} 已下线（enabled=false）", metadata.jobName);
                     continue;
                 }
-                taskScheduler.schedule(job::run, new CronTrigger(cron));
+                taskScheduler.schedule(() -> executeWithRecorder(job), new CronTrigger(cron));
                 log.info("[job] 注册任务: {} cron={}", metadata.jobName, cron);
             } catch (Exception e) {
                 log.error("[job] 注册失败: {}", job.getClass().getName(), e);
             }
         }
         log.info("[job] 任务注册完成，共 {} 个", jobs.size());
+    }
+
+    /**
+     * 在任务执行线程上安装/卸载运行环境（Recorder 为 ThreadLocal 语义）。
+     *
+     * <p>安装必须发生在执行线程：调度发生在 scheduler 线程池，
+     * 若在主线程 install，执行线程里 current() 恒为 null，锁与执行日志全部失效。</p>
+     */
+    private void executeWithRecorder(AbstractJob job) {
+        JobRunRecorder.install(runLogSink, lockUtil);
+        try {
+            job.run();
+        } finally {
+            JobRunRecorder.uninstall();
+        }
     }
 
     /** 显式线程池：默认 4 线程，任务多时经 scaffold.job.pool-size 调整 */

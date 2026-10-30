@@ -1,8 +1,11 @@
 package com.scaffold.starter.job.config;
 
+import com.scaffold.starter.job.JpaJobRunLogSink;
 import com.scaffold.starter.job.JobRunLogRepository;
+import com.scaffold.starter.job.JobRunLogSink;
 import com.scaffold.starter.protection.lock.RedisLockUtil;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -59,15 +62,32 @@ public class JobAutoConfiguration {
     @Bean
     public JobRegistrar jobRegistrar(ApplicationContext applicationContext, Environment environment,
                                      TaskScheduler taskScheduler, JobProperties properties,
-                                     ObjectProvider<JobRunLogRepository> runLogRepository,
-                                     ObjectProvider<RedisLockUtil> lockUtil,
-                                     ObjectProvider<TransactionTemplate> transactionTemplate) {
+                                     ObjectProvider<JobRunLogSink> runLogSink,
+                                     ObjectProvider<RedisLockUtil> lockUtil) {
         if ("none".equalsIgnoreCase(properties.getEngine())) {
             // 外部调度平台接管：不注册，但仍安装 Recorder 供执行日志使用
             return null;
         }
         return new JobRegistrar(applicationContext, environment, taskScheduler,
-                runLogRepository.getIfAvailable(), lockUtil.getIfAvailable(),
-                transactionTemplate.getIfAvailable());
+                runLogSink.getIfAvailable(), lockUtil.getIfAvailable());
+    }
+
+    /**
+     * 执行日志的 JPA 落库装配，仅在类路径存在 JPA 时生效。
+     *
+     * <p>无数据库场景（如 server-lite 单机零依赖运行）下本嵌套装配整体跳过，
+     * JPA 相关类型不加载，调度链路退化为纯应用日志。</p>
+     */
+    @Configuration
+    @ConditionalOnClass(name = "javax.persistence.EntityManager")
+    public static class JpaRunLogConfiguration {
+
+        @Bean
+        @ConditionalOnMissingBean(JobRunLogSink.class)
+        public JobRunLogSink jobRunLogSink(ObjectProvider<JobRunLogRepository> runLogRepository,
+                                           ObjectProvider<TransactionTemplate> transactionTemplate) {
+            return new JpaJobRunLogSink(runLogRepository.getIfAvailable(),
+                    transactionTemplate.getIfAvailable());
+        }
     }
 }
