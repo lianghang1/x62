@@ -189,7 +189,7 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
 | 登录日志 | 每次登录（成功/失败）自动落 `sys_login_log`（IP/UA/失败原因） | module-system，AuthService |
 | 失败锁定 | 同账号连续失败 5 次锁 15 分钟（Redis 计数），`scaffold.security.password-policy` 可调 | starter-security |
 | IP 防撞库 | 同 IP 窗口内登录失败达上限拒绝该 IP 登录，`scaffold.security.ip-guard` 可调 | starter-security |
-| 图形验证码 | internal 登录防机器撞库：`scaffold.security.captcha.mode: off/always/after_fail`（默认连续失败 3 次后强制），`GET /internal/auth/captcha` 生成 | starter-security |
+| 计算型验证码 | internal 登录防机器撞库：算式 GIF（如 3+5=?），Redis 存算式、校验时求值比对，OCR 无法直读答案；`scaffold.security.captcha.mode: off/always/after_fail`（默认连续失败 3 次后强制），`GET /internal/auth/captcha` 生成 | starter-security |
 | 短信防刷 | 发送前置四道闸：手机号 60s 间隔 / 手机号日限 10 / IP 日限 50 / 全局日配额 1000，`scaffold.message.sms-guard` 可调 | starter-message，SmsAbuseGuard |
 | 防刷闸门 | 业务动作防刷（领券/投票等）：注入 `AbuseGuard` 调 `checkInterval/checkWindow/checkDaily`，超限抛 429 | starter-protection |
 | 密码强度 | 创建账号/改密时调 `PasswordPolicyValidator.validate(raw)` | starter-security |

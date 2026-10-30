@@ -20,6 +20,11 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-common</artifactId>
         </dependency>
+        <!-- 计算型验证码：仅引 hutool 单模块（版本走 scaffold-dependencies），不用 hutool-all -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-captcha</artifactId>
+        </dependency>
         <!-- 可选埋点：observability 在场时上报登录失败指标，缺席时静默 -->
         <dependency>
             <groupId>io.micrometer</groupId>

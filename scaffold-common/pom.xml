@@ -21,11 +21,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <!-- Hutool：工具类底座（StrUtil/CollUtil/DateUtil/IdUtil 等），全工程传递可用 -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-        </dependency>
         <!-- JsonUtils：Jackson 静态封装（与 web 层序列化行为一致） -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

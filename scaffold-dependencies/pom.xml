@@ -62,10 +62,10 @@
                 <version>${powerjob.version}</version>
             </dependency>
 
-            <!-- Hutool：工具类底座，随 scaffold-common 传递到全工程 -->
+            <!-- Hutool：按需引用单个模块（规约：禁止 hutool-all 全量传递），当前仅 starter-security 的验证码使用 -->
             <dependency>
                 <groupId>cn.hutool</groupId>
-                <artifactId>hutool-all</artifactId>
+                <artifactId>hutool-captcha</artifactId>
                 <version>${hutool.version}</version>
             </dependency>
 

@@ -74,13 +74,25 @@ class CaptchaServiceTest {
     @Test
     void verifyIsOneTimeConsume() {
         CaptchaService service = newService("always");
-        // Redis 中存有答案 abcd
-        when(valueOps.get("scaffold:security:captcha:id1")).thenReturn("abcd");
+        // Redis 中存的是算式本身
+        when(valueOps.get("scaffold:security:captcha:id1")).thenReturn("3+5");
 
-        assertTrue(service.verifyAndConsume("id1", "ABCD"));
+        assertTrue(service.verifyAndConsume("id1", "8"));
         // 一次性：第二次即使 Redis 仍有值也不该有（此处模拟已删除）
         when(valueOps.get("scaffold:security:captcha:id1")).thenReturn(null);
-        assertFalse(service.verifyAndConsume("id1", "abcd"));
+        assertFalse(service.verifyAndConsume("id1", "8"));
+    }
+
+    @Test
+    void nonNumericInputRejected() {
+        CaptchaService service = newService("always");
+        when(valueOps.get("scaffold:security:captcha:id2")).thenReturn("12+34");
+
+        // 非数字输入（OCR 识别出的字符）一律拒绝——计算型的核心价值
+        assertFalse(service.verifyAndConsume("id2", "abcd"));
+        assertFalse(service.verifyAndConsume("id2", "46x"));
+        // 错误答案拒绝
+        assertFalse(service.verifyAndConsume("id2", "45"));
     }
 
     @Test
