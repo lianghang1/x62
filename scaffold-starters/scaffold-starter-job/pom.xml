@@ -47,5 +47,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- 可选埋点：observability 在场时上报执行指标，缺席时静默（ObjectProvider 判空） -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>

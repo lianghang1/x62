@@ -1,6 +1,7 @@
 package com.scaffold.starter.security.policy;
 
 import com.scaffold.starter.security.config.SecurityProperties;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.Duration;
@@ -14,28 +15,42 @@ import java.time.Duration;
  * （防单 IP 遍历撞库），窗口到期自动解除。IP 计数只在 {@code ipGuard.enabled}
  * 时生效。</p>
  *
+ * <p>可观测性：每次失败上报 {@code scaffold.security.login.failures} 计数
+ * （dimension=account/ip），registry 缺席时静默。</p>
+ *
  * @author lianghang
  */
 public class LoginFailureGuard {
 
     private static final String KEY_PREFIX = "scaffold:security:login:fail:";
     private static final String IP_KEY_PREFIX = "scaffold:security:login:ip:";
+    private static final String FAIL_METRIC = "scaffold.security.login.failures";
 
     private final StringRedisTemplate redisTemplate;
     private final SecurityProperties.PasswordPolicy policy;
     private final SecurityProperties.IpGuard ipGuard;
+    /** 可选指标注册表：null 表示本环境未启用可观测性 */
+    private final MeterRegistry meterRegistry;
 
     public LoginFailureGuard(StringRedisTemplate redisTemplate,
                              SecurityProperties.PasswordPolicy policy) {
-        this(redisTemplate, policy, null);
+        this(redisTemplate, policy, null, null);
     }
 
     public LoginFailureGuard(StringRedisTemplate redisTemplate,
                              SecurityProperties.PasswordPolicy policy,
                              SecurityProperties.IpGuard ipGuard) {
+        this(redisTemplate, policy, ipGuard, null);
+    }
+
+    public LoginFailureGuard(StringRedisTemplate redisTemplate,
+                             SecurityProperties.PasswordPolicy policy,
+                             SecurityProperties.IpGuard ipGuard,
+                             MeterRegistry meterRegistry) {
         this.redisTemplate = redisTemplate;
         this.policy = policy;
         this.ipGuard = ipGuard != null ? ipGuard : new SecurityProperties.IpGuard();
+        this.meterRegistry = meterRegistry;
     }
 
     /** 账号是否已被临时锁定 */
@@ -56,6 +71,7 @@ public class LoginFailureGuard {
         if (count != null && count == 1L) {
             redisTemplate.expire(key(accountNo), Duration.ofSeconds(policy.getLockSeconds()));
         }
+        recordMetric("account");
         return count == null ? 0 : count.intValue();
     }
 
@@ -82,7 +98,15 @@ public class LoginFailureGuard {
         if (count != null && count == 1L) {
             redisTemplate.expire(ipKey(ip), Duration.ofSeconds(ipGuard.getWindowSeconds()));
         }
+        recordMetric("ip");
         return count == null ? 0 : count;
+    }
+
+    /** 登录失败指标上报：registry 缺席时静默。 */
+    private void recordMetric(String dimension) {
+        if (meterRegistry != null) {
+            meterRegistry.counter(FAIL_METRIC, "dimension", dimension).increment();
+        }
     }
 
     private String key(String accountNo) {

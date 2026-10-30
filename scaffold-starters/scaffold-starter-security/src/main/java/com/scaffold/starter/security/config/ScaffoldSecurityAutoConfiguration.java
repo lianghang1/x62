@@ -63,9 +63,11 @@ public class ScaffoldSecurityAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(com.scaffold.starter.security.policy.LoginFailureGuard.class)
     public com.scaffold.starter.security.policy.LoginFailureGuard loginFailureGuard(
-            StringRedisTemplate redisTemplate, SecurityProperties properties) {
+            StringRedisTemplate redisTemplate, SecurityProperties properties,
+            org.springframework.beans.factory.ObjectProvider<io.micrometer.core.instrument.MeterRegistry> meterRegistry) {
         return new com.scaffold.starter.security.policy.LoginFailureGuard(
-                redisTemplate, properties.getPasswordPolicy(), properties.getIpGuard());
+                redisTemplate, properties.getPasswordPolicy(), properties.getIpGuard(),
+                meterRegistry.getIfAvailable());
     }
 
     /** 图形验证码（Hutool + Redis 一次性），internal 登录防机器撞库 */

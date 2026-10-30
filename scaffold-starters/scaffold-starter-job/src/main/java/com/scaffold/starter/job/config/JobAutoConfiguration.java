@@ -65,14 +65,15 @@ public class JobAutoConfiguration {
                                      TaskScheduler taskScheduler, JobProperties properties,
                                      ObjectProvider<JobRunLogSink> runLogSink,
                                      ObjectProvider<RedisLockUtil> lockUtil,
-                                     ObjectProvider<JobConfigProvider> configProvider) {
+                                     ObjectProvider<JobConfigProvider> configProvider,
+                                     ObjectProvider<io.micrometer.core.instrument.MeterRegistry> meterRegistry) {
         if ("none".equalsIgnoreCase(properties.getEngine())) {
             // 外部调度平台接管：不注册，运行时管理走平台自带控制台
             return null;
         }
         return new JobRegistrar(applicationContext, environment, taskScheduler,
                 runLogSink.getIfAvailable(), lockUtil.getIfAvailable(),
-                configProvider.getIfAvailable());
+                configProvider.getIfAvailable(), meterRegistry.getIfAvailable());
     }
 
     /**

@@ -1,0 +1,5 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.scaffold.starter.observability.config.ObservabilityAutoConfiguration
+
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.scaffold.starter.observability.config.ObservabilityEnvironmentPostProcessor

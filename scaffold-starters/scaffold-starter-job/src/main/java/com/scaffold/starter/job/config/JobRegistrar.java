@@ -5,6 +5,8 @@ import com.scaffold.starter.job.JobConfigProvider;
 import com.scaffold.starter.job.JobRunLogSink;
 import com.scaffold.starter.job.JobRunRecorder;
 import com.scaffold.starter.protection.lock.RedisLockUtil;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -20,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 任务注册器（极简引擎）：扫描 AbstractJob Bean 注册到显式线程池，
@@ -43,6 +46,8 @@ public class JobRegistrar implements SmartInitializingSingleton {
     private final JobRunLogSink runLogSink;
     private final RedisLockUtil lockUtil;
     private final JobConfigProvider configProvider;
+    /** 指标注册表（optional：observability 不在场时为 null，埋点静默） */
+    private final MeterRegistry meterRegistry;
 
     /** 运行中任务的调度句柄（jobKey → future），运行时刷新按 key 取消重排 */
     private final Map<String, ScheduledFuture<?>> scheduled = new ConcurrentHashMap<>();
@@ -52,12 +57,20 @@ public class JobRegistrar implements SmartInitializingSingleton {
     public JobRegistrar(ApplicationContext applicationContext, Environment environment,
                         TaskScheduler taskScheduler, JobRunLogSink runLogSink,
                         RedisLockUtil lockUtil, JobConfigProvider configProvider) {
+        this(applicationContext, environment, taskScheduler, runLogSink, lockUtil, configProvider, null);
+    }
+
+    public JobRegistrar(ApplicationContext applicationContext, Environment environment,
+                        TaskScheduler taskScheduler, JobRunLogSink runLogSink,
+                        RedisLockUtil lockUtil, JobConfigProvider configProvider,
+                        MeterRegistry meterRegistry) {
         this.applicationContext = applicationContext;
         this.environment = environment;
         this.taskScheduler = taskScheduler;
         this.runLogSink = runLogSink;
         this.lockUtil = lockUtil;
         this.configProvider = configProvider;
+        this.meterRegistry = meterRegistry;
     }
 
     @Override
@@ -149,11 +162,27 @@ public class JobRegistrar implements SmartInitializingSingleton {
      */
     private void executeWithRecorder(AbstractJob job) {
         JobRunRecorder.install(runLogSink, lockUtil);
+        long start = System.currentTimeMillis();
         try {
             job.run();
+            recordMetrics(job, "success", System.currentTimeMillis() - start);
+        } catch (RuntimeException e) {
+            recordMetrics(job, "fail", System.currentTimeMillis() - start);
+            throw e;
         } finally {
             JobRunRecorder.uninstall();
         }
+    }
+
+    /** 执行指标：scaffold.job.executions（outcome 维度）+ scaffold.job.duration；无 registry 时静默。 */
+    private void recordMetrics(AbstractJob job, String outcome, long costMillis) {
+        if (meterRegistry == null) {
+            return;
+        }
+        String jobKey = job.metadata().jobKey;
+        meterRegistry.counter("scaffold.job.executions", "job", jobKey, "outcome", outcome).increment();
+        Timer.builder("scaffold.job.duration").tag("job", jobKey).register(meterRegistry)
+                .record(costMillis, TimeUnit.MILLISECONDS);
     }
 
     private void schedule(AbstractJob job, String jobKey, String cron) {

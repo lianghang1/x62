@@ -31,8 +31,9 @@ public class ProtectionAutoConfiguration {
     }
 
     @Bean
-    public AbuseGuard abuseGuard(StringRedisTemplate redisTemplate) {
-        return new AbuseGuard(redisTemplate);
+    public AbuseGuard abuseGuard(StringRedisTemplate redisTemplate,
+                                 org.springframework.beans.factory.ObjectProvider<io.micrometer.core.instrument.MeterRegistry> meterRegistry) {
+        return new AbuseGuard(redisTemplate, meterRegistry.getIfAvailable());
     }
 
     @Bean
