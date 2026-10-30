@@ -8,22 +8,34 @@ import java.time.Duration;
 /**
  * 基于 Redis 计数的登录失败锁定组件（RuoYi maxRetryCount 思路）。
  *
- * <p>同一账号连续失败达到 maxFailCount 后锁定 lockSeconds；成功登录调用 reset 清零——
- * 针对账号而非 IP，兼顾暴力破解防护与共享出口 IP 的误伤。</p>
+ * <p>两个维度互补：账号维度——同账号连续失败达到 maxFailCount 后锁定
+ * lockSeconds，成功登录 reset 清零（保护账号不误伤共享出口 IP）；
+ * IP 维度——滑动窗口内同 IP 失败达到 failLimit 后拒绝该 IP 登录
+ * （防单 IP 遍历撞库），窗口到期自动解除。IP 计数只在 {@code ipGuard.enabled}
+ * 时生效。</p>
  *
  * @author lianghang
  */
 public class LoginFailureGuard {
 
     private static final String KEY_PREFIX = "scaffold:security:login:fail:";
+    private static final String IP_KEY_PREFIX = "scaffold:security:login:ip:";
 
     private final StringRedisTemplate redisTemplate;
     private final SecurityProperties.PasswordPolicy policy;
+    private final SecurityProperties.IpGuard ipGuard;
 
     public LoginFailureGuard(StringRedisTemplate redisTemplate,
                              SecurityProperties.PasswordPolicy policy) {
+        this(redisTemplate, policy, null);
+    }
+
+    public LoginFailureGuard(StringRedisTemplate redisTemplate,
+                             SecurityProperties.PasswordPolicy policy,
+                             SecurityProperties.IpGuard ipGuard) {
         this.redisTemplate = redisTemplate;
         this.policy = policy;
+        this.ipGuard = ipGuard != null ? ipGuard : new SecurityProperties.IpGuard();
     }
 
     /** 账号是否已被临时锁定 */
@@ -32,7 +44,13 @@ public class LoginFailureGuard {
         return count != null && Integer.parseInt(count) >= policy.getMaxFailCount();
     }
 
-    /** 记录一次失败，返回当前连续失败次数 */
+    /** 账号当前连续失败次数（验证码 after_fail 模式据此决定是否强制验证码） */
+    public int currentCount(String accountNo) {
+        String count = redisTemplate.opsForValue().get(key(accountNo));
+        return count == null ? 0 : Integer.parseInt(count);
+    }
+
+    /** 记录一次账号失败，返回当前连续失败次数 */
     public int recordFailure(String accountNo) {
         Long count = redisTemplate.opsForValue().increment(key(accountNo));
         if (count != null && count == 1L) {
@@ -46,7 +64,32 @@ public class LoginFailureGuard {
         redisTemplate.delete(key(accountNo));
     }
 
+    /** 该 IP 是否已触发撞库防护（窗口内失败达上限） */
+    public boolean isIpBlocked(String ip) {
+        if (ip == null || !ipGuard.isEnabled()) {
+            return false;
+        }
+        String count = redisTemplate.opsForValue().get(ipKey(ip));
+        return count != null && Long.parseLong(count) >= ipGuard.getFailLimit();
+    }
+
+    /** 记录一次该 IP 的登录失败，返回窗口内累计次数 */
+    public long recordIpFailure(String ip) {
+        if (ip == null || !ipGuard.isEnabled()) {
+            return 0;
+        }
+        Long count = redisTemplate.opsForValue().increment(ipKey(ip));
+        if (count != null && count == 1L) {
+            redisTemplate.expire(ipKey(ip), Duration.ofSeconds(ipGuard.getWindowSeconds()));
+        }
+        return count == null ? 0 : count;
+    }
+
     private String key(String accountNo) {
         return KEY_PREFIX + accountNo;
+    }
+
+    private String ipKey(String ip) {
+        return IP_KEY_PREFIX + ip;
     }
 }

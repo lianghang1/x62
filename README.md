@@ -152,11 +152,28 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
 |---|---|---|
 | 登录日志 | 每次登录（成功/失败）自动落 `sys_login_log`（IP/UA/失败原因） | module-system，AuthService |
 | 失败锁定 | 同账号连续失败 5 次锁 15 分钟（Redis 计数），`scaffold.security.password-policy` 可调 | starter-security |
+| IP 防撞库 | 同 IP 窗口内登录失败达上限拒绝该 IP 登录，`scaffold.security.ip-guard` 可调 | starter-security |
+| 图形验证码 | internal 登录防机器撞库：`scaffold.security.captcha.mode: off/always/after_fail`（默认连续失败 3 次后强制），`GET /internal/auth/captcha` 生成 | starter-security |
+| 短信防刷 | 发送前置四道闸：手机号 60s 间隔 / 手机号日限 10 / IP 日限 50 / 全局日配额 1000，`scaffold.message.sms-guard` 可调 | starter-message，SmsAbuseGuard |
+| 防刷闸门 | 业务动作防刷（领券/投票等）：注入 `AbuseGuard` 调 `checkInterval/checkWindow/checkDaily`，超限抛 429 | starter-protection |
 | 密码强度 | 创建账号/改密时调 `PasswordPolicyValidator.validate(raw)` | starter-security |
 | 操作日志 | controller 方法加 `@OperLog(module="xx", action="xx")`，自动落 `sys_oper_log`（操作人/入参/耗时/成败） | module-system |
 | JSON 脱敏 | DTO 字段加 `@Desensitize(DesensitizeType.PHONE)`，序列化时自动打码（手机/邮箱/身份证/银行卡/姓名/自定义） | starter-web |
 | XSS 过滤 | 默认开启：参数与 body 尖括号转义；富文本接口用 `scaffold.web.xss.exclude-urls` 排除 | starter-web |
 | CI | GitHub Actions：push/PR 自动 JDK8 全量构建 + 测试（.github/workflows/ci.yml） | 工程化 |
+
+### 账号管理（internal 管理端）
+
+| 接口 | 说明 |
+|---|---|
+| `GET /internal/accounts?accountNo=&type=&status=&pageNum=&pageSize=` | 分页查询（组合过滤，不含密码） |
+| `POST /internal/accounts?accountNo=&password=` | 创建操作员（密码强度校验 + BCrypt） |
+| `POST /internal/accounts/{id}/status?enable=` | 启停用（停用即全端下线） |
+| `POST /internal/accounts/{id}/reset-password` | 重置密码（随机密码明文仅此一次返回 + 强制重登） |
+| `POST /internal/auth/password?oldPassword=&newPassword=` | 改自己密码（验旧密 + 强度校验 + 全端下线） |
+| `POST /internal/accounts/{id}/kick` | 踢人下线 |
+
+写操作全部挂 `@OperLog` 审计；登录/验证码接口在 `scaffold.security.internal-whitelist`。
 
 ## 国产化（信创）适配点
 

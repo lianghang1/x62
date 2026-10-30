@@ -43,6 +43,84 @@ public class SecurityProperties {
     /** 密码策略（JeeSite 密码安全思想：强度校验 + 连续失败锁定） */
     private PasswordPolicy passwordPolicy = new PasswordPolicy();
 
+    /** 登录 IP 防护（防单 IP 撞库，与账号维度锁定互补） */
+    private IpGuard ipGuard = new IpGuard();
+
+    /** internal 登录图形验证码 */
+    private Captcha captcha = new Captcha();
+
+    public static class IpGuard {
+
+        /** 总开关；关闭后仅保留账号维度失败锁定 */
+        private boolean enabled = true;
+
+        /** 同 IP 窗口内登录失败上限，达到后拒绝该 IP 的账密登录 */
+        private int failLimit = 30;
+
+        /** 失败计数窗口（秒） */
+        private int windowSeconds = 600;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public int getFailLimit() {
+            return failLimit;
+        }
+
+        public void setFailLimit(int failLimit) {
+            this.failLimit = failLimit;
+        }
+
+        public int getWindowSeconds() {
+            return windowSeconds;
+        }
+
+        public void setWindowSeconds(int windowSeconds) {
+            this.windowSeconds = windowSeconds;
+        }
+    }
+
+    public static class Captcha {
+
+        /** 模式：off=不启用 | always=每次都要 | after_fail=连续失败 failThreshold 次后强制 */
+        private String mode = "after_fail";
+
+        /** after_fail 模式的触发阈值（连续失败次数） */
+        private int failThreshold = 3;
+
+        /** 验证码有效期（秒） */
+        private int ttlSeconds = 120;
+
+        public String getMode() {
+            return mode;
+        }
+
+        public void setMode(String mode) {
+            this.mode = mode;
+        }
+
+        public int getFailThreshold() {
+            return failThreshold;
+        }
+
+        public void setFailThreshold(int failThreshold) {
+            this.failThreshold = failThreshold;
+        }
+
+        public int getTtlSeconds() {
+            return ttlSeconds;
+        }
+
+        public void setTtlSeconds(int ttlSeconds) {
+            this.ttlSeconds = ttlSeconds;
+        }
+    }
+
     public static class PasswordPolicy {
 
         /** 连续登录失败次数上限，达到即临时锁定 */
@@ -96,6 +174,22 @@ public class SecurityProperties {
 
     public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
+    }
+
+    public IpGuard getIpGuard() {
+        return ipGuard;
+    }
+
+    public void setIpGuard(IpGuard ipGuard) {
+        this.ipGuard = ipGuard;
+    }
+
+    public Captcha getCaptcha() {
+        return captcha;
+    }
+
+    public void setCaptcha(Captcha captcha) {
+        this.captcha = captcha;
     }
 
     public List<String> getInternalWhitelist() {

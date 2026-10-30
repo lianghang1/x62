@@ -32,9 +32,14 @@ public class DefaultNotificationService implements NotificationService {
     /** sms4j 的短信入口（可选依赖，反射桥接避免强依赖） */
     private final Object smsBlend;
 
-    public DefaultNotificationService(JavaMailSender mailSender, Object smsBlend) {
+    /** 短信防刷闸门（sms-guard 关闭时为 null） */
+    private final SmsAbuseGuard smsAbuseGuard;
+
+    public DefaultNotificationService(JavaMailSender mailSender, Object smsBlend,
+                                      SmsAbuseGuard smsAbuseGuard) {
         this.mailSender = mailSender;
         this.smsBlend = smsBlend;
+        this.smsAbuseGuard = smsAbuseGuard;
     }
 
     @Override
@@ -42,6 +47,10 @@ public class DefaultNotificationService implements NotificationService {
         if (smsBlend == null) {
             log.warn("[notify] 短信通道未接入（未配置 sms4j 厂商），消息丢弃: phone={}", phoneNumber);
             return;
+        }
+        // 防刷：间隔/手机号日限/IP 日限/全局配额，任一超限抛 429，短信不发出
+        if (smsAbuseGuard != null) {
+            smsAbuseGuard.check(phoneNumber);
         }
         // sms4j SmsBlend.sendMessage(String phone, String templateId, LinkedHashMap<String,String>)
         java.util.LinkedHashMap<String, String> map = new java.util.LinkedHashMap<>();

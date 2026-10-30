@@ -1,5 +1,6 @@
 package com.scaffold.starter.protection.config;
 
+import com.scaffold.starter.protection.abuse.AbuseGuard;
 import com.scaffold.starter.protection.idempotent.IdempotentAspect;
 import com.scaffold.starter.protection.lock.DistributedLockAspect;
 import com.scaffold.starter.protection.lock.RedisLockUtil;
@@ -22,6 +23,11 @@ public class ProtectionAutoConfiguration {
     @Bean
     public RedisLockUtil redisLockUtil(StringRedisTemplate redisTemplate) {
         return new RedisLockUtil(redisTemplate);
+    }
+
+    @Bean
+    public AbuseGuard abuseGuard(StringRedisTemplate redisTemplate) {
+        return new AbuseGuard(redisTemplate);
     }
 
     @Bean

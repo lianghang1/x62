@@ -2,6 +2,7 @@ package com.scaffold.module.system.biz.controller;
 
 import com.scaffold.core.result.R;
 import com.scaffold.module.system.biz.entity.AppInfo;
+import com.scaffold.module.system.biz.service.AccountAdminService;
 import com.scaffold.module.system.biz.service.AccountServiceImpl;
 import com.scaffold.module.system.biz.service.OperatorUserDetailsService;
 import com.scaffold.module.system.biz.entity.SysRole;
@@ -36,16 +37,19 @@ import java.util.stream.StreamSupport;
 public class AdminInternalController {
 
     private final AccountServiceImpl accountService;
+    private final AccountAdminService accountAdminService;
     private final OperatorUserDetailsService userDetailsService;
     private final SysRoleRepository roleRepository;
     private final com.scaffold.starter.security.token.TokenService tokenService;
     private final com.scaffold.starter.security.identity.LoginContext loginContextRef;
 
     public AdminInternalController(AccountServiceImpl accountService,
+                                   AccountAdminService accountAdminService,
                                    OperatorUserDetailsService userDetailsService,
                                    SysRoleRepository roleRepository,
                                    com.scaffold.starter.security.token.TokenService tokenService) {
         this.accountService = accountService;
+        this.accountAdminService = accountAdminService;
         this.userDetailsService = userDetailsService;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
@@ -107,5 +111,46 @@ public class AdminInternalController {
     public R<Void> kick(@PathVariable Long accountId) {
         tokenService.revokeAll(accountId);
         return R.ok();
+    }
+
+    @Operation(summary = "账号分页查询（账号模糊/类型/状态过滤，不含密码）")
+    @GetMapping("/accounts")
+    public R<com.scaffold.core.result.PageResult<Map<String, Object>>> accounts(
+            @RequestParam(required = false) String accountNo,
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        com.scaffold.starter.security.identity.AccountType accountType = null;
+        if (type != null && !type.isEmpty()) {
+            accountType = com.scaffold.starter.security.identity.AccountType.valueOf(type);
+        }
+        return R.ok(accountAdminService.page(accountNo, accountType, status, pageNum, pageSize));
+    }
+
+    @Operation(summary = "创建操作员账号（密码强度校验 + BCrypt 落库）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "账号管理", action = "创建账号")
+    @PostMapping("/accounts")
+    public R<Map<String, Object>> createAccount(@RequestParam String accountNo,
+                                                @RequestParam String password) {
+        return R.ok(accountAdminService.createOperator(accountNo, password));
+    }
+
+    @Operation(summary = "启用/停用账号（停用即全端下线）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "账号管理", action = "变更状态")
+    @PostMapping("/accounts/{accountId}/status")
+    public R<Void> changeStatus(@PathVariable Long accountId, @RequestParam boolean enable) {
+        accountAdminService.changeStatus(accountId, enable);
+        return R.ok();
+    }
+
+    @Operation(summary = "重置密码（随机密码明文仅此一次返回，并全端下线强制重登）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "账号管理", action = "重置密码")
+    @PostMapping("/accounts/{accountId}/reset-password")
+    public R<Map<String, Object>> resetPassword(@PathVariable Long accountId) {
+        String rawPassword = accountAdminService.resetPassword(accountId);
+        Map<String, Object> result = new HashMap<>();
+        result.put("password", rawPassword);
+        return R.ok(result);
     }
 }

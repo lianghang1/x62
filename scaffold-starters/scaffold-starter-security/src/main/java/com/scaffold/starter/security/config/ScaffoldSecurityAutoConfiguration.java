@@ -59,13 +59,31 @@ public class ScaffoldSecurityAutoConfiguration {
                 properties.getTokenTtlSeconds(), properties.getRenewThresholdPercent());
     }
 
-    /** 登录失败锁定：internal 账密登录在 service 层调用（记录/判定/清零） */
+    /** 登录失败锁定：internal 账密登录在 service 层调用（记录/判定/清零），账号 + IP 双维度 */
     @Bean
     @ConditionalOnMissingBean(com.scaffold.starter.security.policy.LoginFailureGuard.class)
     public com.scaffold.starter.security.policy.LoginFailureGuard loginFailureGuard(
             StringRedisTemplate redisTemplate, SecurityProperties properties) {
         return new com.scaffold.starter.security.policy.LoginFailureGuard(
-                redisTemplate, properties.getPasswordPolicy());
+                redisTemplate, properties.getPasswordPolicy(), properties.getIpGuard());
+    }
+
+    /** 图形验证码（Hutool + Redis 一次性），internal 登录防机器撞库 */
+    @Bean
+    @ConditionalOnMissingBean(com.scaffold.starter.security.captcha.CaptchaService.class)
+    public com.scaffold.starter.security.captcha.CaptchaService captchaService(
+            StringRedisTemplate redisTemplate, SecurityProperties properties) {
+        return new com.scaffold.starter.security.captcha.CaptchaService(
+                redisTemplate, properties.getCaptcha());
+    }
+
+    /** 密码强度校验（创建账号/改密时显式调用） */
+    @Bean
+    @ConditionalOnMissingBean(com.scaffold.starter.security.policy.PasswordPolicyValidator.class)
+    public com.scaffold.starter.security.policy.PasswordPolicyValidator passwordPolicyValidator(
+            SecurityProperties properties) {
+        return new com.scaffold.starter.security.policy.PasswordPolicyValidator(
+                properties.getPasswordPolicy());
     }
 
     /** 401/403 统一返回 JSON（不带登录页重定向） */

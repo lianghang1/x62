@@ -10,6 +10,7 @@ import com.scaffold.module.system.biz.repository.LoginLogRepository;
 import com.scaffold.module.system.biz.repository.MemberInfoRepository;
 import com.scaffold.module.system.biz.repository.SysAccountRepository;
 import com.scaffold.starter.security.identity.AccountType;
+import com.scaffold.starter.security.captcha.CaptchaService;
 import com.scaffold.starter.security.online.ExternalIdentity;
 import com.scaffold.starter.security.policy.LoginFailureGuard;
 import com.scaffold.starter.security.token.SessionInfo;
@@ -46,6 +47,8 @@ public class AuthService {
     private final LoginFailureGuard failureGuard;
     private final OperatorUserDetailsService userDetailsService;
     private final OAuthLoginService oAuthLoginService;
+    private final CaptchaService captchaService;
+    private final com.scaffold.starter.security.policy.PasswordPolicyValidator passwordPolicyValidator;
 
     public AuthService(SysAccountRepository accountRepository,
                        MemberInfoRepository memberInfoRepository,
@@ -53,7 +56,9 @@ public class AuthService {
                        TokenService tokenService,
                        LoginFailureGuard failureGuard,
                        OperatorUserDetailsService userDetailsService,
-                       OAuthLoginService oAuthLoginService) {
+                       OAuthLoginService oAuthLoginService,
+                       CaptchaService captchaService,
+                       com.scaffold.starter.security.policy.PasswordPolicyValidator passwordPolicyValidator) {
         this.accountRepository = accountRepository;
         this.memberInfoRepository = memberInfoRepository;
         this.loginLogRepository = loginLogRepository;
@@ -61,14 +66,38 @@ public class AuthService {
         this.failureGuard = failureGuard;
         this.userDetailsService = userDetailsService;
         this.oAuthLoginService = oAuthLoginService;
+        this.captchaService = captchaService;
+        this.passwordPolicyValidator = passwordPolicyValidator;
     }
 
-    /** internal：账密登录（OPERATOR）+ 失败锁定 + 登录日志。 */
-    public String internalLogin(String username, String password) {
+    /**
+     * internal：账密登录（OPERATOR）+ 失败锁定（账号/IP 双维度）+ 图形验证码 + 登录日志。
+     *
+     * <p>防刷顺序：IP 撞库防护 → 账号锁定 → 验证码（按策略触发）→ 凭证校验。
+     * 任何失败都同时累计账号与 IP 两个维度的失败计数。</p>
+     *
+     * @param username    账号
+     * @param password    明文密码
+     * @param captchaId   图形验证码 ID（策略要求时必填）
+     * @param captchaCode 图形验证码答案（策略要求时必填）
+     * @return token
+     */
+    public String internalLogin(String username, String password, String captchaId, String captchaCode) {
+        String ip = currentIp();
+        if (failureGuard.isIpBlocked(ip)) {
+            recordLoginLog(username, "internal", false, "IP 登录失败过多被拒");
+            throw BizException.of(GlobalErrorCode.TOO_MANY_REQUESTS,
+                    "该网络环境登录失败次数过多，请稍后再试");
+        }
         if (failureGuard.isLocked(username)) {
             recordLoginLog(username, "internal", false, "连续失败临时锁定");
             throw BizException.of(GlobalErrorCode.FORBIDDEN,
                     "连续登录失败次数过多，账号已临时锁定，请稍后再试");
+        }
+        if (captchaService.required(failureGuard.currentCount(username))
+                && !captchaService.verifyAndConsume(captchaId, captchaCode)) {
+            recordFailureAndLog(username, "internal", "验证码错误或已过期");
+            throw BizException.of(GlobalErrorCode.BAD_REQUEST, "验证码错误或已过期");
         }
         SysAccount account = accountRepository.findByAccountNoAndDeletedFalse(username).orElse(null);
         if (account == null || account.getType() != AccountType.OPERATOR) {
@@ -108,6 +137,7 @@ public class AuthService {
 
     private void recordFailureAndLog(String username, String loginType, String reason) {
         int count = failureGuard.recordFailure(username);
+        failureGuard.recordIpFailure(currentIp());
         log.warn("[auth] 登录失败({} 次): accountNo={}, 原因={}", count, username, reason);
         recordLoginLog(username, loginType, false, reason);
     }
@@ -147,6 +177,34 @@ public class AuthService {
         tokenService.revoke(token);
     }
 
+    /**
+     * 修改自己的密码：验旧密 + 新密强度校验，改密后全端下线强制重登。
+     *
+     * @param token       当前登录 token
+     * @param oldPassword 旧密码明文
+     * @param newPassword 新密码明文
+     */
+    @Transactional
+    public void changeMyPassword(String token, String oldPassword, String newPassword) {
+        com.scaffold.starter.security.token.SessionInfo session = tokenService.resolve(token);
+        if (session == null) {
+            throw BizException.of(GlobalErrorCode.UNAUTHORIZED, "未登录或凭证无效");
+        }
+        SysAccount account = accountRepository.findByIdAndDeletedFalse(session.getAccountId())
+                .orElseThrow(() -> BizException.of(GlobalErrorCode.NOT_FOUND, "账号不存在"));
+        if (!userDetailsService.matches(oldPassword, account.getPassword())) {
+            recordLoginLog(session.getAccountNo(), "change-password", false, "旧密码错误");
+            throw BizException.of(GlobalErrorCode.BAD_REQUEST, "旧密码错误");
+        }
+        passwordPolicyValidator.validate(newPassword);
+        account.setPassword(userDetailsService.encode(newPassword));
+        accountRepository.save(account);
+        // 改密即全端下线：所有会话（含当前）作废，凭新密码重新登录
+        tokenService.revokeAll(session.getAccountId());
+        recordLoginLog(session.getAccountNo(), "change-password", true, null);
+        log.info("[auth] 密码修改成功: accountId={}", session.getAccountId());
+    }
+
     /** 登录日志：尽力而为，记录失败不影响登录主流程。 */
     private void recordLoginLog(String accountNo, String loginType, boolean success, String failReason) {
         try {
@@ -173,5 +231,12 @@ public class AuthService {
     /** 取真实 IP：委托 core 的 IpUtils（XFF 首段 → X-Real-IP → remoteAddr），OperLogAspect 复用。 */
     public static String clientIp(HttpServletRequest request) {
         return IpUtils.clientIp(request);
+    }
+
+    /** 当前请求客户端 IP；无 HTTP 上下文（如单测直调）返回 null，IP 维度防刷自动跳过。 */
+    private String currentIp() {
+        ServletRequestAttributes attributes =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attributes == null ? null : IpUtils.clientIp(attributes.getRequest());
     }
 }
