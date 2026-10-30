@@ -72,6 +72,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- @ApiEncrypt Advice：RequestBody/ResponseBodyAdvice 由 spring-webmvc 提供（宿主应用必有） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

@@ -8,11 +8,14 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
+import com.scaffold.common.util.DateUtils;
+import com.scaffold.starter.web.async.AsyncExceptionHandler;
 import com.scaffold.starter.web.exception.GlobalExceptionHandler;
 import com.scaffold.starter.web.log.AccessLogAspect;
 import com.scaffold.starter.web.trace.TraceIdFilter;
 import com.scaffold.starter.web.trace.TraceTaskDecorator;
 import com.scaffold.starter.web.xss.XssFilter;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -21,6 +24,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -43,16 +48,36 @@ import java.time.format.DateTimeFormatter;
  * @author lianghang
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@EnableAsync
 @EnableConfigurationProperties(WebProperties.class)
 public class WebAutoConfiguration {
 
-    /** @deprecated 全局格式常量已收口 {@link com.scaffold.common.util.DateUtils}，新代码直接引用 */
+    /** @deprecated 全局格式常量已收口 {@link DateUtils}，新代码直接引用 */
     @Deprecated
-    public static final String DATE_TIME_PATTERN = com.scaffold.common.util.DateUtils.DATE_TIME_PATTERN;
-    /** @deprecated 全局格式常量已收口 {@link com.scaffold.common.util.DateUtils} */
+    public static final String DATE_TIME_PATTERN = DateUtils.DATE_TIME_PATTERN;
+    /** @deprecated 全局格式常量已收口 {@link DateUtils} */
     @Deprecated
-    public static final String DATE_PATTERN = com.scaffold.common.util.DateUtils.DATE_PATTERN;
+    public static final String DATE_PATTERN = DateUtils.DATE_PATTERN;
     public static final String TIME_PATTERN = "HH:mm:ss";
+
+    /**
+     * @Async 异常兜底：不接管执行器（返回 null 走 Boot 默认 applicationTaskExecutor，
+     * 由下方 TaskExecutorCustomizer 继续生效），只替换未捕获异常处理器。
+     */
+    @Bean
+    public AsyncConfigurer scaffoldAsyncConfigurer() {
+        return new AsyncConfigurer() {
+            @Override
+            public org.springframework.core.task.AsyncTaskExecutor getAsyncExecutor() {
+                return null;
+            }
+
+            @Override
+            public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+                return new AsyncExceptionHandler();
+            }
+        };
+    }
 
     @Bean
     public FilterRegistrationBean<TraceIdFilter> traceIdFilterRegistration() {

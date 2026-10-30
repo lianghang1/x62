@@ -26,6 +26,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
+        <!-- EventOps.publishAfterCommit：事务同步器（spring-context 不含 tx） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
         <!-- @ValidateEnum 枚举校验：api 由使用方（web/业务模块）通过 starter-validation 提供 -->
         <dependency>
             <groupId>javax.validation</groupId>

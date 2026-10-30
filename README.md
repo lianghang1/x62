@@ -186,16 +186,44 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
 
 | 能力 | 用法 | 出处 |
 |---|---|---|
-| 登录日志 | 每次登录（成功/失败）自动落 `sys_login_log`（IP/UA/失败原因） | module-system，AuthService |
+| 登录日志 | 每次登录（成功/失败）自动落 `sys_login_log`（IP/UA/失败原因），异步落库不拖慢主流程；查询 `GET /internal/system/audit/login`（账号/成败/时间段过滤，时间倒序分页） | module-system，AuthService→AuditLogListener |
 | 失败锁定 | 同账号连续失败 5 次锁 15 分钟（Redis 计数），`scaffold.security.password-policy` 可调 | starter-security |
 | IP 防撞库 | 同 IP 窗口内登录失败达上限拒绝该 IP 登录，`scaffold.security.ip-guard` 可调 | starter-security |
 | 计算型验证码 | internal 登录防机器撞库：算式 GIF（如 3+5=?），Redis 存算式、校验时求值比对，OCR 无法直读答案；`scaffold.security.captcha.mode: off/always/after_fail`（默认连续失败 3 次后强制），`GET /internal/auth/captcha` 生成 | starter-security |
 | 短信防刷 | 发送前置四道闸：手机号 60s 间隔 / 手机号日限 10 / IP 日限 50 / 全局日配额 1000，`scaffold.message.sms-guard` 可调 | starter-message，SmsAbuseGuard |
 | 防刷闸门 | 业务动作防刷（领券/投票等）：注入 `AbuseGuard` 调 `checkInterval/checkWindow/checkDaily`，超限抛 429 | starter-protection |
 | 密码强度 | 创建账号/改密时调 `PasswordPolicyValidator.validate(raw)` | starter-security |
-| 操作日志 | controller 方法加 `@OperLog(module="xx", action="xx")`，自动落 `sys_oper_log`（操作人/入参/耗时/成败） | module-system |
+| 操作日志 | controller 方法加 `@OperLog(module="xx", action="xx")`，事务提交后异步落 `sys_oper_log`（操作人/入参/耗时/成败，回滚不发）；查询 `GET /internal/system/audit/oper` | module-system，OperLogAspect→AuditLogListener |
 | JSON 脱敏 | DTO 字段加 `@Desensitize(DesensitizeType.PHONE)`，序列化时自动打码（手机/邮箱/身份证/银行卡/姓名/自定义） | starter-web |
 | XSS 过滤 | 默认开启：参数与 body 尖括号转义；富文本接口用 `scaffold.web.xss.exclude-urls` 排除 | starter-web |
+| 接口加解密 | 方法/类加 `@ApiEncrypt`：请求体密文进、响应体（含 R 包装）密文出，经 `DataCipher`（AES/SM4）整包加解密，适合整包防窃听的敏感接口 | starter-security |
+
+## 运行时配置与事件总线
+
+- **DB 配置中心**（sys_config，改参数不重启生效）：
+  ```java
+  // 跨模块读取统一走 ConfigApi（进程内缓存，零回源开销）
+  configApi.getValue("upload.max-size-mb");   // "20"
+  configApi.getIntValue("password.policy.min-length");
+  configApi.getBoolValue("feature.xxx");
+  ```
+  管理端：`GET /internal/system/config/page`（分页）、`POST /internal/system/config`
+  （保存即刷新缓存，并经 Redis pub/sub 广播 `scaffold:config:refresh`，多实例回源被改键）；
+  无 Redis 时单实例形态完整可用；
+- **事件总线 EventOps**（common，进程内解耦主链路，替代 MQ 的 90% 场景）：
+  ```java
+  EventOps.publish(event);             // 立即发布
+  EventOps.publishAfterCommit(event);  // 事务提交后才发，回滚不发
+  // 消费方：@Async @EventListener（走 web starter 的 applicationTaskExecutor，含 traceId/TTL 装饰器）
+  ```
+  登录日志/操作日志落库即基于此——生产方请求线程取齐上下文后发事件，监听器异步写库；
+- **雪花 ID IdOps**：主键之外的取号场景（对外单号/消息幂等号）`IdOps.nextId()`，
+  与 JPA 主键共用同一 Snowflake 单例（workerId 由 `scaffold.data.worker-id/datacenter-id` 配置）；
+- **日期工具 DateUtils**：全局格式唯一出口，新增 `Date↔LocalDateTime` 互转、
+  `dayBalanceSeconds()`（当天剩余秒，"当日有效"过期标准算法）、
+  `formatCompact()`（yyyyMMddHHmmss 流水号）、`chineseWeek()`（中文星期）；
+- **@Async 异常兜底**：web starter 注册 `AsyncUncaughtExceptionHandler`（方法+参数+异常统一记录），
+  `@EnableAsync` 引入 starter-web 即开启。
 
 ## 可观测性（starter-observability）
 

@@ -3,10 +3,8 @@ package com.scaffold.module.system.biz.service;
 import com.scaffold.common.exception.BizException;
 import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.common.util.IpUtils;
-import com.scaffold.module.system.biz.entity.LoginLog;
 import com.scaffold.module.system.biz.entity.MemberInfo;
 import com.scaffold.module.system.biz.entity.SysAccount;
-import com.scaffold.module.system.biz.repository.LoginLogRepository;
 import com.scaffold.module.system.biz.repository.MemberInfoRepository;
 import com.scaffold.module.system.biz.repository.SysAccountRepository;
 import com.scaffold.starter.security.identity.AccountType;
@@ -42,7 +40,6 @@ public class AuthService {
 
     private final SysAccountRepository accountRepository;
     private final MemberInfoRepository memberInfoRepository;
-    private final LoginLogRepository loginLogRepository;
     private final TokenService tokenService;
     private final LoginFailureGuard failureGuard;
     private final OperatorUserDetailsService userDetailsService;
@@ -52,7 +49,6 @@ public class AuthService {
 
     public AuthService(SysAccountRepository accountRepository,
                        MemberInfoRepository memberInfoRepository,
-                       LoginLogRepository loginLogRepository,
                        TokenService tokenService,
                        LoginFailureGuard failureGuard,
                        OperatorUserDetailsService userDetailsService,
@@ -61,7 +57,6 @@ public class AuthService {
                        com.scaffold.starter.security.policy.PasswordPolicyValidator passwordPolicyValidator) {
         this.accountRepository = accountRepository;
         this.memberInfoRepository = memberInfoRepository;
-        this.loginLogRepository = loginLogRepository;
         this.tokenService = tokenService;
         this.failureGuard = failureGuard;
         this.userDetailsService = userDetailsService;
@@ -205,26 +200,23 @@ public class AuthService {
         log.info("[auth] 密码修改成功: accountId={}", session.getAccountId());
     }
 
-    /** 登录日志：尽力而为，记录失败不影响登录主流程。 */
+    /** 登录日志：请求线程取齐上下文后发事件，AuditLogListener 异步落库，失败不影响登录主流程。 */
     private void recordLoginLog(String accountNo, String loginType, boolean success, String failReason) {
         try {
-            LoginLog entry = new LoginLog();
-            entry.setAccountNo(accountNo);
-            entry.setLoginType(loginType);
-            entry.setSuccess(success);
-            entry.setFailReason(failReason);
-            entry.setLoginTime(LocalDateTime.now());
+            String ip = null;
+            String userAgent = null;
             ServletRequestAttributes attributes =
                     (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
-                entry.setIp(clientIp(request));
+                ip = clientIp(request);
                 String ua = request.getHeader("User-Agent");
-                entry.setUserAgent(ua != null && ua.length() > 255 ? ua.substring(0, 255) : ua);
+                userAgent = ua != null && ua.length() > 255 ? ua.substring(0, 255) : ua;
             }
-            loginLogRepository.save(entry);
+            com.scaffold.common.event.EventOps.publishAfterCommit(new com.scaffold.module.system.biz.event.LoginLogEvent(
+                    accountNo, loginType, success, failReason, ip, userAgent, LocalDateTime.now()));
         } catch (Exception e) {
-            log.warn("[auth] 登录日志记录失败", e);
+            log.warn("[auth] 登录日志事件发布失败", e);
         }
     }
 

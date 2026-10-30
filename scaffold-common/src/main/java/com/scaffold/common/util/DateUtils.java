@@ -1,10 +1,16 @@
 package com.scaffold.common.util;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * 日期工具：全局格式常量与 java.time 常用转换。
@@ -22,9 +28,14 @@ public final class DateUtils {
     /** 全局日期格式 */
     public static final String DATE_PATTERN = "yyyy-MM-dd";
 
+    /** 紧凑格式（流水号/文件名/日志前缀），例：20261030234159 */
+    public static final String COMPACT_PATTERN = "yyyyMMddHHmmss";
+
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
+
+    public static final DateTimeFormatter COMPACT_FORMATTER = DateTimeFormatter.ofPattern(COMPACT_PATTERN);
 
     /** 当前时间格式化为全局日期时间串 */
     public static String now() {
@@ -63,6 +74,32 @@ public final class DateUtils {
     /** 毫秒时间戳 → LocalDateTime（系统默认时区） */
     public static LocalDateTime fromEpochMilli(long epochMilli) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(epochMilli), ZoneId.systemDefault());
+    }
+
+    /** {@link Date} → LocalDateTime（系统默认时区）；null 原样返回。 */
+    public static LocalDateTime toLocalDateTime(Date date) {
+        return date == null ? null : LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+    }
+
+    /** LocalDateTime → {@link Date}（系统默认时区）；null 原样返回。 */
+    public static Date toDate(LocalDateTime dateTime) {
+        return dateTime == null ? null : Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
+    /** 距当天结束（次日零点）的剩余秒数——「当日有效」类过期的标准算法。 */
+    public static long dayBalanceSeconds() {
+        LocalDateTime now = LocalDateTime.now();
+        return Duration.between(now, now.plusDays(1).with(LocalTime.MIN)).get(ChronoUnit.SECONDS);
+    }
+
+    /** 格式化为紧凑串 {@code yyyyMMddHHmmss}；null 返回 null。 */
+    public static String formatCompact(LocalDateTime dateTime) {
+        return dateTime == null ? null : dateTime.format(COMPACT_FORMATTER);
+    }
+
+    /** 格式化为中文星期，例：星期一 … 星期日；null 返回 null。 */
+    public static String chineseWeek(LocalDate date) {
+        return date == null ? null : date.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.CHINESE);
     }
 
     private DateUtils() {

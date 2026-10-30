@@ -47,6 +47,9 @@ public final class RedisKeys {
     /** SSE 多实例推送转发（pub/sub 频道名） */
     public static final String PUSH_RELAY = "scaffold:push:relay";
 
+    /** DB 配置缓存失效广播（pub/sub 频道名，多实例刷新） */
+    public static final String CONFIG_REFRESH = "scaffold:config:refresh";
+
     private RedisKeys() {
     }
 }

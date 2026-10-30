@@ -1,7 +1,8 @@
 package com.scaffold.module.system.biz.log;
 
+import com.scaffold.common.event.EventOps;
 import com.scaffold.module.system.api.annotation.OperLog;
-import com.scaffold.module.system.biz.repository.OperLogRepository;
+import com.scaffold.module.system.biz.event.OperLogEvent;
 import com.scaffold.starter.security.identity.LoginContext;
 import com.scaffold.starter.security.identity.LoginUser;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -34,10 +35,7 @@ public class OperLogAspect {
     private static final int PARAMS_MAX_LENGTH = 2048;
     private static final int ERROR_MAX_LENGTH = 1024;
 
-    private final OperLogRepository operLogRepository;
-
-    public OperLogAspect(OperLogRepository operLogRepository) {
-        this.operLogRepository = operLogRepository;
+    public OperLogAspect() {
     }
 
     @Around("@annotation(operLog)")
@@ -53,6 +51,7 @@ public class OperLogAspect {
         }
     }
 
+    /** 组装事件并发布：事务提交后才发（回滚不发），AuditLogListener 异步落库。 */
     private void save(ProceedingJoinPoint joinPoint, OperLog operLog,
                       long costMillis, boolean success, String errorMessage) {
         try {
@@ -73,7 +72,10 @@ public class OperLogAspect {
                 entry.setIp(com.scaffold.module.system.biz.service.AuthService.clientIp(request));
             }
             entry.setParams(truncate(args(joinPoint.getArgs()), PARAMS_MAX_LENGTH));
-            operLogRepository.save(entry);
+            EventOps.publishAfterCommit(new com.scaffold.module.system.biz.event.OperLogEvent(
+                    entry.getModule(), entry.getAction(), entry.getOperator(), entry.getIp(),
+                    entry.getUri(), entry.getParams(), entry.getCostMillis(), entry.getSuccess(),
+                    entry.getErrorMessage(), java.time.LocalDateTime.now()));
         } catch (Exception e) {
             log.warn("[oper-log] 操作日志记录失败: {}#{}", operLog.module(), operLog.action(), e);
         }

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 系统参数配置表：运行时可改、不重启生效 -->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="v1.0.0-config-table" author="scaffold">
+        <createTable tableName="sys_config">
+            <column name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="pk_sys_config"/>
+            </column>
+            <column name="config_key" type="VARCHAR(64)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uk_config_key"/>
+            </column>
+            <column name="config_value" type="VARCHAR(1024)"/>
+            <column name="remark" type="VARCHAR(255)"/>
+            <column name="enabled" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="create_time" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="update_time" type="TIMESTAMP"/>
+            <column name="create_by" type="VARCHAR(64)"/>
+            <column name="update_by" type="VARCHAR(64)"/>
+            <column name="deleted" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex indexName="idx_config_key" tableName="sys_config">
+            <column name="config_key"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- 内置示例参数：上传大小上限 / 密码最小长度，业务参数按需追加 -->
+    <changeSet id="v1.0.0-config-seed" author="scaffold">
+        <insert tableName="sys_config">
+            <column name="id" valueComputed="1930101010101010101"/>
+            <column name="config_key" value="upload.max-size-mb"/>
+            <column name="config_value" value="20"/>
+            <column name="remark" value="单文件上传大小上限（MB）"/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="deleted" valueBoolean="false"/>
+            <column name="create_time" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+        <insert tableName="sys_config">
+            <column name="id" valueComputed="1930101010101010102"/>
+            <column name="config_key" value="password.policy.min-length"/>
+            <column name="config_value" value="8"/>
+            <column name="remark" value="密码最小长度（PasswordPolicyValidator 运行时读取）"/>
+            <column name="enabled" valueBoolean="true"/>
+            <column name="deleted" valueBoolean="false"/>
+            <column name="create_time" valueComputed="CURRENT_TIMESTAMP"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

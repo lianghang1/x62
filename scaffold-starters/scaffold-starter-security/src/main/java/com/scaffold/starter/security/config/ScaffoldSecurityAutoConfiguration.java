@@ -88,6 +88,18 @@ public class ScaffoldSecurityAutoConfiguration {
                 properties.getPasswordPolicy());
     }
 
+    /** @ApiEncrypt 接口加解密：注解驱动，未标注接口零影响；密文经 DataCipher（starter-crypto 装配） */
+    @Bean
+    public com.scaffold.starter.security.apiencrypt.ApiEncryptRequestBodyAdvice apiEncryptRequestBodyAdvice() {
+        return new com.scaffold.starter.security.apiencrypt.ApiEncryptRequestBodyAdvice();
+    }
+
+    @Bean
+    public com.scaffold.starter.security.apiencrypt.ApiEncryptResponseBodyAdvice apiEncryptResponseBodyAdvice(
+            ObjectMapper objectMapper) {
+        return new com.scaffold.starter.security.apiencrypt.ApiEncryptResponseBodyAdvice(objectMapper);
+    }
+
     /** 401/403 统一返回 JSON（不带登录页重定向） */
     private void restExceptionHandling(HttpSecurity http) throws Exception {
         http.exceptionHandling()
