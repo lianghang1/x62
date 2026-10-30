@@ -105,7 +105,7 @@ public class WebAutoConfiguration {
         return new AccessLogAspect(objectMapper);
     }
 
-    /** @Async 默认线程池：统一挂上 traceId 装饰器（LoginContext 透传由 TTL 提供，见 starter-security）。 */
+    /** @Async 默认线程池：装饰器同时透传 MDC traceId 与 TTL 上下文（LoginContext/审计人），自建池请用 ScaffoldExecutors 包装。 */
     @Bean
     public TaskExecutorCustomizer traceTaskExecutorCustomizer() {
         return taskExecutor -> taskExecutor.setTaskDecorator(new TraceTaskDecorator());

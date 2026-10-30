@@ -66,7 +66,7 @@ public class JobRegistrar implements SmartInitializingSingleton {
     }
 
     /**
-     * 在任务执行线程上安装/卸载运行环境（Recorder 为 ThreadLocal 语义）。
+     * 在任务执行线程上安装/卸载运行环境（Recorder 为 TTL 语义，子任务经 ScaffoldExecutors 包装可透传）。
      *
      * <p>安装必须发生在执行线程：调度发生在 scheduler 线程池，
      * 若在主线程 install，执行线程里 current() 恒为 null，锁与执行日志全部失效。</p>

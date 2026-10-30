@@ -1,19 +1,23 @@
 package com.scaffold.starter.job;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.scaffold.starter.protection.lock.RedisLockUtil;
 
 /**
- * 任务运行环境的线程级载体：基类通过 ThreadLocal 感知当前日志出口与锁工具。
+ * 任务运行环境的线程级载体：基类通过阿里 TransmittableThreadLocal 感知当前日志出口与锁工具。
  *
  * <p>本类不触碰任何 JPA 类型（落库细节在 {@link JobRunLogSink} 实现里），
  * 无数据库、无 Redis 场景（单机零依赖运行）下各依赖为 null，
  * 自动退化为「不落日志、不加锁放行」的单机语义，业务子类无感知。</p>
  *
+ * <p>TTL 底座：任务内部经 ScaffoldExecutors 包装的线程池再提交的子任务，
+ * 照样取得到本任务的日志出口与锁工具（快照随提交透传）。</p>
+ *
  * @author lianghang
  */
 public final class JobRunRecorder {
 
-    private static final ThreadLocal<JobRunRecorder> CURRENT = new ThreadLocal<>();
+    private static final TransmittableThreadLocal<JobRunRecorder> CURRENT = new TransmittableThreadLocal<>();
 
     private final JobRunLogSink sink;
     private final RedisLockUtil lockUtil;

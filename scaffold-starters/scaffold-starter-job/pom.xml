@@ -21,6 +21,10 @@
             <artifactId>scaffold-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>transmittable-thread-local</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-protection</artifactId>
         </dependency>
