@@ -24,7 +24,9 @@ scaffold/
 │   ├── starter-message       短信(sms4j 可选) + 邮件，业务只面向 NotificationService
 │   ├── starter-http          出站 HTTP 客户端（okhttp）：超时/幂等重试/traceId 透传/签名 SPI
 │   ├── starter-push          SSE 实时推送：连接注册表 + 心跳 + Redis 多实例转发，认证复用统一账户
-│   └── starter-ws            WebSocket 双向通道（默认关闭）：握手复用 token 会话，与 SSE 同一推送体系
+│   ├── starter-ws            WebSocket 双向通道（默认关闭）：握手复用 token 会话，与 SSE 同一推送体系
+│   ├── starter-observability Micrometer + Prometheus：公共标签 / 端点默认暴露 / 内建埋点（job/防刷/登录失败）
+│   └── starter-test          统一测试底座：@ScaffoldWebSlice / @ScaffoldDataSlice / MockMvc JSON 助手 / @WithAuditor
 ├── scaffold-modules/
 │   └── module-system         统一账户(sys_account: MEMBER/OPERATOR/APP) + RBAC + 字典 + 三方应用管理
 │                             （api/biz 分离：其他业务模块只依赖 system-api）
@@ -195,7 +197,57 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
 | 操作日志 | controller 方法加 `@OperLog(module="xx", action="xx")`，自动落 `sys_oper_log`（操作人/入参/耗时/成败） | module-system |
 | JSON 脱敏 | DTO 字段加 `@Desensitize(DesensitizeType.PHONE)`，序列化时自动打码（手机/邮箱/身份证/银行卡/姓名/自定义） | starter-web |
 | XSS 过滤 | 默认开启：参数与 body 尖括号转义；富文本接口用 `scaffold.web.xss.exclude-urls` 排除 | starter-web |
-| CI | GitHub Actions：push/PR 自动 JDK8 全量构建 + 测试（.github/workflows/ci.yml） | 工程化 |
+
+## 可观测性（starter-observability）
+
+- **指标端点**：引依赖即得 `/actuator/prometheus`（EnvironmentPostProcessor 默认暴露
+  health/info/prometheus，用户 yml 写同名 key 整体覆盖）；生产环境请用网关/安全组限制
+  actuator 外网访问；
+- **公共标签**：所有指标自动带 `application=spring.application.name`
+  （`scaffold.observability.application-name` 可覆盖），Prometheus 多应用聚合靠它区分；
+- **内建埋点**（optional micrometer，observability 不在场自动静默）：
+  | 指标 | 标签 | 出处 |
+  |---|---|---|
+  | `scaffold.job.executions` | job, outcome(success/fail) | starter-job |
+  | `scaffold.job.duration` | job | starter-job |
+  | `scaffold.protection.abuse.rejected` | scene, rule(interval/window/daily) | starter-protection |
+  | `scaffold.security.login.failures` | dimension(account/ip) | starter-security |
+- **业务自定义**：注入 `ScaffoldMetrics` 门面，`increment("scaffold.order.created", "channel", "app")`
+  一行打点，命名规约 `scaffold.<模块>.<指标>`；
+- lite 轻量版不含本 starter（零外部依赖形态不需要指标端点）。
+
+## 统一测试底座（starter-test）
+
+业务方以 **test scope** 引入本模块，替代散装样板：
+
+```java
+// Web 切片：零外部依赖，被测接口继承生产级横切层（traceId/统一异常/Jackson 规约）
+@ScaffoldWebSlice(controllers = DemoController.class)
+class DemoTest {
+    @Autowired ScaffoldMockMvc mvc;   // 或 @Autowired MockMvc 自行包装
+
+    @Test
+    void ok() {
+        mvc.get("/demo/ok").expectStatus(200);
+    }
+    @Test
+    void bizError() {
+        mvc.get("/demo/biz-error")
+           .expectStatus(403).expectCode(40301).expectTraceId();
+    }
+}
+
+// 数据切片：H2 内存库 + 雪花 ID + 审计人注入，每方法事务回滚
+@ScaffoldDataSlice
+@WithAuditor("tester")
+class RepoTest {
+    @Autowired DemoTaskRepository repo;
+    @Test
+    void audit() {
+        assertEquals("tester", repo.save(new DemoTask()).getCreateBy());
+    }
+}
+```
 
 ### 账号管理（internal 管理端）
 

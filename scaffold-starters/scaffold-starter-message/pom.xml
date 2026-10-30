@@ -50,6 +50,12 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- AbuseGuard 主代码引用 micrometer（optional）：测试运行时需可解析其构造器签名 -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

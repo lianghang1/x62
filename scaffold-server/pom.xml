@@ -50,6 +50,10 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-ws</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-observability</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
