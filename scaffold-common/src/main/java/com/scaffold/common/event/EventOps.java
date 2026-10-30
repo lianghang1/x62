@@ -1,14 +1,13 @@
 package com.scaffold.common.event;
 
 import com.scaffold.common.util.SpringContextHolder;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * 事件发布门面：进程内解耦主链路的标准出口。
  *
- * <p>封装 {@link ApplicationEventPublisher}：{@link #publish} 立即发布，
+ * <p>委托 {@link SpringContextHolder#publishEvent}：{@link #publish} 立即发布，
  * 供无事务或与事务无关的通知；{@link #publishAfterCommit} 事务提交后才发布，
  * 供「先落库、再通知」类副动作（日志、缓存失效、推送），回滚即不发——
  * 消费方用 {@code @EventListener}（配 {@code @Async}）承接，见 AuditLogListener。</p>
@@ -25,7 +24,7 @@ public final class EventOps {
 
     /** 立即发布事件（不管当前是否有事务）。 */
     public static void publish(Object event) {
-        requirePublisher().publishEvent(event);
+        SpringContextHolder.publishEvent(event);
     }
 
     /**
@@ -44,9 +43,5 @@ public final class EventOps {
         } else {
             publish(event);
         }
-    }
-
-    private static ApplicationEventPublisher requirePublisher() {
-        return SpringContextHolder.getBean(ApplicationEventPublisher.class);
     }
 }
