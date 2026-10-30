@@ -18,6 +18,9 @@ public interface AccountRoleRepository extends JpaRepository<AccountRole, Long> 
     /** 查询账户的全部角色绑定。 */
     List<AccountRole> findByAccountId(Long accountId);
 
+    /** 按角色查询绑定（删除角色前的占用校验用） */
+    List<AccountRole> findByRoleId(Long roleId);
+
     /** 删除账户的全部角色绑定。 */
     void deleteByAccountId(Long accountId);
 }

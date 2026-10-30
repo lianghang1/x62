@@ -1,5 +1,6 @@
 package com.scaffold.starter.job.config;
 
+import com.scaffold.starter.job.JobConfigProvider;
 import com.scaffold.starter.job.JpaJobRunLogSink;
 import com.scaffold.starter.job.JobRunLogRepository;
 import com.scaffold.starter.job.JobRunLogSink;
@@ -63,13 +64,15 @@ public class JobAutoConfiguration {
     public JobRegistrar jobRegistrar(ApplicationContext applicationContext, Environment environment,
                                      TaskScheduler taskScheduler, JobProperties properties,
                                      ObjectProvider<JobRunLogSink> runLogSink,
-                                     ObjectProvider<RedisLockUtil> lockUtil) {
+                                     ObjectProvider<RedisLockUtil> lockUtil,
+                                     ObjectProvider<JobConfigProvider> configProvider) {
         if ("none".equalsIgnoreCase(properties.getEngine())) {
-            // 外部调度平台接管：不注册，但仍安装 Recorder 供执行日志使用
+            // 外部调度平台接管：不注册，运行时管理走平台自带控制台
             return null;
         }
         return new JobRegistrar(applicationContext, environment, taskScheduler,
-                runLogSink.getIfAvailable(), lockUtil.getIfAvailable());
+                runLogSink.getIfAvailable(), lockUtil.getIfAvailable(),
+                configProvider.getIfAvailable());
     }
 
     /**

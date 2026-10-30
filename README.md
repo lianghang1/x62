@@ -99,6 +99,27 @@ scaffold:
 
 `Sm3DigestUtils` 提供 SM3 国密摘要（密码哈希/报文摘要备选）。密文格式 Base64(随机 IV || 密文)，同明文两次加密结果不同。
 
+## 动态任务管理（simple 引擎）
+
+任务默认按 `@Job` 注解的 cron 跑；`sys_job` 表作为**可选覆盖层**（表配置 > 代码默认 > 无库纯代码驱动），管理接口（internal 端）：
+
+| 接口 | 行为 |
+|------|------|
+| `GET /internal/jobs` | 列表：注册表快照与表配置合并视图（含仅落表的孤儿配置） |
+| `POST /internal/jobs/{jobKey}/config?cron=&enabled=&remark=` | 改 cron/启停：落表 + **动态刷新调度，不重启**（cron 先经合法性校验） |
+| `POST /internal/jobs/{jobKey}/trigger` | 立即触发一次（锁/日志语义与定时一致） |
+| `GET /internal/jobs/run-logs?jobName=&pageNum=` | 执行日志分页（job_run_log，最新在前） |
+
+powerjob 引擎（`engine=none`）运行时操作不可用，任务管理走 PowerJob Server 控制台，执行日志查询两引擎通用。
+
+## 角色管理
+
+`POST /internal/roles`（创建，编码唯一）/ `POST /internal/roles/{id}/update`（名称/权限串）/ `POST /internal/roles/{id}/delete`（有账号绑定时拒绝）/ `GET /internal/roles`。写操作全部 `@OperLog` 留痕。
+
+## dev 种子账号
+
+dev 是 H2 内存库且默认关 Liquibase，每次启动空库——`DevDataInitializer` 在 admin 不存在时自动创建 `admin/admin123`（仅 dev profile + Liquibase 关闭时生效，生产走 03-seed-data changeset）。
+
 ## 接入 PowerJob（三步）
 
 1. 配置 `scaffold.powerjob.enabled=true` + worker 连接（prod profile 已给模板）：

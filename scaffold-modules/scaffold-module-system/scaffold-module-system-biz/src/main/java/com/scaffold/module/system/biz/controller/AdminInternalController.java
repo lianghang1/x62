@@ -41,19 +41,23 @@ public class AdminInternalController {
     private final OperatorUserDetailsService userDetailsService;
     private final SysRoleRepository roleRepository;
     private final com.scaffold.starter.security.token.TokenService tokenService;
-    private final com.scaffold.starter.security.identity.LoginContext loginContextRef;
+    private final com.scaffold.module.system.biz.service.JobAdminService jobAdminService;
+    private final com.scaffold.module.system.biz.service.RoleAdminService roleAdminService;
 
     public AdminInternalController(AccountServiceImpl accountService,
                                    AccountAdminService accountAdminService,
                                    OperatorUserDetailsService userDetailsService,
                                    SysRoleRepository roleRepository,
-                                   com.scaffold.starter.security.token.TokenService tokenService) {
+                                   com.scaffold.starter.security.token.TokenService tokenService,
+                                   com.scaffold.module.system.biz.service.JobAdminService jobAdminService,
+                                   com.scaffold.module.system.biz.service.RoleAdminService roleAdminService) {
         this.accountService = accountService;
         this.accountAdminService = accountAdminService;
         this.userDetailsService = userDetailsService;
         this.roleRepository = roleRepository;
         this.tokenService = tokenService;
-        this.loginContextRef = null; // LoginContext 为静态工具，此处仅占位说明
+        this.jobAdminService = jobAdminService;
+        this.roleAdminService = roleAdminService;
     }
 
     @Operation(summary = "创建三方应用（返回 appKey/appSecret，secret 仅此一次展示）")
@@ -152,5 +156,69 @@ public class AdminInternalController {
         Map<String, Object> result = new HashMap<>();
         result.put("password", rawPassword);
         return R.ok(result);
+    }
+
+    // ---------------- 任务管理（simple 引擎） ----------------
+
+    @Operation(summary = "任务列表（注册表快照与表配置合并视图，含孤儿配置）")
+    @GetMapping("/jobs")
+    public R<List<Map<String, Object>>> jobs() {
+        return R.ok(jobAdminService.list());
+    }
+
+    @Operation(summary = "保存任务配置（改 cron/启停，落表并动态刷新调度，不重启）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "任务管理", action = "保存配置")
+    @PostMapping("/jobs/{jobKey}/config")
+    public R<Void> saveJobConfig(@PathVariable String jobKey,
+                                 @RequestParam String cron,
+                                 @RequestParam boolean enabled,
+                                 @RequestParam(required = false) String remark) {
+        jobAdminService.saveConfig(jobKey, cron, enabled, remark);
+        return R.ok();
+    }
+
+    @Operation(summary = "立即触发一次任务（异步，锁/日志语义与定时触发一致）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "任务管理", action = "触发任务")
+    @PostMapping("/jobs/{jobKey}/trigger")
+    public R<Void> triggerJob(@PathVariable String jobKey) {
+        jobAdminService.trigger(jobKey);
+        return R.ok();
+    }
+
+    @Operation(summary = "执行日志分页（jobName 可空 = 全部任务混排，最新在前）")
+    @GetMapping("/jobs/run-logs")
+    public R<com.scaffold.core.result.PageResult<com.scaffold.starter.job.JobRunLog>> jobRunLogs(
+            @RequestParam(required = false) String jobName,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return R.ok(jobAdminService.runLogs(jobName, pageNum, pageSize));
+    }
+
+    // ---------------- 角色管理 ----------------
+
+    @Operation(summary = "创建角色（编码唯一）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "创建角色")
+    @PostMapping("/roles")
+    public R<SysRole> createRole(@RequestParam String code,
+                                 @RequestParam String name,
+                                 @RequestParam(required = false) String permissions) {
+        return R.ok(roleAdminService.create(code, name, permissions));
+    }
+
+    @Operation(summary = "更新角色（名称/权限串，编码不可改）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "更新角色")
+    @PostMapping("/roles/{roleId}/update")
+    public R<SysRole> updateRole(@PathVariable Long roleId,
+                                 @RequestParam(required = false) String name,
+                                 @RequestParam(required = false) String permissions) {
+        return R.ok(roleAdminService.update(roleId, name, permissions));
+    }
+
+    @Operation(summary = "删除角色（有账号绑定时拒绝）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "删除角色")
+    @PostMapping("/roles/{roleId}/delete")
+    public R<Void> deleteRole(@PathVariable Long roleId) {
+        roleAdminService.delete(roleId);
+        return R.ok();
     }
 }

@@ -1,6 +1,7 @@
 package com.scaffold.starter.job.config;
 
 import com.scaffold.starter.job.AbstractJob;
+import com.scaffold.starter.job.JobConfigProvider;
 import com.scaffold.starter.job.JobRunLogSink;
 import com.scaffold.starter.job.JobRunRecorder;
 import com.scaffold.starter.protection.lock.RedisLockUtil;
@@ -12,15 +13,25 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.CronTrigger;
-import java.time.Duration;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 
 /**
- * 任务注册器（极简引擎 @Scheduled + Redis 锁）：
- * 启动时扫描全部 AbstractJob Bean，按 @Job.cron 注册到显式线程池
- * （Spring 默认单线程调度器是坑，必须配池）。
+ * 任务注册器（极简引擎）：扫描 AbstractJob Bean 注册到显式线程池，
+ * 支持「表配置覆盖代码默认值 + 运行时改 cron/启停 + 立即触发」。
  *
- * <p>升级路径：接入 PowerJob 等调度平台时，把注册源替换即可，业务任务类零改动。
+ * <p>回退链：外部配置（{@link JobConfigProvider}，如 sys_job 表）&gt; 代码注解默认值；
+ * 无提供方（server-lite 零依赖形态）自动回退纯代码驱动。</p>
+ *
+ * <p>接入 PowerJob 时 {@code scaffold.job.engine=none}，注册源替换为 PowerJob
+ * Server 配置，业务任务类零改动。</p>
+ *
+ * @author lianghang
  */
 public class JobRegistrar implements SmartInitializingSingleton {
 
@@ -31,38 +42,103 @@ public class JobRegistrar implements SmartInitializingSingleton {
     private final TaskScheduler taskScheduler;
     private final JobRunLogSink runLogSink;
     private final RedisLockUtil lockUtil;
+    private final JobConfigProvider configProvider;
+
+    /** 运行中任务的调度句柄（jobKey → future），运行时刷新按 key 取消重排 */
+    private final Map<String, ScheduledFuture<?>> scheduled = new ConcurrentHashMap<>();
+    private final Map<String, AbstractJob> jobsByJobKey = new ConcurrentHashMap<>();
+    private final Map<String, String> codeCrons = new ConcurrentHashMap<>();
 
     public JobRegistrar(ApplicationContext applicationContext, Environment environment,
                         TaskScheduler taskScheduler, JobRunLogSink runLogSink,
-                        RedisLockUtil lockUtil) {
+                        RedisLockUtil lockUtil, JobConfigProvider configProvider) {
         this.applicationContext = applicationContext;
         this.environment = environment;
         this.taskScheduler = taskScheduler;
         this.runLogSink = runLogSink;
         this.lockUtil = lockUtil;
+        this.configProvider = configProvider;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
         Map<String, AbstractJob> jobs = applicationContext.getBeansOfType(AbstractJob.class);
+        int registered = 0;
         for (AbstractJob job : jobs.values()) {
             try {
                 AbstractJob.JobMetadata metadata = job.metadata();
-                // cron/enabled 支持配置占位符，改配置即生效（重启后）
+                String jobKey = metadata.jobKey;
+                // 代码默认值（占位符经 Environment 解析）
                 String cron = environment.resolvePlaceholders(metadata.cron);
                 boolean enabled = Boolean.parseBoolean(
                         environment.resolvePlaceholders(String.valueOf(metadata.enabled)));
+                codeCrons.put(jobKey, cron);
+                jobsByJobKey.put(jobKey, job);
+                // 外部配置覆盖（表配置 > 代码默认）
+                String source = "code";
+                if (configProvider != null) {
+                    Optional<JobConfigProvider.JobOverride> override = configProvider.find(jobKey);
+                    if (override.isPresent()) {
+                        cron = environment.resolvePlaceholders(override.get().getCron());
+                        enabled = override.get().isEnabled();
+                        source = "db";
+                    }
+                }
                 if (!enabled) {
-                    log.info("[job] {} 已下线（enabled=false）", metadata.jobName);
+                    log.info("[job] {} 已下线（enabled=false，来源 {}）", metadata.jobName, source);
                     continue;
                 }
-                taskScheduler.schedule(() -> executeWithRecorder(job), new CronTrigger(cron));
-                log.info("[job] 注册任务: {} cron={}", metadata.jobName, cron);
+                schedule(job, jobKey, cron);
+                registered++;
+                log.info("[job] 注册任务: {} cron={} (来源: {})", metadata.jobName, cron, source);
             } catch (Exception e) {
                 log.error("[job] 注册失败: {}", job.getClass().getName(), e);
             }
         }
-        log.info("[job] 任务注册完成，共 {} 个", jobs.size());
+        log.info("[job] 任务注册完成，共 {} 个（发现 {} 个）", registered, jobs.size());
+    }
+
+    /**
+     * 运行时应用新配置（改 cron / 启停），立即生效不重启。
+     *
+     * @return false 表示任务不在本实例注册表（未注册或外部引擎接管），调用方不应落表
+     */
+    public boolean apply(String jobKey, String cron, boolean enabled) {
+        AbstractJob job = jobsByJobKey.get(jobKey);
+        if (job == null) {
+            return false;
+        }
+        ScheduledFuture<?> old = scheduled.remove(jobKey);
+        if (old != null) {
+            old.cancel(false);
+        }
+        if (enabled) {
+            schedule(job, jobKey, cron);
+        }
+        log.info("[job] 配置已应用: {} cron={} enabled={}", jobKey, cron, enabled);
+        return true;
+    }
+
+    /** 立即触发一次（异步，与定时执行走同一包装，锁/日志语义一致） */
+    public boolean triggerNow(String jobKey) {
+        AbstractJob job = jobsByJobKey.get(jobKey);
+        if (job == null) {
+            return false;
+        }
+        taskScheduler.schedule(() -> executeWithRecorder(job), java.time.Instant.now());
+        return true;
+    }
+
+    /** 注册表快照：管理端列表合并视图用（enabled = 是否在调度中） */
+    public List<JobInfo> views() {
+        List<JobInfo> list = new ArrayList<>();
+        for (Map.Entry<String, AbstractJob> entry : jobsByJobKey.entrySet()) {
+            AbstractJob.JobMetadata metadata = entry.getValue().metadata();
+            list.add(new JobInfo(entry.getKey(), metadata.jobName,
+                    entry.getValue().getClass().getName(),
+                    codeCrons.get(entry.getKey()), scheduled.containsKey(entry.getKey())));
+        }
+        return list;
     }
 
     /**
@@ -77,6 +153,50 @@ public class JobRegistrar implements SmartInitializingSingleton {
             job.run();
         } finally {
             JobRunRecorder.uninstall();
+        }
+    }
+
+    private void schedule(AbstractJob job, String jobKey, String cron) {
+        ScheduledFuture<?> future = taskScheduler.schedule(() -> executeWithRecorder(job), new CronTrigger(cron));
+        scheduled.put(jobKey, future);
+    }
+
+    /** 注册表条目视图：codeCron 为代码注解默认值，enabled 为当前是否在调度中 */
+    public static class JobInfo {
+
+        private final String jobKey;
+        private final String jobName;
+        private final String className;
+        private final String codeCron;
+        private final boolean enabled;
+
+        public JobInfo(String jobKey, String jobName, String className,
+                       String codeCron, boolean enabled) {
+            this.jobKey = jobKey;
+            this.jobName = jobName;
+            this.className = className;
+            this.codeCron = codeCron;
+            this.enabled = enabled;
+        }
+
+        public String getJobKey() {
+            return jobKey;
+        }
+
+        public String getJobName() {
+            return jobName;
+        }
+
+        public String getClassName() {
+            return className;
+        }
+
+        public String getCodeCron() {
+            return codeCron;
+        }
+
+        public boolean isEnabled() {
+            return enabled;
         }
     }
 
@@ -96,10 +216,5 @@ public class JobRegistrar implements SmartInitializingSingleton {
         ThreadPoolTaskScheduler scheduler = buildScheduler(poolSize);
         scheduler.initialize();
         return scheduler;
-    }
-
-    @SuppressWarnings("unused")
-    private static Duration unused() {
-        return Duration.ZERO;
     }
 }

@@ -18,5 +18,6 @@
     <include file="db/changelog/v1.0.0/02-job-and-demo-tables.xml"/>
     <include file="db/changelog/v1.0.0/03-seed-data.xml"/>
     <include file="db/changelog/v1.0.0/04-security-tables.xml"/>
+    <include file="db/changelog/v1.0.0/05-job-admin-tables.xml"/>
 
 </databaseChangeLog>
