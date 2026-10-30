@@ -46,8 +46,12 @@ import java.time.format.DateTimeFormatter;
 @EnableConfigurationProperties(WebProperties.class)
 public class WebAutoConfiguration {
 
-    public static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
-    public static final String DATE_PATTERN = "yyyy-MM-dd";
+    /** @deprecated 全局格式常量已收口 {@link com.scaffold.common.util.DateUtils}，新代码直接引用 */
+    @Deprecated
+    public static final String DATE_TIME_PATTERN = com.scaffold.common.util.DateUtils.DATE_TIME_PATTERN;
+    /** @deprecated 全局格式常量已收口 {@link com.scaffold.common.util.DateUtils} */
+    @Deprecated
+    public static final String DATE_PATTERN = com.scaffold.common.util.DateUtils.DATE_PATTERN;
     public static final String TIME_PATTERN = "HH:mm:ss";
 
     @Bean

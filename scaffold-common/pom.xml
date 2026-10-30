@@ -21,6 +21,16 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <!-- SpringContextHolder：容器启动后静态取 Bean（非 Spring Bean 场景的出口） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <!-- @ValidateEnum 枚举校验：api 由使用方（web/业务模块）通过 starter-validation 提供 -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+        </dependency>
         <!-- JsonUtils：Jackson 静态封装（与 web 层序列化行为一致） -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
