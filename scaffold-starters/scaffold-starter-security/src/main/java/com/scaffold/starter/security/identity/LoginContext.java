@@ -9,10 +9,12 @@ import com.scaffold.starter.data.jpa.audit.ScaffoldAuditorHolder;
  * 登录上下文——业务层获取当前身份的唯一入口。
  *
  * <p>底座使用阿里 TransmittableThreadLocal：@Async / 自建线程池（经 ScaffoldExecutors 包装）
- * 中照样取得到「提交那一刻」的身份，且不会串号。
+ * 中照样取得到「提交那一刻」的身份，且不会串号。</p>
  *
  * <p>写入与清理由三条安全链的过滤器负责（finally 强制清理，防线程复用串号）；
- * 业务代码禁止裸取 SecurityContextHolder / request attribute。
+ * 业务代码禁止裸取 SecurityContextHolder / request attribute。</p>
+ *
+ * @author lianghang
  */
 public final class LoginContext {
 

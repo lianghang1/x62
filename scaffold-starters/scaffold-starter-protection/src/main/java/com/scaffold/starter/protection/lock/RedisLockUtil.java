@@ -9,8 +9,12 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Redis 分布式锁工具：加锁 setIfAbsent(唯一值)；解锁 Lua 校验持有值后删除。
- * 不做看门狗自动续期——长任务请显式调大 leaseSeconds（简单透明优先）。
+ * Redis 分布式锁工具类。
+ *
+ * <p>加锁用 setIfAbsent 写入唯一持有值；解锁经 Lua 校验持有值后删除。
+ * 不做看门狗自动续期——长任务请显式调大 leaseSeconds，简单透明优先于复杂机制。</p>
+ *
+ * @author lianghang
  */
 public class RedisLockUtil {
 

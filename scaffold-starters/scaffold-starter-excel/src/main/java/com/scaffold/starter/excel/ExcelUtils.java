@@ -10,8 +10,12 @@ import java.net.URLEncoder;
 import java.util.List;
 
 /**
- * Excel 导入导出工具（EasyExcel 封装）。
- * 导出：一行代码下载；导入：继承 RowListener 处理逐行校验。
+ * 基于 EasyExcel 封装的 Excel 导入导出工具。
+ *
+ * <p>导出一行代码完成下载（文件名自动 URL 编码）；导入走逐批回调，
+ * 业务在 listener 中校验并收集结果——大文件按千行分批，避免一次性驻留内存。</p>
+ *
+ * @author lianghang
  */
 public final class ExcelUtils {
 

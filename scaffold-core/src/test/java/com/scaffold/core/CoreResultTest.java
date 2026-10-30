@@ -11,6 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * core 模块响应与异常体系的单元测试。
+ *
+ * <p>覆盖 {@code R} 的成功/失败工厂取值、{@code BizException} 携带错误码与自定义文案，
+ * 以及 {@code PageResult} 的空页安全与字段保真。</p>
+ *
+ * @author lianghang
+ */
 public class CoreResultTest {
 
     @Test

@@ -25,8 +25,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * 认证服务：internal 账密登录 / online 微信登录 / 登出——殊途同归到统一账户 + Redis 会话。
- * 登录全程写 sys_login_log（成功/失败都记），失败走 LoginFailureGuard 连续锁定。
+ * 认证服务。
+ *
+ * <p>internal 账密登录 / online 微信登录 / 登出殊途同归到统一账户 + Redis 会话：
+ * 登录全程写 {@code sys_login_log}（成功、失败都记），连续失败经
+ * {@code LoginFailureGuard} 临时锁定——审计与防护都围绕「身份进出」这条主轴。</p>
+ *
+ * @author lianghang
  */
 @Service
 public class AuthService {
@@ -57,7 +62,7 @@ public class AuthService {
         this.oAuthLoginService = oAuthLoginService;
     }
 
-    /** internal：账密登录（OPERATOR）+ 失败锁定 + 登录日志 */
+    /** internal：账密登录（OPERATOR）+ 失败锁定 + 登录日志。 */
     public String internalLogin(String username, String password) {
         if (failureGuard.isLocked(username)) {
             recordLoginLog(username, "internal", false, "连续失败临时锁定");
@@ -82,7 +87,7 @@ public class AuthService {
         return issueToken(account, "internal", true);
     }
 
-    /** online：微信授权码登录（MEMBER，不存在则自动注册） */
+    /** online：微信授权码登录（MEMBER，不存在则自动注册）。 */
     @Transactional
     public String wechatLogin(String provider, String code) {
         ExternalIdentity identity = oAuthLoginService.exchange(provider, code);
@@ -136,12 +141,12 @@ public class AuthService {
         return tokenService.create(session, exclusive);
     }
 
-    /** 登出：删 key 立即失效 */
+    /** 登出：删除会话 key，令牌立即失效。 */
     public void logout(String token) {
         tokenService.revoke(token);
     }
 
-    /** 登录日志：尽力而为，记录失败不影响登录主流程 */
+    /** 登录日志：尽力而为，记录失败不影响登录主流程。 */
     private void recordLoginLog(String accountNo, String loginType, boolean success, String failReason) {
         try {
             LoginLog entry = new LoginLog();
@@ -164,7 +169,7 @@ public class AuthService {
         }
     }
 
-    /** 取真实 IP：优先 X-Forwarded-For 首段（经网关/代理），其次 remoteAddr（OperLogAspect 复用） */
+    /** 取真实 IP：优先 X-Forwarded-For 首段（经网关/代理），其次 remoteAddr；OperLogAspect 复用。 */
     public static String clientIp(HttpServletRequest request) {
         String forwarded = request.getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isEmpty()) {

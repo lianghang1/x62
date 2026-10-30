@@ -12,12 +12,13 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 基于 Redis 的 Token 会话实现（RuoYi 同款思路）：
- * <ul>
- *   <li>token = UUID，会话 JSON 存 scaffold:auth:token:{token}，TTL 可配；</li>
- *   <li>账户索引 set scaffold:auth:account:{accountId} 记录其全部 token（全端下线/在线用户用）；</li>
- *   <li>剩余有效期不足阈值自动续期；踢人 = 删 key 立即生效。</li>
- * </ul>
+ * 基于 Redis 的 token 会话实现，沿用 RuoYi 的同款思路。
+ *
+ * <p>token 为 UUID，会话 JSON 存 {@code scaffold:auth:token:{token}}，TTL 可配；
+ * 账户索引 set {@code scaffold:auth:account:{accountId}} 记录其全部 token，供全端下线与在线用户查询使用；
+ * 剩余有效期不足阈值自动续期，踢人即删 key、立即生效——双 key 结构让会话管控有索引可依。</p>
+ *
+ * @author lianghang
  */
 public class RedisTokenService implements TokenService {
 

@@ -6,15 +6,14 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 
 /**
- * openapi 签名算法（约定文档化，双方按此实现）：
+ * openapi 签名算法工具，约定已文档化、双方按此实现。
  *
- * <pre>
- * bodyHash = SHA-256(请求体原文) 的 hex（GET/DELETE 请求体为空串）
- * signBase = appKey + "\n" + timestamp + "\n" + nonce + "\n" + bodyHash
- * sign     = HMAC-SHA256(signBase, appSecret) 的 hex
- * </pre>
+ * <p>算法：bodyHash 为 SHA-256(请求体原文) 的 hex（GET/DELETE 请求体为空串）；
+ * signBase = appKey + 换行 + timestamp + 换行 + nonce + 换行 + bodyHash；
+ * sign 为 HMAC-SHA256(signBase, appSecret) 的 hex。防重放依赖 timestamp 窗口校验（默认 ±300 秒）
+ * 加 nonce 一次性（Redis setIfAbsent，TTL 等于窗口）——签名与防重放双保险。</p>
  *
- * 防重放 = timestamp 窗口校验（默认 ±300s）+ nonce 一次性（Redis setIfAbsent，TTL=窗口）。
+ * @author lianghang
  */
 public final class SignUtils {
 

@@ -7,7 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * 加密组件单元测试：AES/SM4 往返 + 随机 IV 语义 + SM3 标准测试向量。
+ * 加密组件单元测试，覆盖 AES/SM4 加解密往返与 SM3 标准测试向量。
+ *
+ * <p>除往返正确性外，还验证随机 IV 语义（同一明文两次加密密文不同）与
+ * 密钥不一致时解密必须失败——这两点是敏感字段加密的安全底线。</p>
+ *
+ * @author lianghang
  */
 class CryptoStarterTest {
 

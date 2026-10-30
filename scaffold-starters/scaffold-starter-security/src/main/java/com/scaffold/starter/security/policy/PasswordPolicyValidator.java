@@ -5,8 +5,12 @@ import com.scaffold.core.exception.GlobalErrorCode;
 import com.scaffold.starter.security.config.SecurityProperties;
 
 /**
- * 密码强度校验（创建账号/修改密码时调用）：
- * 最小长度 + 必须同时包含字母和数字（scaffold.security.password-policy 可调）。
+ * 密码强度校验器，创建账号与修改密码时调用。
+ *
+ * <p>规则为最小长度 + 必须同时包含字母和数字，阈值经
+ * {@code scaffold.security.password-policy} 可调——策略配置化，不写死在业务里。</p>
+ *
+ * @author lianghang
  */
 public class PasswordPolicyValidator {
 

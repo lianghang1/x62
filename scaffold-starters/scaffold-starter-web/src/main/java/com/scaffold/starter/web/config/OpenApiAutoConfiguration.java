@@ -8,8 +8,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 /**
- * 接口文档（knife4j / springdoc-openapi）自动装配。
- * 生产环境通过配置 knife4j.production=true 关闭（见 application-prod.yml）。
+ * 接口文档自动装配器，为 knife4j / springdoc-openapi 提供默认 {@code OpenAPI} 描述。
+ *
+ * <p>仅当类路径存在 {@code OpenAPI} 时生效，且容器中尚无同名 Bean 才注册；
+ * 标题取 {@code spring.application.name}，版本取 {@code scaffold.doc.version}。</p>
+ *
+ * <p>生产环境通过 {@code knife4j.production=true} 关闭文档（见 application-prod.yml），
+ * 避免接口结构对外暴露。</p>
+ *
+ * @author lianghang
  */
 @ConditionalOnClass(OpenAPI.class)
 public class OpenApiAutoConfiguration {

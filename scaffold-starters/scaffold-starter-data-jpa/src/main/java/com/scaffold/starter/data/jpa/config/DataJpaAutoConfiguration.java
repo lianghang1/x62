@@ -15,8 +15,16 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.Optional;
 
 /**
- * starter-data-jpa 自动装配：
- * JPA Auditing（审计人取 ScaffoldAuditorHolder，由安全层写入）+ 雪花 ID 单例。
+ * starter-data-jpa 自动装配器，提供 JPA Auditing 与雪花 ID 单例。
+ *
+ * <p>审计人通过 {@code AuditorAware} 从 {@code ScaffoldAuditorHolder} 读取，
+ * 由安全层在认证后写入，data-jpa 自身不感知登录态；实体与 Repository 扫描
+ * 范围统一为 {@code com.scaffold}，业务模块放各自包下即可被纳入。</p>
+ *
+ * <p>雪花 ID 以单例 Bean 构建并同步初始化到 {@code SnowflakeIdentifierGenerator}
+ * 的静态引用——Hibernate 通过反射实例化生成器，拿不到 Spring 容器，只能走静态注入。</p>
+ *
+ * @author lianghang
  */
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "scaffoldAuditorAware")

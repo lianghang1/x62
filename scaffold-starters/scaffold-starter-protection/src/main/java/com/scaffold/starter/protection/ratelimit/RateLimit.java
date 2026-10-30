@@ -7,8 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 接口限流注解（Lua 原子计数，滑动窗口语义由 Redis EXPIRE+INCR 的原子脚本保证）。
- * 默认维度 = URI；指定 dimension="account" 时按当前账户 ID 限流（匿名按 IP）。
+ * 接口限流注解，基于 Lua 原子计数实现滑动窗口语义。
+ *
+ * <p>计数与过期由 Redis EXPIRE 加 INCR 的原子脚本保证；默认维度为 URI，
+ * 指定 dimension="account" 时按当前账户 ID 限流（匿名按 IP）——限流粒度按需声明。</p>
+ *
+ * @author lianghang
  */
 @Documented
 @Target(ElementType.METHOD)

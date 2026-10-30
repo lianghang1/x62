@@ -13,7 +13,14 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 登录源路由：provider 标识 -> OAuthIdentityProvider 实现（微信网页授权/小程序等，按需扩展）。
+ * OAuth 登录源路由器。
+ *
+ * <p>按 provider 标识路由到对应的 {@code OAuthIdentityProvider} 实现
+ * （微信网页授权 / 小程序等，按需扩展）：启动时收集全部实现建立路由表，
+ * 一个都没有则只告警——{@code /online} 登录不可用，其余入口不受影响；
+ * 未知 provider 直接拒绝，不猜测默认登录源。</p>
+ *
+ * @author lianghang
  */
 @Service
 public class OAuthLoginService {
@@ -30,6 +37,13 @@ public class OAuthLoginService {
         }
     }
 
+    /**
+     * 用授权码换取外部身份。
+     *
+     * @param provider 登录源标识
+     * @param code     授权码
+     * @return 外部身份信息
+     */
     public ExternalIdentity exchange(String provider, String code) {
         OAuthIdentityProvider p = providers.get(provider);
         if (p == null) {

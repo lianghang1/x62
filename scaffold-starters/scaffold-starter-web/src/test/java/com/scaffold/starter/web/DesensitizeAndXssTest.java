@@ -16,7 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 脱敏注解 + XSS 转义单元测试。
+ * 脱敏注解与 XSS 转义的单元测试。
+ *
+ * <p>逐类型断言脱敏输出格式（含 CUSTOM 前后缀保留），并验证 XSS 转义只处理
+ * 尖括号、JSON body 转义后结构仍可被 Jackson 正常解析。</p>
+ *
+ * @author lianghang
  */
 class DesensitizeAndXssTest {
 

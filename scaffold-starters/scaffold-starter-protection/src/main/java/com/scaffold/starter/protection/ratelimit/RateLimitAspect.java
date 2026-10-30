@@ -17,8 +17,12 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * 限流切面：计数与过期在同一 Lua 脚本内原子完成，杜绝「先 INCR 后 EXPIRE」的竞态。
- * 超限抛 1429 业务异常（HTTP 429）。
+ * 接口限流切面，配合 {@link RateLimit} 注解工作。
+ *
+ * <p>计数与过期在同一 Lua 脚本内原子完成，杜绝「先 INCR 后 EXPIRE」的竞态；
+ * 无法确定限流维度（如无请求上下文）时放行以避免误伤内部调用，超限抛 1429 业务异常（HTTP 429）。</p>
+ *
+ * @author lianghang
  */
 @Aspect
 public class RateLimitAspect {

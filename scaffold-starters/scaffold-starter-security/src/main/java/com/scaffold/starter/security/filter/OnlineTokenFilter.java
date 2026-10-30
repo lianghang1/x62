@@ -12,7 +12,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * online 链认证过滤器：可选登录——带有效 token 则归一化身份（增强能力），匿名照常放行。
+ * online 链的可选登录认证过滤器。
+ *
+ * <p>带有效 token 则归一化身份（获得增强能力），匿名照常放行——
+ * C 端接口允许游客访问，登录与否只影响数据可见范围。</p>
+ *
+ * @author lianghang
  */
 public class OnlineTokenFilter extends OncePerRequestFilter {
 

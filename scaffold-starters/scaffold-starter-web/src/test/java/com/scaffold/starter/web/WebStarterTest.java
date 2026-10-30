@@ -18,7 +18,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * starter-web 基线测试：traceId 过滤器 + 全局异常处理（MockMvc 独立环境，零外部依赖）。
+ * starter-web 基线测试，覆盖 traceId 过滤器与全局异常处理的默认行为。
+ *
+ * <p>基于 MockMvc 独立环境、零外部依赖：验证 traceId 的生成与上游透传复用，
+ * 以及业务异常、未知异常的 HTTP 状态码与业务码双轨映射、内部细节隐藏。</p>
+ *
+ * @author lianghang
  */
 public class WebStarterTest {
 

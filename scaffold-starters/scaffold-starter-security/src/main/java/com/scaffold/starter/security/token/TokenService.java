@@ -3,10 +3,12 @@ package com.scaffold.starter.security.token;
 import java.util.List;
 
 /**
- * Token 会话服务（不透明 token + Redis 会话）。
+ * 基于「不透明 token + Redis 会话」的 token 会话服务。
  *
- * <p>能力清单（借鉴 RuoYi/Sa-Token 会话管控）：
- * 创建会话、解析、剩余有效期不足自动续期、登出/踢人即删 key、按账户全端下线、在线用户查询、同端互斥。
+ * <p>能力清单借鉴 RuoYi/Sa-Token 的会话管控：创建会话、解析、剩余有效期不足自动续期、
+ * 登出/踢人即删 key、按账户全端下线、在线用户查询、同端互斥——服务端持有全部会话状态。</p>
+ *
+ * @author lianghang
  */
 public interface TokenService {
 

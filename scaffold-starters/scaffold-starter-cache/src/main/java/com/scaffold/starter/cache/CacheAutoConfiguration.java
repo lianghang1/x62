@@ -14,7 +14,17 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.time.Duration;
 
 /**
- * 缓存自动装配：默认两级缓存；scaffold.cache.type=redis 时退化为纯 Redis 缓存（由 Boot 自动配置提供）。
+ * 缓存自动装配器，提供默认的两级缓存实现。
+ *
+ * <p>默认装配 Caffeine + Redis 的 {@code TwoLevelCacheManager}，仅在容器中尚无
+ * {@code CacheManager} 时生效，业务方可自行注册实现覆盖；配置前缀为
+ * {@code scaffold.cache}，同时启用声明式缓存注解支持。</p>
+ *
+ * <p>当 {@code scaffold.cache.type=redis} 时不注册任何 Bean，退化为 Boot
+ * 自动配置提供的纯 Redis 缓存——两级缓存适合字典、配置类读多写少的数据，
+ * 强一致场景请勿依赖本装配器。</p>
+ *
+ * @author lianghang
  */
 @Configuration
 @EnableCaching

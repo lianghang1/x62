@@ -16,7 +16,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * online 端订单（C 端视角：owner = 当前登录会员自己）。
+ * online 端订单接口。
+ *
+ * <p>C 端视角：owner 恒为当前登录会员自己——下单时从 {@code LoginContext} 取当前账户，
+ * 查询按归属人过滤，详情走服务层归属校验，杜绝越权查看他人订单。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "online-我的订单")
 @RestController

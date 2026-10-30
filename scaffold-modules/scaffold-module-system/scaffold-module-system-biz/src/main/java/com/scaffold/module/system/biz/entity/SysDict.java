@@ -7,7 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * 字典项（业务性横切的提供方实体，跨模块经 DictApi 使用）。
+ * 字典项实体。
+ *
+ * <p>业务性横切的提供方实体：跨模块统一经 {@code DictApi} 消费字典数据，
+ * 存储结构（类型 / 标签 / 值 / 排序 / 启用状态）不外泄给调用方。</p>
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "sys_dict")

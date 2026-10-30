@@ -7,7 +7,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * 账户-角色关联（纯关联表，无审计诉求，用简单主键）。
+ * 账户-角色关联表。
+ *
+ * <p>纯关联表，无审计诉求，故不继承 BaseEntity、直接用雪花简单主键；
+ * 账户与角色为多对多，权限随角色授予。</p>
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "sys_account_role")

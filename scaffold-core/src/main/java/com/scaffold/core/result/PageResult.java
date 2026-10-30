@@ -5,7 +5,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 统一分页结果。与具体 ORM 解耦（JPA 的 Page 在 Repository 层转换为本类后再出 Service）。
+ * 统一分页结果。
+ *
+ * <p>与具体 ORM 解耦——JPA 的 {@code Page} 在 Repository 层转换为本类后再出 Service，
+ * 避免框架类型沿调用链向上泄漏；空页场景经 {@code empty} 构造时列表恒不为 null。</p>
+ *
+ * @param <T> 数据类型
+ * @author lianghang
  */
 public class PageResult<T> implements Serializable {
 

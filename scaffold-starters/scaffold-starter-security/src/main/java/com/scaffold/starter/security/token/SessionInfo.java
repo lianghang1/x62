@@ -8,8 +8,12 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * Redis 会话内容：token 的服务端实体（不透明 token 方案，无 JWT）。
- * 管控能力（踢人/续期/在线用户/同端互斥）全部基于本对象实现。
+ * Redis 会话内容，即 token 对应的服务端会话实体。
+ *
+ * <p>采用不透明 token 方案（无 JWT），踢人、续期、在线用户查询、同端互斥等管控能力
+ * 全部基于本对象实现——会话状态收敛在服务端，才有真正的下线控制权。</p>
+ *
+ * @author lianghang
  */
 public class SessionInfo implements Serializable {
 

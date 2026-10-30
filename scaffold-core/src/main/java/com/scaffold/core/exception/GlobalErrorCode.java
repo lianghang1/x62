@@ -1,7 +1,13 @@
 package com.scaffold.core.exception;
 
 /**
- * 全局通用错误码（1xxx 段）。各业务域的错误码在各自模块内定义，不得写入本枚举。
+ * 全局通用错误码枚举（1xxx 段）。
+ *
+ * <p>只承载跨模块通用的错误语义；各业务域的错误码在各自模块内定义，不得写入本枚举，
+ * 以免业务语义向 core 扩散。枚举项同时携带默认文案与建议 HTTP 状态码，
+ * 供 {@link BizException} 与统一响应直接取用。</p>
+ *
+ * @author lianghang
  */
 public enum GlobalErrorCode implements ErrorCode {
 

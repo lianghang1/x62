@@ -9,7 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * 两级缓存管理器：按缓存名创建 TwoLevelCache。
+ * 两级缓存管理器，按缓存名懒创建并复用 {@code TwoLevelCache} 实例。
+ *
+ * <p>所有缓存共享同一套 L1（Caffeine）、Redis 客户端与 L2 TTL，仅以缓存名区分
+ * key 空间；实例按名去重缓存于 {@code ConcurrentHashMap}，避免重复构建。</p>
+ *
+ * @author lianghang
  */
 public class TwoLevelCacheManager implements CacheManager {
 

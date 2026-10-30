@@ -9,7 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 /**
- * 服务保护自动装配：限流 / 幂等 / 分布式锁三个切面。
+ * 服务保护能力的自动装配类。
+ *
+ * <p>集中装配限流、幂等、分布式锁三个切面及其依赖的 RedisLockUtil——
+ * 引入即生效，业务侧只需打注解，无需手动注册 Bean。</p>
+ *
+ * @author lianghang
  */
 @Configuration
 public class ProtectionAutoConfiguration {

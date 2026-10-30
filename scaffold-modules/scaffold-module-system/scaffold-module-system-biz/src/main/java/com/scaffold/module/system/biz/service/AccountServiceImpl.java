@@ -27,7 +27,14 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 账户服务 + openapi 凭证提供者实现。
+ * 账户服务实现。
+ *
+ * <p>一身两职：既是 {@code AccountApi} 的跨模块查询实现（聚合主账户与
+ * 扩展信息），也是 openapi 签名校验的 {@code AppSecretProvider}——
+ * 凭证加载时复核主账户启用状态，禁用账户即便凭证正确也拿不到身份；
+ * 管理端负责三方应用建档与密钥重置，密钥明文只在创建 / 重置响应中出现。</p>
+ *
+ * @author lianghang
  */
 @Service
 public class AccountServiceImpl implements AccountApi, AppSecretProvider {
@@ -88,6 +95,7 @@ public class AccountServiceImpl implements AccountApi, AppSecretProvider {
 
     // ---------------- 管理端：三方应用管理 ----------------
 
+    /** 创建三方应用：同步生成 APP 类型账户与应用凭证。 */
     @Transactional
     public AppInfo createApp(String appName, String scopes, String ipWhitelist) {
         SysAccount account = new SysAccount();
@@ -107,6 +115,7 @@ public class AccountServiceImpl implements AccountApi, AppSecretProvider {
         return saved;
     }
 
+    /** 重置应用密钥：旧密钥立即失效。 */
     @Transactional
     public AppInfo resetSecret(Long appId) {
         AppInfo app = appInfoRepository.findByIdAndDeletedFalse(appId)

@@ -30,7 +30,17 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * starter-web 自动装配入口。
+ * starter-web 自动装配入口，统一注册 Web 层的基础设施 Bean。
+ *
+ * <p>覆盖四类横切关注点：traceId 与 XSS 两个全局 Filter、Jackson 序列化规约、
+ * 访问日志与异常处理，外加 CORS 与 {@code @Async} 线程池装饰器。Jackson 侧
+ * 将 Long 序列化为字符串以规避 JS 精度丢失，时间统一 {@code yyyy-MM-dd HH:mm:ss}、
+ * 时区 GMT+8。</p>
+ *
+ * <p>安全边界默认收紧：XSS 过滤默认开启（可按路径排除），CORS 仅在显式配置
+ * {@code allowed-origins} 时生效，禁止全放开。</p>
+ *
+ * @author lianghang
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableConfigurationProperties(WebProperties.class)
@@ -50,7 +60,7 @@ public class WebAutoConfiguration {
         return registration;
     }
 
-    /** XSS 过滤：参数与 body 尖括号转义，紧跟 TraceIdFilter 之后 */
+    /** XSS 过滤：参数与 body 尖括号转义，紧跟 TraceIdFilter 之后。 */
     @Bean
     @ConditionalOnProperty(prefix = "scaffold.web.xss", name = "enabled", havingValue = "true", matchIfMissing = true)
     public FilterRegistrationBean<XssFilter> xssFilterRegistration(WebProperties properties) {
@@ -63,8 +73,7 @@ public class WebAutoConfiguration {
     }
 
     /**
-     * Jackson 统一配置：
-     * Long/long 序列化为字符串（防止 JS 精度丢失）；时间统一格式；时区 GMT+8。
+     * Jackson 统一配置：Long/long 序列化为字符串（防止 JS 精度丢失），时间统一格式、时区 GMT+8。
      */
     @Bean
     public Jackson2ObjectMapperBuilderCustomizer scaffoldJacksonCustomizer() {
@@ -96,13 +105,13 @@ public class WebAutoConfiguration {
         return new AccessLogAspect(objectMapper);
     }
 
-    /** @Async 默认线程池：统一挂上 traceId 装饰器（LoginContext 透传由 TTL 提供，见 starter-security） */
+    /** @Async 默认线程池：统一挂上 traceId 装饰器（LoginContext 透传由 TTL 提供，见 starter-security）。 */
     @Bean
     public TaskExecutorCustomizer traceTaskExecutorCustomizer() {
         return taskExecutor -> taskExecutor.setTaskDecorator(new TraceTaskDecorator());
     }
 
-    /** CORS：仅当配置了 allowed-origins 时生效，默认关闭 */
+    /** CORS：仅当配置了 allowed-origins 时生效，默认关闭。 */
     @Bean
     public WebMvcConfigurer scaffoldCorsConfigurer(final WebProperties properties) {
         return new WebMvcConfigurer() {

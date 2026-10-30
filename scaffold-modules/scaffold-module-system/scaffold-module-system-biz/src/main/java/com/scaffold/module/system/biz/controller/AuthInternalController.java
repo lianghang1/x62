@@ -14,7 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * internal 端认证（/internal/auth/login 在白名单内，其余需 token）。
+ * internal 端认证接口。
+ *
+ * <p>{@code /internal/auth/login} 位于匿名白名单，其余请求需携带 token；
+ * 登出同时支持 {@code Authorization: Bearer} 与 {@code X-Token} 两种取参方式。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "internal-认证")
 @RestController

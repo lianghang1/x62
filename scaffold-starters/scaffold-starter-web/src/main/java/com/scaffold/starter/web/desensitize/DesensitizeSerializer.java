@@ -10,8 +10,13 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * 脱敏序列化器：经 {@link Desensitize} 元注解挂到 @JsonSerialize，属性级 ContextualSerializer，
- * 无注解的字段走默认序列化，零侵入。
+ * 脱敏序列化器，按 {@link Desensitize} 注解的类型定义对字符串值打码。
+ *
+ * <p>通过 {@code @JacksonAnnotationsInside} 元注解挂到 {@code @JsonSerialize} 上，
+ * 并实现属性级 {@code ContextualSerializer}：仅携带注解的 String 字段替换为打码
+ * 版本，其余字段走默认序列化，对业务零侵入。</p>
+ *
+ * @author lianghang
  */
 public class DesensitizeSerializer extends JsonSerializer<String> implements ContextualSerializer {
 

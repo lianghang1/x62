@@ -6,7 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 安全部配置（前缀 scaffold.security）。白名单唯一出处：安全链与过滤器都从这里读，杜绝漂移。
+ * 安全部配置项，前缀 {@code scaffold.security}。
+ *
+ * <p>三条安全链与过滤器的白名单都从这里读取，是白名单的唯一出处，杜绝多处配置漂移；
+ * token TTL、续期阈值、同端互斥等会话行为也集中在此调参。</p>
+ *
+ * @author lianghang
  */
 @ConfigurationProperties(prefix = "scaffold.security")
 public class SecurityProperties {

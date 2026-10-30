@@ -11,6 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * 雪花 ID 与审计持有器的单元测试。
+ *
+ * <p>验证雪花 ID 的唯一性、单实例内单调递增、不同 workerId 不冲突与非法节点
+ * 标识快速失败，以及 {@code ScaffoldAuditorHolder} 的写入、读取与清理往返。</p>
+ *
+ * @author lianghang
+ */
 public class SnowflakeAndAuditTest {
 
     @Test

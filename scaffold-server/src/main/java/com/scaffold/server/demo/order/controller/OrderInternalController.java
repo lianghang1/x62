@@ -18,7 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * internal 端订单管理（管理后台视角：看全部、代客操作）。
+ * internal 端订单管理接口。
+ *
+ * <p>管理后台视角：可查看全部订单并代客操作——owner 由请求参数 {@code customerId} 显式指定，
+ * 状态流转依赖服务层的字典校验与乐观锁/分布式锁兜底并发。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "internal-订单管理")
 @RestController

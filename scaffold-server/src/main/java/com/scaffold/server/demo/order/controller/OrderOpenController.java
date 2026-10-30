@@ -21,8 +21,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * openapi 端订单（三方系统视角：owner = APP 账户，scope 鉴权）。
- * 签名请求头：X-App-Key / X-Timestamp / X-Nonce / X-Sign（算法见 SignUtils 注释）。
+ * openapi 端订单接口。
+ *
+ * <p>三方系统视角：owner 为当前 APP 账户，接口按 scope 鉴权
+ * （{@code order:create}/{@code order:query}）；签名请求头为
+ * {@code X-App-Key}/{@code X-Timestamp}/{@code X-Nonce}/{@code X-Sign}（算法见 SignUtils 注释）。
+ * 三方侧终端用户标识仅备查，不进主模型。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "openapi-订单")
 @RestController

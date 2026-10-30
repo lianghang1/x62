@@ -6,11 +6,13 @@ import org.slf4j.MDC;
 import java.io.Serializable;
 
 /**
- * 统一响应体。所有 HTTP 接口的返回值一律使用 R 包装（文件流/导出等特殊端点除外）。
+ * 统一响应体。
  *
- * <p>traceId 自动从 MDC 取值填充，调用方排查问题时直接把响应体里的 traceId 报给后端即可。
+ * <p>所有 HTTP 接口的返回值一律使用 R 包装（文件流/导出等特殊端点除外）；
+ * traceId 在构造时自动从 MDC 取值填充，调用方排查问题时直接把响应体里的 traceId 报给后端即可。</p>
  *
  * @param <T> 数据类型
+ * @author lianghang
  */
 public class R<T> implements Serializable {
 

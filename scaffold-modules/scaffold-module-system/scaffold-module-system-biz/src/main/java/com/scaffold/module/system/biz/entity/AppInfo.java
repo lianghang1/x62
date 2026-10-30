@@ -7,7 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * APP 扩展信息：三方系统的凭证与授权范围。
+ * 三方应用扩展信息表。
+ *
+ * <p>存放 APP 账户的凭证与授权范围：密钥只存加密结果、明文仅在创建时展示一次；
+ * 授权范围与来源 IP 白名单共同约束调用边界（demo 用可逆加密，生产建议 KMS）。</p>
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "app_info")
@@ -22,15 +27,15 @@ public class AppInfo extends BaseEntity {
     @Column(name = "app_key", length = 64, nullable = false, unique = true)
     private String appKey;
 
-    /** 明文仅供创建时展示一次；库里存的是加密结果（demo 用可逆加密，生产建议 KMS） */
+    /** 明文仅供创建时展示一次；库里存的是加密结果（demo 用可逆加密，生产建议 KMS）。 */
     @Column(name = "app_secret", length = 128, nullable = false)
     private String appSecret;
 
-    /** scope 集合，逗号分隔 */
+    /** scope 集合，逗号分隔。 */
     @Column(name = "scopes", length = 512)
     private String scopes;
 
-    /** 来源 IP 白名单，逗号分隔；空 = 不限制 */
+    /** 来源 IP 白名单，逗号分隔；空即不限制。 */
     @Column(name = "ip_whitelist", length = 512)
     private String ipWhitelist;
 

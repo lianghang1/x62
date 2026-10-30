@@ -12,12 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * XSS 防护请求包装器：
- * <ul>
- *   <li>query/form 参数值转义 &lt; &gt;</li>
- *   <li>body 整体转义 &lt; &gt;——JSON 语法不含尖括号，只会影响字符串值，结构不破坏</li>
- * </ul>
- * 读取过的 body 缓存复用，不影响后续过滤器/Controller 重复读取。
+ * XSS 防护请求包装器，对参数与请求体做尖括号转义。
+ *
+ * <p>转义范围刻意收窄为 {@code <} 与 {@code >}：JSON 语法不含尖括号，转义只影响
+ * 字符串值而不破坏结构；{@code &} 与引号不转义，避免二次编码问题。query/form
+ * 参数在取值时逐个转义，body 在构造时一次性读入转义后缓存，供后续过滤器与
+ * Controller 重复读取。</p>
+ *
+ * @author lianghang
  */
 public class XssRequestWrapper extends HttpServletRequestWrapper {
 
@@ -102,7 +104,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
         return values == null ? null : values[0];
     }
 
-    /** 只转义尖括号（JSON 结构安全），&, " 引号不转义避免二次编码问题 */
+    /** 只转义尖括号（JSON 结构安全），&, " 引号不转义避免二次编码问题。 */
     static String escape(String value) {
         if (value == null || value.isEmpty()) {
             return value;

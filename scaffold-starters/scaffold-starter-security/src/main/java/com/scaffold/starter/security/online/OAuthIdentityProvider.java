@@ -1,9 +1,13 @@
 package com.scaffold.starter.security.online;
 
 /**
- * 外部身份（微信等）换取统一账户的 SPI。
- * starter-security 只定义契约；微信生态实现在 module-system-biz（网页授权/小程序 code2session）。
- * 未配置任何实现时，/online 的登录接口返回明确的「未接入登录源」业务错误。
+ * 外部身份（微信等）换取统一账户的 SPI 契约。
+ *
+ * <p>starter-security 只定义契约，微信生态实现在 module-system-biz（网页授权/小程序 code2session）；
+ * 未配置任何实现时，/online 的登录接口返回明确的「未接入登录源」业务错误——
+ * 身份源可插拔，缺省即显式失败而非静默放行。</p>
+ *
+ * @author lianghang
  */
 public interface OAuthIdentityProvider {
 

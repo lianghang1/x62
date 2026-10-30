@@ -1,7 +1,12 @@
 package com.scaffold.starter.security.online;
 
 /**
- * 外部身份源解析结果：三方平台侧的用户标识与资料。
+ * 外部身份源解析出的用户标识与资料。
+ *
+ * <p>openId 是三方平台侧的唯一标识，用于关联本地 sys_account；
+ * unionId/nickname/avatar 为可选资料，仅供建档与展示——框架不假设外部平台结构。</p>
+ *
+ * @author lianghang
  */
 public class ExternalIdentity {
 

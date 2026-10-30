@@ -5,9 +5,12 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * 统一登录用户：三条安全链认证成功后的归一化身份。
- * OPERATOR 的 roles/permissions 来自 RBAC；APP 的 scopes 并入 permissions；
- * MEMBER 默认无角色（资源归属校验在业务层按 accountId 过滤）。
+ * 三条安全链认证成功后归一化的登录用户模型。
+ *
+ * <p>OPERATOR 的 roles/permissions 来自 RBAC；APP 的 scopes 并入 permissions；
+ * MEMBER 默认无角色，资源归属校验由业务层按 accountId 过滤——身份与授权解耦，链路只负责认人。</p>
+ *
+ * @author lianghang
  */
 public class LoginUser implements Serializable {
 

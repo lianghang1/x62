@@ -25,8 +25,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * openapi 链认证过滤器：HMAC 签名（appKey + timestamp + nonce + body 摘要）。
- * 防重放 = 时间戳窗口 + nonce 一次性（Redis setIfAbsent）。fail closed：未配置凭证提供者时全部拒绝。
+ * openapi 链的 HMAC 签名认证过滤器。
+ *
+ * <p>签名要素为 appKey + timestamp + nonce + body 摘要；防重放依赖时间戳窗口
+ * 加 nonce 一次性（Redis setIfAbsent）。fail closed：未配置凭证提供者时全部拒绝，
+ * 多文件请求（multipart）不参与签名直接放行——机器对机器的调用走签名而非会话。</p>
+ *
+ * @author lianghang
  */
 public class OpenApiSignFilter extends OncePerRequestFilter {
 

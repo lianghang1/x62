@@ -6,25 +6,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * starter-web 配置项（前缀 scaffold.web）。
+ * starter-web 配置属性，绑定前缀 {@code scaffold.web}。
+ *
+ * <p>仅承载行为开关与白名单类配置：访问日志开关、XSS 过滤开关与排除路径、
+ * CORS 白名单。CORS 刻意设计为默认关闭——未显式配置来源即不放开跨域。</p>
+ *
+ * @author lianghang
  */
 @ConfigurationProperties(prefix = "scaffold.web")
 public class WebProperties {
 
     private Cors cors = new Cors();
 
-    /** 访问日志切面开关 */
+    /** 访问日志切面开关。 */
     private boolean accessLogEnabled = true;
 
-    /** XSS 过滤（默认开启，参数与 body 尖括号转义） */
+    /** XSS 过滤（默认开启，参数与 body 尖括号转义）。 */
     private Xss xss = new Xss();
 
     public static class Xss {
 
-        /** 是否启用 XSS 过滤 */
+        /** 是否启用 XSS 过滤。 */
         private boolean enabled = true;
 
-        /** 排除路径（Ant 风格，如富文本编辑接口 /internal/rich/**） */
+        /** 排除路径（Ant 风格，如富文本编辑接口 /internal/rich/**）。 */
         private List<String> excludeUrls = new ArrayList<>();
 
         public boolean isEnabled() {
@@ -46,14 +51,14 @@ public class WebProperties {
 
     public static class Cors {
 
-        /** 允许的跨域来源；为空表示不启用 CORS 配置（默认关闭，禁止全放开） */
+        /** 允许的跨域来源；为空表示不启用 CORS 配置（默认关闭，禁止全放开）。 */
         private List<String> allowedOrigins = new ArrayList<>();
 
         private List<String> allowedMethods = new ArrayList<>();
 
         private List<String> allowedHeaders = new ArrayList<>();
 
-        /** 预检请求缓存时间（秒） */
+        /** 预检请求缓存时间（秒）。 */
         private long maxAge = 1800;
 
         public List<String> getAllowedOrigins() {

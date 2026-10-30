@@ -9,7 +9,12 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * 登录日志：每次登录（成功/失败）一行——安全审计与失败锁定依据。
+ * 登录日志表。
+ *
+ * <p>每次登录（成功或失败）记一行，是安全审计与失败锁定的依据；
+ * 按账号与时间建索引以支撑高频的「查某人近况」「查某时段异常」查询。</p>
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "sys_login_log", indexes = {
@@ -27,14 +32,14 @@ public class LoginLog {
     @Column(name = "account_no", length = 64)
     private String accountNo;
 
-    /** 登录入口：internal / online:wechat-mp ... */
+    /** 登录入口：{@code internal / online:wechat-mp} 等。 */
     @Column(name = "login_type", length = 32)
     private String loginType;
 
     @Column(name = "success", nullable = false)
     private Boolean success;
 
-    /** 失败原因（成功为空） */
+    /** 失败原因，成功时为空。 */
     @Column(name = "fail_reason", length = 128)
     private String failReason;
 

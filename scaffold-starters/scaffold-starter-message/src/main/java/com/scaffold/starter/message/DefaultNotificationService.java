@@ -11,8 +11,13 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 /**
- * 默认实现：邮件用 JavaMailSender；短信为可选依赖 sms4j（存在 SmsBlend 时自动接入，
- * 不存在时降级为告警日志，系统照常启动）。
+ * 消息通知的默认实现。
+ *
+ * <p>邮件用 JavaMailSender；短信为可选依赖 sms4j，存在 SmsBlend 时经反射接入
+ * （避免编译期强依赖），不存在时降级为告警日志、消息丢弃但系统照常启动——
+ * 通知是增强能力，不因其缺失阻断主流程。</p>
+ *
+ * @author lianghang
  */
 public class DefaultNotificationService implements NotificationService {
 

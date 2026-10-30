@@ -5,8 +5,12 @@ import org.dromara.x.file.storage.core.FileStorageService;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * 存储门面：业务只依赖本接口，不感知 x-file-storage 与具体平台 SDK。
- * 平台切换只改配置（dromara.x-file-storage.*），代码零改动。
+ * 文件存储门面，业务只依赖本接口。
+ *
+ * <p>内部委托 x-file-storage，业务不感知其与具体平台 SDK；
+ * 平台切换只改配置（dromara.x-file-storage.*），代码零改动——存储实现与业务彻底解耦。</p>
+ *
+ * @author lianghang
  */
 public class ScaffoldStorageService {
 

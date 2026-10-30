@@ -15,7 +15,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 字典实现：走两级缓存（starter-cache），其他模块通过 DictApi 使用、零感知实现细节。
+ * 字典服务实现。
+ *
+ * <p>实现 {@code DictApi} 契约：查询走两级缓存（starter-cache），
+ * 管理端保存时按类型精准失效缓存，避免全量刷新；
+ * 其他模块经 {@code DictApi} 使用，零感知实现细节。</p>
+ *
+ * @author lianghang
  */
 @Service
 public class DictServiceImpl implements DictApi {
@@ -55,6 +61,12 @@ public class DictServiceImpl implements DictApi {
         throw BizException.of(GlobalErrorCode.BAD_REQUEST, "非法字典值: " + type + "=" + value);
     }
 
+    /**
+     * 管理端保存字典项。
+     *
+     * @param dict 待保存的字典实体
+     * @return 保存后的实体
+     */
     @Transactional
     @CacheEvict(cacheNames = "dict:type", key = "#dict.type")
     public SysDict save(SysDict dict) {

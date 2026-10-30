@@ -26,6 +26,8 @@ import javax.validation.ConstraintViolationException;
  *   <li>未知异常打 error（自动带 MDC traceId）并向外隐藏堆栈细节；</li>
  *   <li>HTTP 状态码与业务码双轨一致：ErrorCode 未指定 httpStatus 时返回 200，认证/权限类返回 401/403。</li>
  * </ul>
+ *
+ * @author lianghang
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {

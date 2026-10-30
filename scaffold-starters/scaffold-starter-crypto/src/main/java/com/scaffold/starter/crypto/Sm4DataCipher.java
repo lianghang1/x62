@@ -13,11 +13,15 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * SM4-CBC-PKCS7 实现（国密/信创）：BouncyCastle 轻量 API，无需注册 Provider。
+ * 基于 SM4-CBC-PKCS7 的 {@code DataCipher} 国密实现，走 BouncyCastle 轻量 API、无需注册 Provider。
  *
- * <p>格式：Base64(16 字节随机 IV || SM4 密文)。SM4 密钥固定 128 位。
+ * <p>密文格式为 {@code Base64(16 字节随机 IV || SM4 密文)}，IV 每次加密随机生成，
+ * 同一明文两次加密结果不同；SM4 密钥固定 128 位。</p>
  *
- * <p>密钥：对配置口令做 SHA-256 取前 16 字节；口令必须走环境变量注入。
+ * <p>密钥由配置口令做 SHA-256 后取前 16 字节派生；口令必须通过环境变量注入，
+ * 禁止硬编码。</p>
+ *
+ * @author lianghang
  */
 public class Sm4DataCipher implements DataCipher {
 

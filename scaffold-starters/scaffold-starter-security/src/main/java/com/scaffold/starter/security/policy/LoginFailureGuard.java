@@ -6,8 +6,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.time.Duration;
 
 /**
- * 登录失败锁定（Redis 计数，RuoYi maxRetryCount 思路）：
- * 同一账号连续失败达到 maxFailCount 后锁定 lockSeconds；成功登录调用 reset 清零。
+ * 基于 Redis 计数的登录失败锁定组件（RuoYi maxRetryCount 思路）。
+ *
+ * <p>同一账号连续失败达到 maxFailCount 后锁定 lockSeconds；成功登录调用 reset 清零——
+ * 针对账号而非 IP，兼顾暴力破解防护与共享出口 IP 的误伤。</p>
+ *
+ * @author lianghang
  */
 public class LoginFailureGuard {
 

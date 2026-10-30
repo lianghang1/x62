@@ -7,8 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 接口幂等注解：以「账户/设备 + URI + 参数摘要」为幂等键，窗口期内重复提交直接拒绝（1409）。
- * 适用防重复下单/重复打款等场景；状态机幂等请用 @Version 乐观锁。
+ * 接口幂等注解，窗口期内拒绝重复提交。
+ *
+ * <p>以「账户/设备 + URI + 参数摘要」为幂等键，重复请求直接拒绝（1409）；
+ * 适用于防重复下单、重复打款等场景——状态机幂等请用 @Version 乐观锁，二者不混用。</p>
+ *
+ * @author lianghang
  */
 @Documented
 @Target(ElementType.METHOD)

@@ -19,7 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * online 端：匿名可用 + 登录增强（/online/** 整链 permitAll，登录后 LoginContext 可用）。
+ * online 端接口。
+ *
+ * <p>{@code /online/**} 整链 permitAll：匿名可 ping、可微信授权登录、可查公开字典；
+ * 登录后 {@code LoginContext} 可用——「匿名可用 + 登录增强」的分层示范。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "online-线上端")
 @RestController

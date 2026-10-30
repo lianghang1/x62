@@ -13,7 +13,12 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 /**
- * 分布式锁切面：key 支持 SpEL（如 "'order:' + #p0"）。
+ * 分布式锁切面，配合 {@link DistributedLock} 注解工作。
+ *
+ * <p>锁 key 支持 SpEL 表达式（如 "'order:' + #p0"），取锁失败抛 1409 业务异常；
+ * finally 确保解锁——注解即锁，业务代码零侵入。</p>
+ *
+ * @author lianghang
  */
 @Aspect
 public class DistributedLockAspect {

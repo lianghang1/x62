@@ -19,7 +19,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * internal 端：当前登录信息 + 字典管理（演示 RBAC 注解鉴权）。
+ * internal 端系统接口。
+ *
+ * <p>提供当前登录信息与字典管理：{@code /me} 演示 {@code LoginContext}
+ * 的唯一取用入口，字典保存演示 RBAC 注解鉴权——internal 端的最小可用示例。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "internal-系统")
 @RestController

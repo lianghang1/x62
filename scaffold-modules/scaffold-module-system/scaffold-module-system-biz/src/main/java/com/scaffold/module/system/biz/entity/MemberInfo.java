@@ -7,7 +7,12 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * MEMBER 扩展信息（微信侧资料）。字段增长不影响主表。
+ * 会员扩展信息表。
+ *
+ * <p>存放 MEMBER 账户的微信侧资料，与主表 {@code SysAccount} 一对一分离：
+ * 扩展字段的增减不影响账户主表结构，各自独立演进。</p>
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "member_info")

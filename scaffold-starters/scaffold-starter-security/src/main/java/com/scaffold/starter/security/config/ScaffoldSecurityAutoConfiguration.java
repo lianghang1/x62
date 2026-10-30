@@ -29,12 +29,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 三入口安全体系装配（一条链一个配置方法，白名单唯一出自 SecurityProperties）：
- * <ol>
- *   <li>@Order(1) /openapi/** —— HMAC 签名认证（APP 账户）；</li>
- *   <li>@Order(2) /internal/** —— token 会话 + RBAC 方法鉴权（OPERATOR）；</li>
- *   <li>@Order(3) 其余 —— online：permitAll + 可选 token（MEMBER）。</li>
- * </ol>
+ * 三入口安全体系的自动装配类，一条链一个配置方法，白名单唯一出自 SecurityProperties。
+ *
+ * <p>链路按 Order 分层：@Order(1) /openapi/** 走 HMAC 签名认证（APP 账户）；
+ * @Order(2) /internal/** 走 token 会话加 RBAC 方法鉴权（OPERATOR）；
+ * @Order(3) 其余请求归 online 链——permitAll 加可选 token（MEMBER）。互不影响、各司其职。</p>
+ *
+ * @author lianghang
  */
 @Configuration
 @EnableWebSecurity

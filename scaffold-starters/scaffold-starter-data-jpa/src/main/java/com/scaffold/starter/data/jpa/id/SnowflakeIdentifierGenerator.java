@@ -5,14 +5,22 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 
 /**
- * Hibernate 主键生成器：委托 Snowflake 生成 Long 主键。
- * 实体上使用：@GeneratedValue(generator = "snowflake") + @GenericGenerator(name = "snowflake", strategy = "...SnowflakeIdentifierGenerator")
+ * Hibernate 主键生成器，将主键生成委托给 {@code Snowflake} 单例。
+ *
+ * <p>实体上通过 {@code @GeneratedValue(generator = "snowflake")} 配合
+ * {@code @GenericGenerator(name = "snowflake", strategy = "...SnowflakeIdentifierGenerator")}
+ * 使用（见 {@code BaseEntity}）。</p>
+ *
+ * <p>实例由自动装配通过 {@code init} 静态注入——Hibernate 反射实例化生成器时
+ * 拿不到 Spring 容器；未走装配的场景（如单元测试）则兜底构建默认实例。</p>
+ *
+ * @author lianghang
  */
 public class SnowflakeIdentifierGenerator implements IdentifierGenerator {
 
     private static Snowflake snowflake;
 
-    /** 由自动装配注入单例（避免 Hibernate 反射实例化时丢失 Spring 配置） */
+    /** 由自动装配注入单例（避免 Hibernate 反射实例化时丢失 Spring 配置）。 */
     public static void init(Snowflake instance) {
         SnowflakeIdentifierGenerator.snowflake = instance;
     }

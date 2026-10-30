@@ -5,9 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 /**
- * 雪花 ID 生成器（64 bit：1 符号 + 41 时间戳 + 5 机房 + 5 机器 + 12 序列）。
- * workerId/datacenterId 来自配置（scaffold.data.worker-id / scaffold.data.datacenter-id），
- * 多实例部署时必须保证各节点取值不同。
+ * 雪花 ID 生成器，产出 64 位全局唯一、趋势递增的 Long 主键。
+ *
+ * <p>位分配为 1 符号位 + 41 时间戳 + 5 机房 + 5 机器 + 12 序列；节点标识来自
+ * 配置 {@code scaffold.data.worker-id / scaffold.data.datacenter-id}，多实例
+ * 部署时各节点取值必须不同，否则会生成重复 ID。</p>
+ *
+ * <p>对时钟回拨的处理：回拨不超过 5ms 时自旋等待追平，超过则直接抛异常拒绝
+ * 出号——宁可失败也不生成可能重复的 ID。生成方法加 {@code synchronized} 保证线程安全。</p>
+ *
+ * @author lianghang
  */
 public class Snowflake {
 
@@ -43,7 +50,7 @@ public class Snowflake {
         log.info("Snowflake 初始化: workerId={}, datacenterId={}", workerId, datacenterId);
     }
 
-    /** 生成全局唯一 Long ID（线程安全） */
+    /** 生成全局唯一 Long ID（线程安全）。 */
     public synchronized long nextId() {
         long timestamp = System.currentTimeMillis();
         if (timestamp < lastTimestamp) {

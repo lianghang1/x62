@@ -13,17 +13,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * PowerJob 执行器适配器：把 PowerJob 的调度触发桥接到脚手架的 AbstractJob 体系。
+ * PowerJob 执行器适配器，把 PowerJob 的调度触发桥接到脚手架的 AbstractJob 体系。
  *
- * <p>业务任务类只继承 AbstractJob + @Job（零改动、可同时兼容极简引擎与 PowerJob）。
- * PowerJob 控制台建任务时：
- * <ul>
- *   <li>处理器全限定类名：{@code com.scaffold.starter.powerjob.PowerJobJobAdapter}</li>
- *   <li>任务参数：{@code {"jobName":"对账任务"}}（与 @Job.name 一致），或直接填 @Job.name</li>
- * </ul>
+ * <p>业务任务类只继承 AbstractJob 加 @Job，零改动、可同时兼容极简引擎与 PowerJob。
+ * PowerJob 控制台建任务时：处理器全限定类名填 {@code com.scaffold.starter.powerjob.PowerJobJobAdapter}；
+ * 任务参数填 {@code {"jobName":"对账任务"}}（与 @Job.name 一致），或直接填 @Job.name。</p>
  *
- * <p>触发后走 AbstractJob 的 final run() 模板：enabled 检查/分布式锁/执行日志/告警钩子全部保留；
- * PowerJob 侧的重试与超时按控制台配置生效。
+ * <p>触发后走 AbstractJob 的 final run() 模板：enabled 检查、分布式锁、执行日志、告警钩子全部保留；
+ * PowerJob 侧的重试与超时按控制台配置生效。</p>
+ *
+ * @author lianghang
  */
 public class PowerJobJobAdapter implements BasicProcessor {
 

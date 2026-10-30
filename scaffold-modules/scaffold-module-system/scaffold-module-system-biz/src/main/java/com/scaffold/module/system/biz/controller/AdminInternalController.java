@@ -23,7 +23,12 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 /**
- * internal 端：三方应用管理 + 角色管理 + 在线用户。
+ * internal 端管理接口。
+ *
+ * <p>聚合三方应用、角色与在线用户三类管理动作：写操作全部标注
+ * {@code @OperLog} 留痕，创建应用叠加幂等防护——管理动作必须可审计、可重放区分。</p>
+ *
+ * @author lianghang
  */
 @Tag(name = "internal-应用与角色")
 @RestController

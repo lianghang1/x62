@@ -3,23 +3,30 @@ package com.scaffold.starter.cache;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * 缓存配置（前缀 scaffold.cache）。
+ * 缓存配置属性，绑定前缀 {@code scaffold.cache}。
+ *
+ * <p>控制两级缓存的形态与各层容量、时效：{@code type} 决定缓存实现
+ * （默认 {@code two-level} 为 Caffeine + Redis，{@code redis} 为纯 Redis），
+ * L1 追求低延迟小容量，L2 承担跨实例共享与较长 TTL。</p>
+ *
+ * @author lianghang
  */
 @ConfigurationProperties(prefix = "scaffold.cache")
 public class CachePropertiesHolder {
 
-    /** two-level（默认）= Caffeine+Redis；redis = 纯 Redis */
+    /** 缓存形态：two-level（默认）= Caffeine + Redis；redis = 纯 Redis。 */
     private String type = "two-level";
 
-    /** L1 最大条目数 */
+    /** L1 最大条目数。 */
     private long l1MaxSize = 4096;
 
-    /** L1 过期时间（秒） */
+    /** L1 过期时间（秒）。 */
     private long l1TtlSeconds = 60;
 
-    /** L2 过期时间（秒） */
+    /** L2 过期时间（秒）。 */
     private long l2TtlSeconds = 3600;
 
+    /** Redis key 前缀。 */
     private String keyPrefix = "scaffold:cache:";
 
     public String getType() {

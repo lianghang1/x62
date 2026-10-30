@@ -7,8 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 分布式锁注解：Redis setIfAbsent + 唯一持有值 + Lua 校验删除（防误删他人锁）。
- * SpEL 支持：key 支持 #p0 #result 等占位（通过 SpelKeyResolver 解析）。
+ * 分布式锁注解，基于 Redis setIfAbsent 加唯一持有值实现。
+ *
+ * <p>解锁经 Lua 校验持有值后删除，防止误删他人锁；key 支持 #p0、#result 等 SpEL 占位
+ * （通过 SpelKeyResolver 解析）——锁粒度精确到业务对象而非整个接口。</p>
+ *
+ * @author lianghang
  */
 @Documented
 @Target(ElementType.METHOD)

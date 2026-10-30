@@ -13,8 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * internal 链认证过滤器：token 会话 -> LoginContext。
- * 白名单路径跳过；finally 强制清理上下文，防线程复用串号。
+ * internal 链的 token 会话认证过滤器。
+ *
+ * <p>校验通过后把会话装入 LoginContext；白名单路径直接跳过；
+ * finally 强制清理上下文，防线程复用串号——认证态的生命周期严格限定在单次请求内。</p>
+ *
+ * @author lianghang
  */
 public class InternalAuthenticationFilter extends OncePerRequestFilter {
 

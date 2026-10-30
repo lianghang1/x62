@@ -9,7 +9,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 
 /**
- * 消息通道自动装配：sms4j 存在则接入其 SmsBlend，不存在则短信降级为日志告警。
+ * 消息通道的自动装配类。
+ *
+ * <p>装配默认的 NotificationService：sms4j 存在则接入其 SmsBlend，
+ * 不存在则短信通道自动降级为日志告警——可选依赖按 classpath 探测，业务零配置。</p>
+ *
+ * @author lianghang
  */
 @Configuration
 public class MessageAutoConfiguration {

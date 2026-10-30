@@ -1,9 +1,12 @@
 package com.scaffold.starter.message;
 
 /**
- * 消息通知门面：业务只依赖本接口。
- * 短信走 sms4j（厂商配置化切换），邮件走 spring-boot-starter-mail；
- * 后续钉钉/企微 webhook 按 NotifyChannel SPI 扩展。
+ * 消息通知门面接口，业务只依赖本接口发送通知。
+ *
+ * <p>短信走 sms4j（厂商配置化切换），邮件走 spring-boot-starter-mail；
+ * 后续钉钉、企微 webhook 按 NotifyChannel SPI 扩展——通道可插拔，调用方无感。</p>
+ *
+ * @author lianghang
  */
 public interface NotificationService {
 

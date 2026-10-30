@@ -16,8 +16,13 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * 访问日志切面：对所有 @RestController 的调用记录 URI / 参数 / 耗时（traceId 已在 MDC）。
- * 参数序列化失败不影响业务；文件与大对象做截断处理。
+ * 访问日志切面，对所有 {@code @RestController} 方法记录 URI、参数与耗时。
+ *
+ * <p>日志行自带 MDC 中的 traceId，可与链路日志直接关联；参数经 JSON 序列化并
+ * 对 password/token 等敏感字段脱敏，超长截断、文件等大对象降级为文件名——
+ * 任何序列化失败都不影响业务主流程，仅降级为类型列表。</p>
+ *
+ * @author lianghang
  */
 @Aspect
 public class AccessLogAspect {
@@ -84,7 +89,7 @@ public class AccessLogAspect {
         }
     }
 
-    /** 敏感字段脱敏（password/token/secret），防止访问日志泄漏凭据 */
+    /** 敏感字段脱敏（password/token/secret），防止访问日志泄漏凭据。 */
     private String maskSensitive(String json) {
         return json
                 .replaceAll("(\"(password|passwd|secret|appSecret|token|accessToken)\"\\s*:\\s*\")[^\"]*(\")", "$1***$3");

@@ -10,16 +10,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * 加密自动装配：按 scaffold.crypto.type 装配 DataCipher 并安装到 Holder
- * （Holder 供 JPA AttributeConverter 等非 Spring Bean 场景读取）。
+ * 加密自动装配器，按 {@code scaffold.crypto.type} 装配 {@code DataCipher} 并安装到 Holder。
  *
- * <p>配置示例：
+ * <p>Holder 静态持有的实例供 JPA {@code AttributeConverter} 等非 Spring Bean 场景读取，
+ * 因此装配时必须显式安装，而不能只注册 Bean。密钥缺失时启动即失败——敏感字段加密
+ * 不允许静默降级为明文。</p>
+ *
+ * <p>配置示例：</p>
  * <pre>
  * scaffold:
  *   crypto:
  *     type: SM4            # 信创环境切国密；默认 AES
  *     key: ${SCAFFOLD_CRYPTO_KEY}
  * </pre>
+ *
+ * @author lianghang
  */
 @Configuration
 @EnableConfigurationProperties(CryptoPropertiesHolder.class)
@@ -27,7 +32,7 @@ public class CryptoAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoAutoConfiguration.class);
 
-    /** application.yml 里的开发默认值；出现即说明未做环境变量注入 */
+    /** application.yml 里的开发默认值；出现即说明未做环境变量注入。 */
     private static final String DEV_DEFAULT_KEY = "dev-only-key-change-me";
 
     @Bean

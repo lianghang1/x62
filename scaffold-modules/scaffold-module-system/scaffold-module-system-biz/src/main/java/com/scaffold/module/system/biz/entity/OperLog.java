@@ -8,7 +8,12 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
- * 操作日志：@OperLog 标注的方法每次调用一行（create_time 即操作时间）。
+ * 操作日志表。
+ *
+ * <p>标注 {@code @OperLog} 的方法每次调用记一行（create_time 即操作时间），
+ * 与登录日志分别承载「管理操作」与「身份进出」两类审计线索。</p>
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "sys_oper_log", indexes = {
@@ -32,7 +37,7 @@ public class OperLog extends BaseEntity {
     @Column(name = "uri", length = 255)
     private String uri;
 
-    /** 入参 JSON（超长截断） */
+    /** 入参 JSON，超长截断。 */
     @Column(name = "params", length = 2048)
     private String params;
 

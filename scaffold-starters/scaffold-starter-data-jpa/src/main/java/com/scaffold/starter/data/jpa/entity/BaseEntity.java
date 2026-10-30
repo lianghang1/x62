@@ -16,10 +16,17 @@ import javax.persistence.EntityListeners;
 import java.time.LocalDateTime;
 
 /**
- * 实体基类：雪花 Long 主键 + 审计字段（createBy/updateBy 由 AuditorAware 自动填充，
- * 来源 = LoginContext 当前账户；createTime/updateTime 自动写入）+ 逻辑删除标记。
+ * 实体基类，统一提供雪花 Long 主键、审计字段与逻辑删除标记。
  *
- * <p>需要乐观锁的实体请继承 {@link VersionedEntity}。
+ * <p>主键由 {@code SnowflakeIdentifierGenerator} 在应用侧生成，避免数据库自增
+ * 带来的分库迁移问题；{@code createBy/updateBy} 由 AuditorAware 自动填充，
+ * 来源为 {@code LoginContext} 当前账户，{@code createTime/updateTime} 由
+ * Auditing 自动写入，业务代码无需手工赋值。</p>
+ *
+ * <p>删除一律走 {@code deleted} 标记的逻辑删除，不做物理 delete，查询时
+ * 须由 Repository 层按约定过滤。需要乐观锁的实体请继承 {@link VersionedEntity}。</p>
+ *
+ * @author lianghang
  */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -46,11 +53,11 @@ public abstract class BaseEntity {
     @Column(name = "update_by", length = 64)
     private String updateBy;
 
-    /** 逻辑删除：true=已删除；查询规约由 Repository 层约定兜底 */
+    /** 逻辑删除：true=已删除；查询规约由 Repository 层约定兜底。 */
     @Column(name = "deleted", nullable = false)
     private Boolean deleted = Boolean.FALSE;
 
-    /** 标记本实体已逻辑删除（不物理 delete） */
+    /** 标记本实体已逻辑删除（不物理 delete）。 */
     public void markDeleted() {
         this.deleted = Boolean.TRUE;
     }

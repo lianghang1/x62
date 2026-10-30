@@ -11,12 +11,16 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * AES-256-GCM 实现（默认）：JDK 自带，无需额外依赖。
+ * 基于 AES-256-GCM 的 {@code DataCipher} 默认实现，仅依赖 JDK 自带能力。
  *
- * <p>格式：Base64(12 字节随机 IV || GCM 密文(含 128 位认证标签))——
- * 每次加密 IV 随机，同明文两次加密结果不同；密文被篡改时解密直接抛异常（完整性校验）。
+ * <p>密文格式为 {@code Base64(12 字节随机 IV || GCM 密文（含 128 位认证标签）)}——
+ * 每次加密 IV 随机，同一明文两次加密结果不同；密文被篡改时解密直接抛异常，
+ * 完整性由 GCM 认证标签保证。</p>
  *
- * <p>密钥：对配置口令做 SHA-256 得到 32 字节 AES-256 密钥；口令必须走环境变量注入。
+ * <p>密钥由配置口令做 SHA-256 派生为 32 字节 AES-256 密钥；口令必须通过
+ * 环境变量注入，禁止硬编码。</p>
+ *
+ * @author lianghang
  */
 public class AesDataCipher implements DataCipher {
 

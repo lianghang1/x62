@@ -1,10 +1,13 @@
 package com.scaffold.core.crypto;
 
 /**
- * DataCipher 持有器：starter-crypto 自动装配成功后 install，
- * 供无法走依赖注入的场景读取（如 JPA AttributeConverter 由 Hibernate 反射实例化，非 Spring Bean）。
+ * {@code DataCipher} 的静态持有器。
  *
- * <p>未引入 starter-crypto 时调用 get() 会给出明确报错，而不是 obscure 的 NPE。
+ * <p>starter-crypto 自动装配成功后调用 {@code install}，供无法走依赖注入的场景读取——
+ * 如 JPA AttributeConverter 由 Hibernate 反射实例化、并非 Spring Bean；
+ * 未引入 starter-crypto 时 {@code get()} 会给出明确报错，而不是晦涩难查的 NPE。</p>
+ *
+ * @author lianghang
  */
 public final class DataCipherHolder {
 
@@ -13,11 +16,12 @@ public final class DataCipherHolder {
     private DataCipherHolder() {
     }
 
+    /** 安装加密器（由 starter-crypto 自动装配时调用，仅一次）。 */
     public static void install(DataCipher dataCipher) {
         cipher = dataCipher;
     }
 
-    /** 获取已安装的加密器；未安装时抛出带修复指引的异常 */
+    /** 获取已安装的加密器；未安装时抛出带修复指引的异常。 */
     public static DataCipher get() {
         DataCipher c = cipher;
         if (c == null) {

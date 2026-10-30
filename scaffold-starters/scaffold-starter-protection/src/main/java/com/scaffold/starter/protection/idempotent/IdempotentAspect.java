@@ -18,7 +18,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * 幂等切面：幂等键 setIfAbsent 占位，窗口内重复请求拒绝。
+ * 接口幂等切面，配合 {@link Idempotent} 注解工作。
+ *
+ * <p>幂等键经 setIfAbsent 占位，窗口内重复请求直接拒绝——占位即提交登记，
+ * 首个到达者胜出，后续者一律 1409。</p>
+ *
+ * @author lianghang
  */
 @Aspect
 public class IdempotentAspect {

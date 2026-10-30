@@ -11,8 +11,13 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * XSS 过滤器：默认对所有请求做参数与 body 尖括号转义；
- * scaffold.web.xss.exclude-urls 可按 Ant 风格排除（如富文本编辑接口）。
+ * XSS 过滤器，对所有请求的参数与 body 做尖括号转义。
+ *
+ * <p>以请求包装器方式实现，默认全站生效；{@code scaffold.web.xss.exclude-urls}
+ * 支持按 Ant 风格排除（如富文本编辑接口）——排除名单走 {@code shouldNotFilter}，
+ * 命中即放行原始请求。</p>
+ *
+ * @author lianghang
  */
 public class XssFilter extends OncePerRequestFilter {
 

@@ -4,7 +4,12 @@ import java.util.Collections;
 import java.util.Set;
 
 /**
- * openapi 三方应用身份（由业务方提供实现：module-system 按 appKey 查 app_info）。
+ * openapi 三方应用的身份载体。
+ *
+ * <p>由业务方提供实现：module-system 按 appKey 查 app_info 装配；
+ * scopes 是应用的授权边界，签发会话时直接并入 permissions——凭证校验与授权范围一站式取齐。</p>
+ *
+ * @author lianghang
  */
 public class AppIdentity {
 

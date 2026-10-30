@@ -8,9 +8,15 @@ import java.time.Duration;
 import java.util.concurrent.Callable;
 
 /**
- * 两级缓存：Caffeine（L1，进程内）+ Redis（L2，跨实例共享）。
- * 读：L1 -> L2 -> loader；写：直写 L2、失效 L1（其他实例依赖 TTL 收敛，非强一致——
- * 适合字典/配置类数据，强一致场景请直接用 Redis 或业务层双删）。
+ * 两级缓存实现，L1 为进程内 Caffeine，L2 为跨实例共享的 Redis。
+ *
+ * <p>读路径按 L1 → L2 → loader 逐层回源，L2 命中后回填 L1；写路径直写 L2 并失效
+ * 本实例 L1，其他实例依赖 TTL 收敛，因此并非强一致——适合字典、配置类读多写少
+ * 的数据，强一致场景请直接使用 Redis 或在业务层做双删。</p>
+ *
+ * <p>序列化失败按未命中处理，不向业务抛异常，保证缓存故障不阻断主流程。</p>
+ *
+ * @author lianghang
  */
 public class TwoLevelCache extends AbstractValueAdaptingCache {
 

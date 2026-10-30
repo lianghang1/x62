@@ -12,7 +12,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 操作员账户细节：密码校验 + 角色/权限装载（RBAC 轻量实现：角色 -> 权限串）。
+ * 操作员账户细节装载器。
+ *
+ * <p>为运营者登录提供密码校验与角色 / 权限装载——RBAC 轻量实现：
+ * 账户到角色再到权限串；已逻辑删除的角色在装载时被过滤，
+ * 权限随角色实时生效，无需刷新登录态。</p>
+ *
+ * @author lianghang
  */
 @Service
 public class OperatorUserDetailsService {
@@ -29,14 +35,17 @@ public class OperatorUserDetailsService {
         this.accountRoleRepository = accountRoleRepository;
     }
 
+    /** 校验明文密码与 BCrypt 摘要是否匹配；未设置密码一律不匹配。 */
     public boolean matches(String rawPassword, String encodedPassword) {
         return encodedPassword != null && passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
+    /** 明文密码加密为 BCrypt 摘要。 */
     public String encode(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
     }
 
+    /** 装载账户的角色集合，前缀 {@code ROLE_} 供 Spring Security 使用。 */
     public Set<String> loadRoles(Long accountId) {
         Set<String> roles = new HashSet<>();
         for (AccountRole ar : accountRoleRepository.findByAccountId(accountId)) {
@@ -47,6 +56,7 @@ public class OperatorUserDetailsService {
         return roles;
     }
 
+    /** 装载账户的权限串集合（来自其全部有效角色）。 */
     public Set<String> loadPermissions(Long accountId) {
         Set<String> permissions = new HashSet<>();
         for (AccountRole ar : accountRoleRepository.findByAccountId(accountId)) {
@@ -61,7 +71,7 @@ public class OperatorUserDetailsService {
         return permissions;
     }
 
-    /** 给操作员分配角色（全量覆盖） */
+    /** 给操作员分配角色，全量覆盖式替换旧绑定。 */
     @org.springframework.transaction.annotation.Transactional
     public void assignRoles(Long accountId, List<Long> roleIds) {
         accountRoleRepository.deleteByAccountId(accountId);
