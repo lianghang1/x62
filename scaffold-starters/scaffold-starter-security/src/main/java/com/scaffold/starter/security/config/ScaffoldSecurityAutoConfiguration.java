@@ -58,6 +58,15 @@ public class ScaffoldSecurityAutoConfiguration {
                 properties.getTokenTtlSeconds(), properties.getRenewThresholdPercent());
     }
 
+    /** 登录失败锁定：internal 账密登录在 service 层调用（记录/判定/清零） */
+    @Bean
+    @ConditionalOnMissingBean(com.scaffold.starter.security.policy.LoginFailureGuard.class)
+    public com.scaffold.starter.security.policy.LoginFailureGuard loginFailureGuard(
+            StringRedisTemplate redisTemplate, SecurityProperties properties) {
+        return new com.scaffold.starter.security.policy.LoginFailureGuard(
+                redisTemplate, properties.getPasswordPolicy());
+    }
+
     /** 401/403 统一返回 JSON（不带登录页重定向） */
     private void restExceptionHandling(HttpSecurity http) throws Exception {
         http.exceptionHandling()

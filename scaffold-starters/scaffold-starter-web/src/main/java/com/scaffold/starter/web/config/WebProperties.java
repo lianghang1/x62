@@ -16,6 +16,34 @@ public class WebProperties {
     /** 访问日志切面开关 */
     private boolean accessLogEnabled = true;
 
+    /** XSS 过滤（默认开启，参数与 body 尖括号转义） */
+    private Xss xss = new Xss();
+
+    public static class Xss {
+
+        /** 是否启用 XSS 过滤 */
+        private boolean enabled = true;
+
+        /** 排除路径（Ant 风格，如富文本编辑接口 /internal/rich/**） */
+        private List<String> excludeUrls = new ArrayList<>();
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public List<String> getExcludeUrls() {
+            return excludeUrls;
+        }
+
+        public void setExcludeUrls(List<String> excludeUrls) {
+            this.excludeUrls = excludeUrls;
+        }
+    }
+
     public static class Cors {
 
         /** 允许的跨域来源；为空表示不启用 CORS 配置（默认关闭，禁止全放开） */
@@ -67,6 +95,14 @@ public class WebProperties {
 
     public void setCors(Cors cors) {
         this.cors = cors;
+    }
+
+    public Xss getXss() {
+        return xss;
+    }
+
+    public void setXss(Xss xss) {
+        this.xss = xss;
     }
 
     public boolean isAccessLogEnabled() {

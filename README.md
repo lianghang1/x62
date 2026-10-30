@@ -105,6 +105,18 @@ scaffold:
 - 达梦需 Liquibase 扩展：优先达梦安装包自带 liquibase-dm jar（install 到内网私服），
   连接串加 `CASE_SENSITIVE=0`；种子管理员 `admin/admin123` 仅联调用，交付前必须改密。
 
+## 安全与审计
+
+| 能力 | 用法 | 出处 |
+|---|---|---|
+| 登录日志 | 每次登录（成功/失败）自动落 `sys_login_log`（IP/UA/失败原因） | module-system，AuthService |
+| 失败锁定 | 同账号连续失败 5 次锁 15 分钟（Redis 计数），`scaffold.security.password-policy` 可调 | starter-security |
+| 密码强度 | 创建账号/改密时调 `PasswordPolicyValidator.validate(raw)` | starter-security |
+| 操作日志 | controller 方法加 `@OperLog(module="xx", action="xx")`，自动落 `sys_oper_log`（操作人/入参/耗时/成败） | module-system |
+| JSON 脱敏 | DTO 字段加 `@Desensitize(DesensitizeType.PHONE)`，序列化时自动打码（手机/邮箱/身份证/银行卡/姓名/自定义） | starter-web |
+| XSS 过滤 | 默认开启：参数与 body 尖括号转义；富文本接口用 `scaffold.web.xss.exclude-urls` 排除 | starter-web |
+| CI | GitHub Actions：push/PR 自动 JDK8 全量构建 + 测试（.github/workflows/ci.yml） | 工程化 |
+
 ## 国产化（信创）适配点
 
 - 数据库：JPA 方言层换库（达梦/金仓/openGauss），业务零改动；`scaffold.data.worker-id` 多节点区分；

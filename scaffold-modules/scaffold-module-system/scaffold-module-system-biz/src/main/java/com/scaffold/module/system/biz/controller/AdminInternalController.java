@@ -48,6 +48,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "创建三方应用（返回 appKey/appSecret，secret 仅此一次展示）")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "三方应用", action = "创建应用")
     @Idempotent(windowSeconds = 5)
     @PostMapping("/apps")
     public R<Map<String, Object>> createApp(@RequestParam String appName,
@@ -62,6 +63,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "重置三方应用密钥")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "三方应用", action = "重置密钥")
     @PostMapping("/apps/{id}/reset-secret")
     public R<Map<String, Object>> resetSecret(@PathVariable Long id) {
         AppInfo app = accountService.resetSecret(id);
@@ -86,6 +88,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "给操作员分配角色")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "分配角色")
     @PostMapping("/accounts/{accountId}/roles")
     public R<Void> assignRoles(@PathVariable Long accountId,
                                @RequestParam("roleIds") List<Long> roleIds) {
@@ -94,6 +97,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "踢人下线")
+    @com.scaffold.module.system.api.annotation.OperLog(module = "在线用户", action = "踢人下线")
     @PostMapping("/accounts/{accountId}/kick")
     public R<Void> kick(@PathVariable Long accountId) {
         tokenService.revokeAll(accountId);

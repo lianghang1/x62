@@ -27,6 +27,10 @@ scaffold:
     datacenter-id: 1
   web:
     access-log-enabled: true
+    xss:
+      # XSS 过滤默认开启（参数与 body 尖括号转义）；富文本接口用 exclude-urls 排除
+      enabled: true
+      exclude-urls: []
     cors:
       # 默认关闭；需要跨域时填写来源白名单
       allowed-origins: []
@@ -37,6 +41,12 @@ scaffold:
     online-whitelist: []
     token-ttl-seconds: 604800
     renew-threshold-percent: 20
+    password-policy:
+      # 连续失败锁定 + 密码强度（创建账号/改密时用 PasswordPolicyValidator 校验）
+      max-fail-count: 5
+      lock-seconds: 900
+      min-length: 8
+      require-letter-and-digit: true
   job:
     engine: simple
     pool-size: 4

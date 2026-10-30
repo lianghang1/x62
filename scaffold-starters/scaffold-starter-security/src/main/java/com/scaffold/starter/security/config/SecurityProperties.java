@@ -35,6 +35,64 @@ public class SecurityProperties {
     /** openapi 是否校验来源 IP 白名单（需 AppIdentity 提供） */
     private boolean openapiIpWhitelistCheck = false;
 
+    /** 密码策略（JeeSite 密码安全思想：强度校验 + 连续失败锁定） */
+    private PasswordPolicy passwordPolicy = new PasswordPolicy();
+
+    public static class PasswordPolicy {
+
+        /** 连续登录失败次数上限，达到即临时锁定 */
+        private int maxFailCount = 5;
+
+        /** 锁定时长（秒） */
+        private int lockSeconds = 900;
+
+        /** 密码最小长度 */
+        private int minLength = 8;
+
+        /** 是否必须同时包含字母和数字 */
+        private boolean requireLetterAndDigit = true;
+
+        public int getMaxFailCount() {
+            return maxFailCount;
+        }
+
+        public void setMaxFailCount(int maxFailCount) {
+            this.maxFailCount = maxFailCount;
+        }
+
+        public int getLockSeconds() {
+            return lockSeconds;
+        }
+
+        public void setLockSeconds(int lockSeconds) {
+            this.lockSeconds = lockSeconds;
+        }
+
+        public int getMinLength() {
+            return minLength;
+        }
+
+        public void setMinLength(int minLength) {
+            this.minLength = minLength;
+        }
+
+        public boolean isRequireLetterAndDigit() {
+            return requireLetterAndDigit;
+        }
+
+        public void setRequireLetterAndDigit(boolean requireLetterAndDigit) {
+            this.requireLetterAndDigit = requireLetterAndDigit;
+        }
+    }
+
+    public PasswordPolicy getPasswordPolicy() {
+        return passwordPolicy;
+    }
+
+    public void setPasswordPolicy(PasswordPolicy passwordPolicy) {
+        this.passwordPolicy = passwordPolicy;
+    }
+
     public List<String> getInternalWhitelist() {
         return internalWhitelist;
     }

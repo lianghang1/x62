@@ -12,6 +12,7 @@ import com.scaffold.starter.web.exception.GlobalExceptionHandler;
 import com.scaffold.starter.web.log.AccessLogAspect;
 import com.scaffold.starter.web.trace.TraceIdFilter;
 import com.scaffold.starter.web.trace.TraceTaskDecorator;
+import com.scaffold.starter.web.xss.XssFilter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -46,6 +47,18 @@ public class WebAutoConfiguration {
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         registration.addUrlPatterns("/*");
         registration.setName("traceIdFilter");
+        return registration;
+    }
+
+    /** XSS 过滤：参数与 body 尖括号转义，紧跟 TraceIdFilter 之后 */
+    @Bean
+    @ConditionalOnProperty(prefix = "scaffold.web.xss", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public FilterRegistrationBean<XssFilter> xssFilterRegistration(WebProperties properties) {
+        FilterRegistrationBean<XssFilter> registration =
+                new FilterRegistrationBean<>(new XssFilter(properties.getXss().getExcludeUrls()));
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 10);
+        registration.addUrlPatterns("/*");
+        registration.setName("xssFilter");
         return registration;
     }
 
