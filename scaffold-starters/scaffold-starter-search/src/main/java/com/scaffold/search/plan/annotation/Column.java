@@ -7,10 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 查询计划字段映射（对齐 db-spring @Column）。
+ * 查询计划字段映射。
  *
  * <p>标注在计划类的属性上；未标注的属性不参与 SQL 生成。
  * name 缺省时使用属性名，table 缺省时使用主表别名。
+ *
+ * @author lianghang
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)

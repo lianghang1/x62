@@ -7,7 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@link FieldType} 容器（对齐 db-spring @FieldTypes，类级批量声明）。
+ * {@link FieldType} 容器（类级批量声明）。
+ *
+ * @author lianghang
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

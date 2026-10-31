@@ -33,12 +33,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * 注解在运行时合成为 Bean Searcher {@link BeanMeta}，SQL 由 Bean Searcher 统一生成；
  * 非计划类委托给默认解析器。
  *
- * <p>字段映射语义对齐 db-spring：未标注 {@code @Column} 的字段按驼峰转下划线自动映射
+ * <p>字段映射语义：未标注 {@code @Column} 的字段按驼峰转下划线自动映射
  * （主表别名前缀），{@code @IgnoreProperty / @IgnoreProperties} 排除，
  * {@code @FieldType / @FieldTypes} 覆盖字段数据类型，{@code useIndex} 生成 FORCE INDEX。
  *
  * <p>由 {@code SearchAutoConfiguration} 通过 BeanPostProcessor 挂到
  * BeanSearcher / MapSearcher 上。
+ *
+ * @author lianghang
  */
 public class ScaffoldMetaResolver implements MetaResolver {
 
@@ -93,7 +95,7 @@ public class ScaffoldMetaResolver implements MetaResolver {
             if (column != null && (!column.name().isEmpty() || !column.value().isEmpty())) {
                 columnExpr = !column.name().isEmpty() ? column.name() : column.value();
             } else {
-                // 自动映射：驼峰转下划线（对齐 db-spring ImprovedNamingStrategy）
+                // 自动映射：驼峰转下划线
                 columnExpr = snakeCase(property);
             }
             String fieldSql = columnExpr.contains(".") || hasSqlKeyword(columnExpr)

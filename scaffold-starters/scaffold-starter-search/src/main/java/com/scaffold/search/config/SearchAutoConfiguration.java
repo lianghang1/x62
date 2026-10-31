@@ -33,6 +33,8 @@ import java.util.Set;
  * </ol>
  *
  * <p>Bean Searcher starter 默认使用 SpringSqlExecutor，检索自动参与 Spring 事务。
+ *
+ * @author lianghang
  */
 @AutoConfiguration(after = BeanSearcherAutoConfiguration.class)
 @ConditionalOnProperty(name = "scaffold.search.enabled", havingValue = "true", matchIfMissing = true)

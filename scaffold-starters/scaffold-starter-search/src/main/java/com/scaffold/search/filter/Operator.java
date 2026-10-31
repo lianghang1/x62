@@ -21,7 +21,9 @@ import cn.zhxu.bs.operator.Between;
 import cn.zhxu.bs.operator.StartWith;
 
 /**
- * 检索运算符（对齐 db-spring SearchFilter.Operator 命名），底层映射到 Bean Searcher FieldOps。
+ * 检索运算符，底层映射到 Bean Searcher FieldOps。
+ *
+ * @author lianghang
  */
 public enum Operator {
 

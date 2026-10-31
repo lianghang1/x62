@@ -7,7 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 查询计划主表声明（对齐 db-spring @Table）。
+ * 查询计划主表声明。
+ *
+ * @author lianghang
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -23,7 +25,7 @@ public @interface Table {
     /** 主键字段名 */
     String pkColumn() default "id";
 
-    /** 强制索引名称（MySQL 语法：表名后拼 FORCE INDEX(idx)，同 db-spring） */
+    /** 强制索引名称（MySQL 语法：表名后拼 FORCE INDEX(idx)） */
     String useIndex() default "";
 
     /** 固定过滤条件（总是生效，前端无法覆盖） */

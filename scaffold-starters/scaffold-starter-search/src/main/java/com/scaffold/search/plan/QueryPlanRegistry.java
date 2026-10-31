@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>启动时由自动配置扫描 {@code scaffold.search.plan-packages} 注册，
  * 也可手动调用 {@link #register(Class)}。
+ *
+ * @author lianghang
  */
 public final class QueryPlanRegistry {
 

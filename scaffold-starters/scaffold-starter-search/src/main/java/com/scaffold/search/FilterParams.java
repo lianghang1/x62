@@ -9,6 +9,8 @@ import java.util.List;
 
 /**
  * SearchFilter → Bean Searcher 参数 转换器（内部工具）。
+ *
+ * @author lianghang
  */
 final class FilterParams {
 

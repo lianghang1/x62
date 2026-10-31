@@ -11,6 +11,8 @@ import java.util.Locale;
  * <p>原理：可序列化 lambda 会生成 {@code writeReplace} 方法，
  * 通过它拿到 {@link SerializedLambda}，再定位被引用的方法（getter），
  * 还原为属性名。
+ *
+ * @author lianghang
  */
 public final class LambdaUtils {
 

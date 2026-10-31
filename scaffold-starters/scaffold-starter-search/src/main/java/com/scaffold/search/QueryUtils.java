@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 动态检索统一入口（静态门面，用法对齐 db-spring QueryUtils，底层 Bean Searcher）。
+ * 动态检索统一入口（静态门面，底层 Bean Searcher）。
  *
  * <p>由 {@code SearchAutoConfiguration} 在启动时注入检索器；同事务：
  * Bean Searcher 默认使用 SpringSqlExecutor，在 {@code @Transactional} 方法内
@@ -40,6 +40,8 @@ import java.util.Map;
  * // QueryPlan（命名联表查询计划）
  * Page<DeptUserVO> p = QueryUtils.doQuery("userPlan", filters, PageRequest.of(0, 15));
  * }</pre>
+ *
+ * @author lianghang
  */
 public final class QueryUtils {
 
@@ -164,7 +166,7 @@ public final class QueryUtils {
         return doCount(QueryPlanRegistry.require(planName), filters);
     }
 
-    // ==================== orFilters 重载（对齐 db-spring buildSpecification(filters, orFilters)） ====================
+    // ==================== orFilters 重载 ====================
 
     public static <T> Page<T> doQuery(List<SearchFilter> filters, List<SearchFilter> orFilters,
                                       Pageable pageable, Class<T> beanClass) {
@@ -197,10 +199,10 @@ public final class QueryUtils {
         return searcher().searchAll(beanClass, builder(beanClass, filters, null, null, sort).build());
     }
 
-    // ==================== 前端参数协议（对齐 db-spring SearchUtils.parse） ====================
+    // ==================== 前端参数协议 ====================
 
     /**
-     * 解析前端参数为过滤器列表（db-spring 前缀协议）：
+     * 解析前端参数为过滤器列表（前缀协议）：
      * key = {@code 运算符_字段名}（如 {@code EQ_status}、{@code CN_name}），
      * value 支持 OR 分支：{@code "v1||GT_age||30"} → {@code v1 OR age>30}；
      * 无值运算符（NU/NN/BLANK/NBLANK）value 传空串；空值条件整体跳过。
@@ -261,7 +263,7 @@ public final class QueryUtils {
         return filters;
     }
 
-    // ==================== 原生 SQL（对齐 db-spring doNativeQuery） ====================
+    // ==================== 原生 SQL ====================
 
     /**
      * 原生 SQL 查询（结果按驼峰属性映射到 returnType，需有对应 setter）。

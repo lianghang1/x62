@@ -12,6 +12,8 @@ import java.io.Serializable;
  *
  * @param <T> 实体/检索 Bean 类型
  * @param <R> 字段类型
+ *
+ * @author lianghang
  */
 @FunctionalInterface
 public interface SFunction<T, R> extends Serializable {

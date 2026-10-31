@@ -6,7 +6,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 关联字段声明（对齐 db-spring @JoinColumn）。
+ * 关联字段声明。
+ *
+ * @author lianghang
  */
 @Target({})
 @Retention(RetentionPolicy.RUNTIME)

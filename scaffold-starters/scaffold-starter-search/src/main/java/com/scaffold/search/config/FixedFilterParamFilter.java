@@ -20,6 +20,8 @@ import java.util.Map;
  * <p>注意：同字段冲突的语义是「固定条件优先，动态条件被静默丢弃」——
  * 若需要同字段多条件（如 status IN (...) AND status &gt; 2），
  * 应在计划类设计上避免把该字段声明为固定条件。
+ *
+ * @author lianghang
  */
 public class FixedFilterParamFilter implements ParamFilter {
 

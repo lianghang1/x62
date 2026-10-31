@@ -7,7 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 命名查询计划（对齐 db-spring @QueryPlan）。
+ * 命名查询计划。
  *
  * <p>标注在联表查询结构类上，配合 {@link Table} / {@link JoinTable} /
  * {@link Column} 声明联表结构与字段映射；运行时经
@@ -30,6 +30,8 @@ import java.lang.annotation.Target;
  *
  * <p>{@code returnType}：结果封装类；缺省（Void）时直接返回计划类实例。
  * 两者不同时，结果按属性名自动转换（Map → returnType）。
+ *
+ * @author lianghang
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

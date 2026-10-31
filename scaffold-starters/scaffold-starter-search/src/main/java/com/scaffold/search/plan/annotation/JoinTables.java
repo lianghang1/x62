@@ -8,6 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * {@link JoinTable} 容器注解（支持同一计划类标注多个关联表）。
+ *
+ * @author lianghang
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

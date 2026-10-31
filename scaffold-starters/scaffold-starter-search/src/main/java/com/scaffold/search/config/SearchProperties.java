@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * 动态检索配置项。
+ *
+ * @author lianghang
  */
 @ConfigurationProperties(prefix = "scaffold.search")
 public class SearchProperties {

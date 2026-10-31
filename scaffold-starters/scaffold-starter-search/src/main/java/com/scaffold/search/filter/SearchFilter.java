@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 检索过滤器（对齐 db-spring SearchFilter 用法），底层转成 Bean Searcher 检索参数。
+ * 检索过滤器，底层转成 Bean Searcher 检索参数。
  *
  * <pre>{@code
  * List<SearchFilter> filters = new ArrayList<>();
@@ -16,6 +16,8 @@ import java.util.List;
  *         new SearchFilter("deptId", Operator.EQ, 1L),
  *         new SearchFilter("deptId", Operator.EQ, 2L)));
  * }</pre>
+ *
+ * @author lianghang
  */
 public class SearchFilter {
 
