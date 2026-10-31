@@ -60,6 +60,14 @@ java -jar scaffold-server/target/scaffold-server.jar
 # 或开发模式：mvn -pl scaffold-server spring-boot:run
 ```
 
+## 单机完整部署（full 版一键起）
+
+```bash
+# 前提：已产出可执行 jar；Redis + MySQL + server 三容器
+docker compose -f deploy/docker-compose-full.yml up -d --build
+curl http://localhost:8080/ping
+```
+
 ## 三入口验证
 
 | 入口 | 路径 | 认证 | 演示接口 |
