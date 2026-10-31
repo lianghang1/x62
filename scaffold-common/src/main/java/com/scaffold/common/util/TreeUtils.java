@@ -61,7 +61,7 @@ public final class TreeUtils {
                                         ID rootParentId,
                                         BiConsumer<T, List<T>> childrenSetter) {
         List<T> roots = new ArrayList<>();
-        if (nodes == null || nodes.isEmpty()) {
+        if (CollUtils.isEmpty(nodes)) {
             return roots;
         }
 

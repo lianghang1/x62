@@ -1,5 +1,6 @@
 package com.scaffold.module.system.biz.service;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.common.exception.BizException;
 import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.common.result.PageResult;
@@ -127,7 +128,7 @@ public class JobAdminService {
     /** 执行日志分页（jobName 可空 = 全部任务混排，最新在前） */
     public PageResult<JobRunLog> runLogs(String jobName, int pageNum, int pageSize) {
         PageRequest request = PageRequest.of(Math.max(pageNum - 1, 0), Math.min(pageSize, 100));
-        Page<JobRunLog> page = (jobName == null || jobName.trim().isEmpty())
+        Page<JobRunLog> page = (StringUtils.isBlank(jobName))
                 ? runLogRepository.findAllByDeletedFalseOrderByIdDesc(request)
                 : runLogRepository.findByJobNameAndDeletedFalseOrderByIdDesc(jobName.trim(), request);
         return PageResult.of(page.getContent(), page.getTotalElements(), pageNum, pageSize);

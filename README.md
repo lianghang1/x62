@@ -81,6 +81,26 @@ sign     = HMAC-SHA256(signBase, appSecret)  # hex
 4. 生产/信创环境 `ddl-auto=none`，建表走 Liquibase；密钥全部环境变量（.env.example）；
 5. 调度引擎可切换：`scaffold.job.engine=simple|none`，接 PowerJob 时业务类零改动。
 
+## 工具类底座（统一入口，机器强制）
+
+字符串/集合原子操作收敛到唯一入口，**import 唯一性由 ArchUnit 规则在构建期强制**（违规直接构建失败）：
+
+```java
+import com.scaffold.common.util.StringUtils;   // 字符串唯一入口：继承 lang3 全量方法 + camelToSnake/snakeToCamel
+import com.scaffold.common.util.CollUtils;      // 集合唯一入口：组合门面（判空/交并差集/partition/不可变集合）
+
+StringUtils.isBlank(name);                      // 底层 lang3，写法无感
+StringUtils.defaultIfEmpty(val, "-");
+CollUtils.intersection(setA, setB);             // 底层 guava Sets
+CollUtils.partition(bigList, 500);              // 批量入库分批
+```
+
+- **禁用来源**（ArchUnit 规则，主代码）：`org.apache.commons.lang3.StringUtils`、`org.springframework.util.StringUtils`、hutool `StrUtil`/`CollUtil`；
+- **guava 高级结构**（BiMap/Multimap/Table/Range）直接 import 原生类，门面只收 80% 高频；
+- **业务模块接入自查**：引 starter-test 后写一行测试调 `ScaffoldArchRules.checkMainClasses()`（common 模块已内置 `ArchConformanceTest`）；
+- **自研准则**：只有脚手架专属语义才建工具类（MaskUtils/TreeUtils/SerialOps 先例），纯转发 lang3/guava 的一律不加；
+- **hutool 唯一合法存在**：`hutool-captcha`（领域库，图像渲染不在 lang3/guava 范畴），禁 hutool-all。
+
 ## 敏感字段加密（starter-crypto）
 
 实体字段一键接入，AES-256-GCM（默认）与 SM4 国密可配：

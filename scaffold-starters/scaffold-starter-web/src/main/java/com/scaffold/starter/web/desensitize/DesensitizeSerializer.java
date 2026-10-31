@@ -1,5 +1,6 @@
 package com.scaffold.starter.web.desensitize;
 
+import com.scaffold.common.util.StringUtils;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -40,7 +41,7 @@ public class DesensitizeSerializer extends JsonSerializer<String> implements Con
     }
 
     String mask(String value) {
-        if (value == null || value.isEmpty() || type == null) {
+        if (StringUtils.isEmpty(value) || type == null) {
             return value;
         }
         switch (type) {

@@ -1,5 +1,6 @@
 package com.scaffold.common.util;
 
+
 /**
  * 敏感信息打码工具。
  *
@@ -19,7 +20,7 @@ public final class MaskUtils {
 
     /** 手机号：保留前 3 后 4，如 {@code 138****5678}。 */
     public static String phone(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         if (value.length() <= 7) {
@@ -30,7 +31,7 @@ public final class MaskUtils {
 
     /** 邮箱：保留首字符与域名，如 {@code a****@example.com}。 */
     public static String email(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         int at = value.indexOf('@');
@@ -42,7 +43,7 @@ public final class MaskUtils {
 
     /** 身份证号：保留前 6 后 4，如 {@code 110101********1234}。 */
     public static String idCard(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         if (value.length() <= 10) {
@@ -53,7 +54,7 @@ public final class MaskUtils {
 
     /** 银行卡号：保留前 4 后 4，如 {@code 6222****1234}。 */
     public static String bankCard(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         if (value.length() <= 8) {
@@ -64,7 +65,7 @@ public final class MaskUtils {
 
     /** 姓名：保留姓氏（单字姓名整体打码），如 {@code 张****}。 */
     public static String name(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         return value.length() == 1 ? MASK : value.charAt(0) + MASK;
@@ -76,7 +77,7 @@ public final class MaskUtils {
      * <p>前后缀合计超过源串长度时按能保留的最大长度截取，不会越界。</p>
      */
     public static String custom(String value, int prefixKeep, int suffixKeep) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         int prefix = Math.min(prefixKeep, value.length());

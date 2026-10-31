@@ -1,5 +1,6 @@
 package com.scaffold.starter.security.token;
 
+import com.scaffold.common.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +60,7 @@ public class RedisTokenService implements TokenService {
 
     @Override
     public SessionInfo resolve(String token) {
-        if (token == null || token.isEmpty()) {
+        if (StringUtils.isEmpty(token)) {
             return null;
         }
         String json = redisTemplate.opsForValue().get(TOKEN_KEY + token);

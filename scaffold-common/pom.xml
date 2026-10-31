@@ -31,6 +31,25 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
         </dependency>
+
+        <!-- 字符串/数字/数组原子操作底座（StringUtils 等），全脚手架经此处传递，版本 BOM 锁定 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <!-- 集合运算/不可变集合/CaseFormat/Splitter 底座，全脚手架经此处传递，版本 BOM 锁定 -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <!-- 架构规约自查：common 自身也不得绕过 StringUtils/CollUtils 门面（ArchRuleTest） -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- CommonAutoConfiguration：@AutoConfiguration/@ConditionalOnMissingBean 注解（版本走 spring-boot BOM） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

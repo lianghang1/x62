@@ -11,7 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.StringUtils;
+import com.scaffold.common.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +52,7 @@ public class ConfigInternalController {
         Specification<SysConfig> spec = (root, query, cb) -> {
             List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("deleted")));
-            if (StringUtils.hasText(key)) {
+            if (StringUtils.isNotBlank(key)) {
                 predicates.add(cb.like(root.get("configKey"), "%" + key.trim().toLowerCase() + "%"));
             }
             if (enabled != null) {

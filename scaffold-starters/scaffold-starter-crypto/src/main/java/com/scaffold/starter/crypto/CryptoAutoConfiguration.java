@@ -1,5 +1,6 @@
 package com.scaffold.starter.crypto;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.common.crypto.DataCipher;
 import com.scaffold.common.crypto.DataCipherHolder;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ public class CryptoAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(DataCipher.class)
     public DataCipher dataCipher(CryptoPropertiesHolder properties) {
-        if (properties.getKey() == null || properties.getKey().trim().isEmpty()) {
+        if (StringUtils.isBlank(properties.getKey())) {
             throw new IllegalStateException(
                     "scaffold.crypto.key 未配置：敏感字段加密需要密钥，请通过环境变量注入（参考 .env.example）");
         }

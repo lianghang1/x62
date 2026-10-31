@@ -1,5 +1,6 @@
 package com.scaffold.starter.powerjob;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.starter.job.AbstractJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,7 @@ public class PowerJobJobAdapter implements BasicProcessor {
     @Override
     public ProcessResult process(TaskContext context) throws Exception {
         String jobName = parseJobName(context.getJobParams());
-        if (jobName == null || jobName.isEmpty()) {
+        if (StringUtils.isEmpty(jobName)) {
             return new ProcessResult(false,
                     "任务参数缺少 jobName：填 {\"jobName\":\"...\"} 或直接填 @Job.name，实际参数=" + context.getJobParams());
         }

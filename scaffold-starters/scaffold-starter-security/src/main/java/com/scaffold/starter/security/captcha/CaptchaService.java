@@ -1,5 +1,6 @@
 package com.scaffold.starter.security.captcha;
 
+import com.scaffold.common.util.StringUtils;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.GifCaptcha;
 import cn.hutool.captcha.generator.MathGenerator;
@@ -84,7 +85,7 @@ public class CaptchaService {
      * @return true=有效
      */
     public boolean verifyAndConsume(String captchaId, String code) {
-        if (captchaId == null || captchaId.isEmpty() || code == null || code.isEmpty()) {
+        if (StringUtils.isEmpty(captchaId) || StringUtils.isEmpty(code)) {
             return false;
         }
         String key = KEY_PREFIX + captchaId;

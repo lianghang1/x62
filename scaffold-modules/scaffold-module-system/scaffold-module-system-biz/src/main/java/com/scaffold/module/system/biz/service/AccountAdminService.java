@@ -17,7 +17,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import com.scaffold.common.util.StringUtils;
 
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -71,13 +71,13 @@ public class AccountAdminService {
         Specification<SysAccount> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(cb.isFalse(root.get("deleted")));
-            if (StringUtils.hasText(accountNo)) {
+            if (StringUtils.isNotBlank(accountNo)) {
                 predicates.add(cb.like(root.get("accountNo"), "%" + accountNo + "%"));
             }
             if (type != null) {
                 predicates.add(cb.equal(root.get("type"), type));
             }
-            if (StringUtils.hasText(status)) {
+            if (StringUtils.isNotBlank(status)) {
                 predicates.add(cb.equal(root.get("status"), status));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
@@ -101,7 +101,7 @@ public class AccountAdminService {
      */
     @Transactional
     public Map<String, Object> createOperator(String accountNo, String rawPassword) {
-        if (!StringUtils.hasText(accountNo)) {
+        if (!StringUtils.isNotBlank(accountNo)) {
             throw BizException.of(GlobalErrorCode.BAD_REQUEST, "账号不能为空");
         }
         if (accountRepository.findByAccountNoAndDeletedFalse(accountNo).isPresent()) {

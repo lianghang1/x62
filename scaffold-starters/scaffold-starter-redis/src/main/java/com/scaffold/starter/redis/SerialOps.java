@@ -1,5 +1,6 @@
 package com.scaffold.starter.redis;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.common.constant.RedisKeys;
 import com.scaffold.common.util.DateUtils;
 
@@ -54,7 +55,7 @@ public class SerialOps {
      * @return 形如 {@code PAY20261031-000001} 的单号
      */
     public String next(String prefix, int seqLength) {
-        if (prefix == null || prefix.trim().isEmpty()) {
+        if (StringUtils.isBlank(prefix)) {
             throw new IllegalArgumentException("SerialOps: prefix 不能为空");
         }
         if (seqLength < 1 || seqLength > 18) {

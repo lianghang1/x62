@@ -1,5 +1,6 @@
 package com.scaffold.starter.web.config;
 
+import com.scaffold.common.util.CollUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -147,7 +148,7 @@ public class WebAutoConfiguration {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 WebProperties.Cors cors = properties.getCors();
-                if (cors.getAllowedOrigins() == null || cors.getAllowedOrigins().isEmpty()) {
+                if (CollUtils.isEmpty(cors.getAllowedOrigins())) {
                     return;
                 }
                 registry.addMapping("/**")
@@ -160,7 +161,7 @@ public class WebAutoConfiguration {
     }
 
     private String[] methods(WebProperties.Cors cors) {
-        return cors.getAllowedMethods() == null || cors.getAllowedMethods().isEmpty()
+        return CollUtils.isEmpty(cors.getAllowedMethods())
                 ? new String[]{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
                 : cors.getAllowedMethods().toArray(new String[0]);
     }

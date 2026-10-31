@@ -62,7 +62,7 @@ public final class DateUtils {
 
     /** 解析全局格式日期时间串；null/空串返回 null，格式非法抛异常（ fail-fast） */
     public static LocalDateTime parseDateTime(String text) {
-        if (text == null || text.trim().isEmpty()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         return LocalDateTime.parse(text.trim(), DATE_TIME_FORMATTER);
@@ -70,7 +70,7 @@ public final class DateUtils {
 
     /** 解析全局格式日期串；null/空串返回 null */
     public static LocalDate parseDate(String text) {
-        if (text == null || text.trim().isEmpty()) {
+        if (StringUtils.isBlank(text)) {
             return null;
         }
         return LocalDate.parse(text.trim(), DATE_FORMATTER);

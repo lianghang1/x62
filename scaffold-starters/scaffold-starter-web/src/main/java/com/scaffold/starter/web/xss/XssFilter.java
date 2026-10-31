@@ -1,5 +1,6 @@
 package com.scaffold.starter.web.xss;
 
+import com.scaffold.common.util.CollUtils;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -31,7 +32,7 @@ public class XssFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        if (excludeUrls == null || excludeUrls.isEmpty()) {
+        if (CollUtils.isEmpty(excludeUrls)) {
             return false;
         }
         String uri = request.getRequestURI();

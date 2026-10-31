@@ -1,5 +1,6 @@
 package com.scaffold.starter.web.xss;
 
+import com.scaffold.common.util.StringUtils;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -106,7 +107,7 @@ public class XssRequestWrapper extends HttpServletRequestWrapper {
 
     /** 只转义尖括号（JSON 结构安全），&, " 引号不转义避免二次编码问题。 */
     static String escape(String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         return value.replace("<", "&lt;").replace(">", "&gt;");

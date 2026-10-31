@@ -18,6 +18,9 @@
         <bcprov.version>1.78.1</bcprov.version>
         <powerjob.version>4.3.9</powerjob.version>
         <hutool.version>5.8.36</hutool.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <guava.version>32.1.3-jre</guava.version>
+        <archunit.version>0.23.1</archunit.version>
         <okhttp.version>4.12.0</okhttp.version>
         <easyexcel.version>3.3.4</easyexcel.version>
         <xfilestorage.version>2.3.0</xfilestorage.version>
@@ -67,6 +70,27 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-captcha</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- Commons Lang3：字符串/数字/数组原子操作底座（null 安全全套），JDK8 兼容 -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <!-- Guava：集合运算/不可变集合/CaseFormat/Splitter 底座；32.1.3-jre 为 JDK8 兼容最终线，BOM 锁死防传递漂移 -->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!-- ArchUnit：架构规约测试（import 唯一性强制），starter-test 提供 ScaffoldArchRules -->
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit</artifactId>
+                <version>${archunit.version}</version>
             </dependency>
 
             <!-- OkHttp：starter-http 默认传输实现（4.x 支持 JDK8） -->

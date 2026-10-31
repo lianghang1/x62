@@ -1,5 +1,6 @@
 package com.scaffold.starter.web.exception;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.common.exception.BizException;
 import com.scaffold.common.exception.ErrorCode;
 import com.scaffold.common.exception.GlobalErrorCode;
@@ -76,8 +77,7 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<R<Void>> build(ErrorCode ec, String customMessage) {
-        String message = customMessage == null || customMessage.isEmpty()
-                ? ec.getMessage() : customMessage;
+        String message = StringUtils.defaultIfEmpty(customMessage, ec.getMessage());
         int httpStatus = ec.getHttpStatus() == -1 ? 200 : ec.getHttpStatus();
         return ResponseEntity.status(httpStatus).body(R.fail(ec, message));
     }

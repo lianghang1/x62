@@ -1,5 +1,6 @@
 package com.scaffold.module.system.biz.service;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.module.system.api.api.DictApi;
 import com.scaffold.module.system.api.dto.DictDataDTO;
 import com.scaffold.common.exception.BizException;
@@ -40,7 +41,7 @@ public class DictServiceImpl implements DictApi {
 
     @Override
     public String translate(String type, String value) {
-        if (value == null || value.isEmpty()) {
+        if (StringUtils.isEmpty(value)) {
             return value;
         }
         for (DictDataDTO dto : listByType(type)) {

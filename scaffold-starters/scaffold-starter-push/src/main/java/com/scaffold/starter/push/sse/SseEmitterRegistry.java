@@ -1,5 +1,6 @@
 package com.scaffold.starter.push.sse;
 
+import com.scaffold.common.util.CollUtils;
 import com.scaffold.common.util.JsonUtils;
 import com.scaffold.starter.push.PushProperties;
 import org.slf4j.Logger;
@@ -94,7 +95,7 @@ public class SseEmitterRegistry {
 
     private int sendTo(Long accountId, String eventId, String event, Object payload) {
         List<SseConnection> list = connections.get(accountId);
-        if (list == null || list.isEmpty()) {
+        if (CollUtils.isEmpty(list)) {
             return 0;
         }
         int sent = 0;

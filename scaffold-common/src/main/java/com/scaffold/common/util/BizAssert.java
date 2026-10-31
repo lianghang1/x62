@@ -50,7 +50,7 @@ public final class BizAssert {
 
     /** 字符串空白（null/空串/纯空白）时抛出业务异常 + 自定义文案。 */
     public static String notBlank(String text, ErrorCode errorCode, String message) {
-        if (text == null || text.trim().isEmpty()) {
+        if (StringUtils.isBlank(text)) {
             throw new BizException(errorCode, message);
         }
         return text;

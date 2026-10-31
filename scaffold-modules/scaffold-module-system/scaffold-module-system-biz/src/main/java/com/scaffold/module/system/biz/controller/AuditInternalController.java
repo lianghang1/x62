@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.StringUtils;
+import com.scaffold.common.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,10 +55,10 @@ public class AuditInternalController {
                                              @RequestParam(required = false) LocalDate endDate) {
         Specification<LoginLog> spec = (root, query, cb) -> {
             List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
-            if (StringUtils.hasText(accountNo)) {
+            if (StringUtils.isNotBlank(accountNo)) {
                 predicates.add(cb.equal(root.get("accountNo"), accountNo));
             }
-            if (StringUtils.hasText(loginType)) {
+            if (StringUtils.isNotBlank(loginType)) {
                 predicates.add(cb.equal(root.get("loginType"), loginType));
             }
             if (success != null) {
@@ -87,10 +87,10 @@ public class AuditInternalController {
                                            @RequestParam(required = false) LocalDate endDate) {
         Specification<OperLog> spec = (root, query, cb) -> {
             List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
-            if (StringUtils.hasText(module)) {
+            if (StringUtils.isNotBlank(module)) {
                 predicates.add(cb.equal(root.get("module"), module));
             }
-            if (StringUtils.hasText(operator)) {
+            if (StringUtils.isNotBlank(operator)) {
                 predicates.add(cb.equal(root.get("operator"), operator));
             }
             if (success != null) {

@@ -1,5 +1,6 @@
 package com.scaffold.starter.security.filter;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.common.exception.GlobalErrorCode;
 import com.scaffold.starter.security.config.SecurityProperties;
 import com.scaffold.starter.security.openapi.AppIdentity;
@@ -142,7 +143,7 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
 
     private boolean anyBlank(String... values) {
         for (String v : values) {
-            if (v == null || v.trim().isEmpty()) {
+            if (StringUtils.isBlank(v)) {
                 return true;
             }
         }

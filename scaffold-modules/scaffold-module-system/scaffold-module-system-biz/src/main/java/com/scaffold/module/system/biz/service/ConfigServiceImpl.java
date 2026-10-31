@@ -10,7 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import com.scaffold.common.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -56,7 +56,7 @@ public class ConfigServiceImpl implements ConfigApi {
 
     @Override
     public String getValue(String key) {
-        if (!StringUtils.hasText(key)) {
+        if (!StringUtils.isNotBlank(key)) {
             return null;
         }
         SysConfig config = cache.get(normalize(key));
@@ -94,7 +94,7 @@ public class ConfigServiceImpl implements ConfigApi {
      */
     @Transactional
     public Long save(SysConfig form) {
-        if (!StringUtils.hasText(form.getConfigKey())) {
+        if (!StringUtils.isNotBlank(form.getConfigKey())) {
             throw com.scaffold.common.exception.BizException.of(
                     com.scaffold.common.exception.GlobalErrorCode.BAD_REQUEST, "configKey 不能为空");
         }
@@ -120,7 +120,7 @@ public class ConfigServiceImpl implements ConfigApi {
      * @param key 被改配置键
      */
     public void onRefreshMessage(String key) {
-        if (!StringUtils.hasText(key)) {
+        if (!StringUtils.isNotBlank(key)) {
             return;
         }
         configRepository.findByConfigKeyAndDeletedFalse(normalize(key))

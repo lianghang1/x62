@@ -1,5 +1,6 @@
 package com.scaffold.starter.data.jpa.converter;
 
+import com.scaffold.common.util.StringUtils;
 import com.scaffold.common.crypto.DataCipherHolder;
 
 import javax.persistence.AttributeConverter;
@@ -26,7 +27,7 @@ public class EncryptedStringConverter implements AttributeConverter<String, Stri
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
-        if (attribute == null || attribute.isEmpty()) {
+        if (StringUtils.isEmpty(attribute)) {
             return attribute;
         }
         return DataCipherHolder.get().encrypt(attribute);
@@ -34,7 +35,7 @@ public class EncryptedStringConverter implements AttributeConverter<String, Stri
 
     @Override
     public String convertToEntityAttribute(String dbData) {
-        if (dbData == null || dbData.isEmpty()) {
+        if (StringUtils.isEmpty(dbData)) {
             return dbData;
         }
         return DataCipherHolder.get().decrypt(dbData);

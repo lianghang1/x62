@@ -1,5 +1,6 @@
 package com.scaffold.starter.ws;
 
+import com.scaffold.common.util.CollUtils;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class WsSessionRegistry {
     /** 向账户全部会话发送文本；发送失败的会话直接关闭摘除。 */
     public int send(Long accountId, String text) {
         CopyOnWriteArraySet<WebSocketSession> set = sessions.get(accountId);
-        if (set == null || set.isEmpty()) {
+        if (CollUtils.isEmpty(set)) {
             return 0;
         }
         int sent = 0;
