@@ -8,7 +8,9 @@ import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 /**
- * 任务执行日志：每次执行一行——payment-engine 缺失的关键能力，任务挂了不再靠翻应用日志。
+ * 任务执行日志：每次执行一行，任务挂了不再靠翻应用日志排查。
+ *
+ * @author lianghang
  */
 @Entity
 @Table(name = "job_run_log")

@@ -3,7 +3,7 @@ package com.scaffold.starter.web.desensitize;
 /**
  * 脱敏类型枚举，定义各类敏感信息的打码规则。
  *
- * <p>清单与 yudao 的 desensitize 保持同款、够用为准；长度不足或格式异常的值
+ * <p>规则清单够用为准；长度不足或格式异常的值
  * 统一整体打码，避免截取越界泄漏片段。</p>
  *
  * @author lianghang

@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import java.time.Duration;
 
 /**
- * 基于 Redis 计数的登录失败锁定组件（RuoYi maxRetryCount 思路）。
+ * 基于 Redis 计数的登录失败锁定组件，防撞库爆破。
  *
  * <p>两个维度互补：账号维度——同账号连续失败达到 maxFailCount 后锁定
  * lockSeconds，成功登录 reset 清零（保护账号不误伤共享出口 IP）；

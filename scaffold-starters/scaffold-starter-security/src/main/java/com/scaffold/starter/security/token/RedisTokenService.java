@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * 基于 Redis 的 token 会话实现，沿用 RuoYi 的同款思路。
+ * 基于 Redis 的 token 会话实现。
  *
  * <p>token 为 UUID，会话 JSON 存 {@code scaffold:auth:token:{token}}，TTL 可配；
  * 账户索引 set {@code scaffold:auth:account:{accountId}} 记录其全部 token，供全端下线与在线用户查询使用；
