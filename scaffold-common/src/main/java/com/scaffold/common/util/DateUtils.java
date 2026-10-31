@@ -31,11 +31,16 @@ public final class DateUtils {
     /** 紧凑格式（流水号/文件名/日志前缀），例：20261030234159 */
     public static final String COMPACT_PATTERN = "yyyyMMddHHmmss";
 
+    /** 日期段紧凑格式（单号/分区键），例：20261031 */
+    public static final String DATE_COMPACT_PATTERN = "yyyyMMdd";
+
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern(DATE_PATTERN);
 
     public static final DateTimeFormatter COMPACT_FORMATTER = DateTimeFormatter.ofPattern(COMPACT_PATTERN);
+
+    public static final DateTimeFormatter DATE_COMPACT_FORMATTER = DateTimeFormatter.ofPattern(DATE_COMPACT_PATTERN);
 
     /** 当前时间格式化为全局日期时间串 */
     public static String now() {
@@ -48,6 +53,11 @@ public final class DateUtils {
 
     public static String formatDate(LocalDate date) {
         return date == null ? null : date.format(DATE_FORMATTER);
+    }
+
+    /** 日期段紧凑串（yyyyMMdd），单号生成/分区键统一口径 */
+    public static String formatDateCompact(LocalDate date) {
+        return date == null ? null : date.format(DATE_COMPACT_FORMATTER);
     }
 
     /** 解析全局格式日期时间串；null/空串返回 null，格式非法抛异常（ fail-fast） */

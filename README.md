@@ -219,9 +219,19 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
   登录日志/操作日志落库即基于此——生产方请求线程取齐上下文后发事件，监听器异步写库；
 - **雪花 ID IdOps**：主键之外的取号场景（对外单号/消息幂等号）`IdOps.nextId()`，
   与 JPA 主键共用同一 Snowflake 单例（workerId 由 `scaffold.data.worker-id/datacenter-id` 配置）；
+- **业务单号 SerialOps**（starter-redis，与 IdOps 互补：雪花给机器看、单号给人看）：
+  ```java
+  serialOps.next("ORD");    // → ORD20261031-0001（前缀 + 日期段 + 4 位序列）
+  serialOps.next("PAY", 6); // → PAY20261031-000001（自定义位宽，超出自然变长不截断）
+  ```
+  Redis 原子自增多实例不重号；序列 key 内嵌日期段跨日归零，首号自动补 48h 兜底 TTL；
+- **树装配 TreeUtils**（common）：扁平 List → 树，实体零侵入（函数式取 id/parentId/挂 children）：
+  `TreeUtils.build(list, Node::getId, Node::getParentId, 0L, Node::setChildren)`；
+  叶子 children 恒为空 List；孤儿节点（父不存在）提升为根不丢数据；id 重复 fail-fast；
 - **日期工具 DateUtils**：全局格式唯一出口，新增 `Date↔LocalDateTime` 互转、
   `dayBalanceSeconds()`（当天剩余秒，"当日有效"过期标准算法）、
-  `formatCompact()`（yyyyMMddHHmmss 流水号）、`chineseWeek()`（中文星期）；
+  `formatCompact()`（yyyyMMddHHmmss 流水号）、`formatDateCompact()`（yyyyMMdd 日期段）、
+  `chineseWeek()`（中文星期）；
 - **@Async 异常兜底**：web starter 注册 `AsyncUncaughtExceptionHandler`（方法+参数+异常统一记录），
   `@EnableAsync` 引入 starter-web 即开启。
 

@@ -25,4 +25,11 @@ public class RedisAutoConfiguration {
     public RedisOps redisOps(StringRedisTemplate redisTemplate) {
         return new RedisOps(redisTemplate);
     }
+
+    /** 业务单号生成器：依赖 RedisOps 的原子自增，随门面一同装配 */
+    @Bean
+    @ConditionalOnMissingBean
+    public com.scaffold.starter.redis.SerialOps serialOps(RedisOps redisOps) {
+        return new com.scaffold.starter.redis.SerialOps(redisOps);
+    }
 }

@@ -50,6 +50,9 @@ public final class RedisKeys {
     /** DB 配置缓存失效广播（pub/sub 频道名，多实例刷新） */
     public static final String CONFIG_REFRESH = "scaffold:config:refresh";
 
+    /** 单号序列（SerialOps）：{prefix}:{yyyyMMdd} → 日期内自增序号 */
+    public static final String SERIAL = "scaffold:serial:";
+
     private RedisKeys() {
     }
 }
