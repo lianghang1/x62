@@ -34,9 +34,18 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
  */
 public final class ScaffoldArchRules {
 
+    /** 门面自身（继承 lang3）不受此规则约束 */
+    private static final com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaClass> NOT_STRING_FACADE =
+            new com.tngtech.archunit.base.DescribedPredicate<com.tngtech.archunit.core.domain.JavaClass>("not the StringUtils facade") {
+                @Override
+                public boolean apply(com.tngtech.archunit.core.domain.JavaClass input) {
+                    return !"com.scaffold.common.util.StringUtils".equals(input.getFullName());
+                }
+            };
+
     /** 禁止直接 import lang3 StringUtils——必须走 scaffold 门面（自有方法也在门面上） */
     public static final ArchRule NO_DIRECT_LANG3_STRING_UTILS =
-            noClasses().should().dependOnClassesThat()
+            noClasses().that(NOT_STRING_FACADE).should().dependOnClassesThat()
                     .haveFullyQualifiedName("org.apache.commons.lang3.StringUtils")
                     .because("字符串工具统一走 com.scaffold.common.util.StringUtils（继承 lang3 全量方法）");
 
@@ -72,6 +81,19 @@ public final class ScaffoldArchRules {
     public static void checkMainClasses() {
         JavaClasses classes = new ClassFileImporter().importPath(
                 Paths.get("target", "classes"));
+        check(classes);
+    }
+
+    /**
+     * 对指定包（通常 {@code com.scaffold}）的类路径上全部主类执行规约——
+     * 供 scaffold-server 的汇总检查使用：一次扫描覆盖全部模块的 main jar。
+     */
+    public static void checkPackages(String... packages) {
+        JavaClasses classes = new ClassFileImporter().importPackages(packages);
+        check(classes);
+    }
+
+    private static void check(JavaClasses classes) {
         NO_DIRECT_LANG3_STRING_UTILS.check(classes);
         NO_SPRING_STRING_UTILS.check(classes);
         NO_HUTOOL_STR_UTIL.check(classes);

@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "scaffold.data.worker-id",
+      "type": "java.lang.Long",
+      "defaultValue": 1,
+      "description": "雪花算法 workerId（0-31）；单机默认 1，多实例部署必须按实例区分，否则主键可能重复."
+    },
+    {
+      "name": "scaffold.data.datacenter-id",
+      "type": "java.lang.Long",
+      "defaultValue": 1,
+      "description": "雪花算法 datacenterId（0-31）；多机房/多实例部署按环境区分."
+    }
+  ]
+}

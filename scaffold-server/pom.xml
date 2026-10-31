@@ -78,6 +78,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- 架构规约汇总检查：test classpath 覆盖全部模块 main jar，一次扫描管住 26 模块 -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -26,7 +26,7 @@ public class LitePingController {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("app", "scaffold-server-lite");
         body.put("time", LocalDateTime.now().withNano(0).toString());
-        body.put("mode", "single-machine, no db / no redis");
+        body.put("mode", "lite: H2 + JPA + job, no security / no admin modules");
         return R.ok(body);
     }
 }

@@ -33,18 +33,23 @@ scaffold/
 └── scaffold-server-lite      轻量版：单机零依赖（无 DB/无 Redis），本地跑任务与轻量接口
 ```
 
-## 受支持装配（两个发行版）
+## 受支持装配（两个发行版，同一份代码）
+
+**新项目起步建议从 lite 开始**：clone 后只面对 web + data-jpa 最小骨架，业务模块按需生长；
+需要登录/管理后台时把 module-system 与对应 starter 加回依赖即可升级为完整版，代码零改动。
 
 | | scaffold-server（完整版） | scaffold-server-lite（轻量版） |
 |---|---|---|
-| 场景 | 全功能业务系统 | 单机跑任务 / 轻量接口 / 边缘节点 |
-| 外部依赖 | H2(dev)/MySQL + Redis | **零**（连 H2 都不用） |
+| 场景 | 全功能业务系统（含管理后台支撑） | **新项目干净起步** / 本地跑数据 / 边缘节点 |
+| 外部依赖 | H2(dev)/MySQL + Redis | **零**（H2 内存库内置，改一行接 MySQL） |
+| 数据访问 | JPA + 雪花主键 + 审计字段 + 字段加密 | JPA + 雪花主键 + 审计字段（ddl-auto 建表） |
 | 任务 | @Job 调度 + job_run_log 落库 + Redis 分布式锁 | @Job 调度，日志走应用日志，无锁 |
-| 账户/安全/缓存/推送/防刷 | 全量 | 无（security/cache 等不在类路径） |
+| 账户/安全/字典/配置中心/审计日志 | 全量（module-system） | 无（不在类路径，源码也不进依赖树） |
 | 启动 | `java -jar scaffold-server.jar` | `java -jar scaffold-server-lite.jar`（秒级启动） |
 
 > 架构不变量：**每个 starter 必须可脱离全家桶独立使用**——lite 就是这条不变量的验收装配。
-> lite 下限流/幂等/锁注解静默不生效（protection 条件装配跳过），对外接口请自行鉴权。
+> lite 无 security：接口匿名可访问，对外暴露请引 starter-security 接鉴权或仅绑定内网地址。
+> 纯框架用法：任何 Spring Boot 项目引 `scaffold-dependencies` BOM 后按需挑选 starters，不需要 server。
 
 ## 快速启动（dev 零依赖：H2 内存库）
 
@@ -318,6 +323,65 @@ class RepoTest {
 | `POST /internal/accounts/{id}/kick` | 踢人下线 |
 
 写操作全部挂 `@OperLog` 审计；登录/验证码接口在 `scaffold.security.internal-whitelist`。
+
+## 配置项总表（IDE 自动补全已就绪）
+
+以下由 spring-boot-configuration-processor 自动生成（`scaffold.data.*` 为手工补充），IDEA 中编辑 yml 即有补全与文档提示；此表为静态快照，以元数据为准。
+
+| 配置项 | 默认值 | 说明 | 出处 |
+|---|---|---|---|
+| `scaffold.cache.key-prefix` | `—` | Redis key 前缀 | cache |
+| `scaffold.cache.l1-max-size` | `4096` | L1 最大条目数 | cache |
+| `scaffold.cache.l1-ttl-seconds` | `60` | L1 过期时间（秒） | cache |
+| `scaffold.cache.l2-ttl-seconds` | `3600` | L2 过期时间（秒） | cache |
+| `scaffold.cache.type` | `two-level` | 缓存形态：two-level（默认）= Caffeine + Redis；redis = 纯 Redis | cache |
+| `scaffold.crypto.key` | `—` | 加密口令（派生密钥用），必须环境变量注入，禁止硬编码 | crypto |
+| `scaffold.crypto.type` | `AES` | 算法类型：AES（默认）| SM4（国密/信创） | crypto |
+| `scaffold.data.datacenter-id` | `1` | 雪花算法 datacenterId（0-31）；多机房/多实例部署按环境区分 | data-jpa |
+| `scaffold.data.worker-id` | `1` | 雪花算法 workerId（0-31）；单机默认 1，多实例部署必须按实例区分，否则主键可能重复 | data-jpa |
+| `scaffold.http.connect-timeout-ms` | `5000` | 建连超时（毫秒） | http |
+| `scaffold.http.enabled` | `true` | starter 总开关 | http |
+| `scaffold.http.read-timeout-ms` | `10000` | 读超时（毫秒） | http |
+| `scaffold.http.retry-backoff-ms` | `500` | 重试退避间隔（毫秒） | http |
+| `scaffold.http.retry-max-attempts` | `2` | 幂等请求最大尝试次数（含首次） | http |
+| `scaffold.job.engine` | `simple` | simple = 本注册器；none = 接入外部调度平台 | job |
+| `scaffold.job.pool-size` | `4` | 调度线程池大小 | job |
+| `scaffold.message.sms-guard` | `—` | 短信防刷配置 | message |
+| `scaffold.observability.application-name` | `—` | 公共标签 application 的取值；空则取 spring | observability |
+| `scaffold.observability.enabled` | `true` | 总开关：false 时框架内建埋点全部静默（端点暴露不受此开关控制） | observability |
+| `scaffold.push.enabled` | `true` | starter 总开关 | push |
+| `scaffold.push.heartbeat-seconds` | `30` | 心跳间隔（秒；0 关闭心跳） | push |
+| `scaffold.push.multi-instance` | `false` | 多实例转发：部署多于一个节点时必须开启（Redis pub/sub 扇出）， 否则只投递到「收到推送请求的那个节点」上的连接 | push |
+| `scaffold.push.relay-topic` | `—` | Redis 转发频道名（多实例时各节点订阅同一频道） | push |
+| `scaffold.push.sse-timeout-ms` | `0` | SSE emitter 超时（毫秒；0 表示永不超时，存活靠心跳） | push |
+| `scaffold.security.captcha.fail-threshold` | `3` | after_fail 模式的触发阈值（连续失败次数） | security |
+| `scaffold.security.captcha.mode` | `after_fail` | 模式：off=不启用 | always=每次都要 | after_fail=连续失败 failThreshold 次后强制 | security |
+| `scaffold.security.captcha.ttl-seconds` | `120` | 验证码有效期（秒） | security |
+| `scaffold.security.exclusive-login` | `false` | 同端互斥：登录是否踢掉同设备旧会话 | security |
+| `scaffold.security.internal-whitelist` | `—` | internal 链白名单（如登录接口），相对 /internal/** | security |
+| `scaffold.security.ip-guard.enabled` | `true` | 总开关；关闭后仅保留账号维度失败锁定 | security |
+| `scaffold.security.ip-guard.fail-limit` | `30` | 同 IP 窗口内登录失败上限，达到后拒绝该 IP 的账密登录 | security |
+| `scaffold.security.ip-guard.window-seconds` | `600` | 失败计数窗口（秒） | security |
+| `scaffold.security.online-whitelist` | `—` | online 链白名单（整链默认 permitAll，此配置仅用于过滤器跳过解析） | security |
+| `scaffold.security.openapi-ip-whitelist-check` | `false` | openapi 是否校验来源 IP 白名单（需 AppIdentity 提供） | security |
+| `scaffold.security.openapi-timestamp-window-seconds` | `300` | openapi 时间戳窗口（秒，正负） | security |
+| `scaffold.security.openapi-whitelist` | `—` | openapi 链白名单 | security |
+| `scaffold.security.password-policy.lock-seconds` | `900` | 锁定时长（秒） | security |
+| `scaffold.security.password-policy.max-fail-count` | `5` | 连续登录失败次数上限，达到即临时锁定 | security |
+| `scaffold.security.password-policy.min-length` | `8` | 密码最小长度 | security |
+| `scaffold.security.password-policy.require-letter-and-digit` | `true` | 是否必须同时包含字母和数字 | security |
+| `scaffold.security.renew-threshold-percent` | `20` | 剩余有效期低于该百分比时自动续期 | security |
+| `scaffold.security.token-ttl-seconds` | `0` | token 会话 TTL（秒），默认 7 天 | security |
+| `scaffold.web.access-log-enabled` | `true` | 访问日志切面开关 | web |
+| `scaffold.web.cors.allowed-headers` | `—` |  | web |
+| `scaffold.web.cors.allowed-methods` | `—` |  | web |
+| `scaffold.web.cors.allowed-origins` | `—` | 允许的跨域来源；为空表示不启用 CORS 配置（默认关闭，禁止全放开） | web |
+| `scaffold.web.cors.max-age` | `1800` | 预检请求缓存时间（秒） | web |
+| `scaffold.web.xss.enabled` | `true` | 是否启用 XSS 过滤 | web |
+| `scaffold.web.xss.exclude-urls` | `—` | 排除路径（Ant 风格，如富文本编辑接口 /internal/rich/**） | web |
+| `scaffold.ws.allowed-origins` | `*` | 允许的来源（跨域；* 表示不限制，生产建议收敛） | ws |
+| `scaffold.ws.enabled` | `false` | starter 开关（默认关闭） | ws |
+| `scaffold.ws.path` | `/online/ws` | 握手端点路径 | ws |
 
 ## 国产化（信创）适配点
 

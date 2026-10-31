@@ -13,19 +13,44 @@
     <artifactId>scaffold-server-lite</artifactId>
     <packaging>jar</packaging>
     <name>scaffold-server-lite</name>
-    <description>轻量发行版：单机零依赖运行（无数据库、无 Redis），本地跑任务与轻量接口</description>
+    <description>轻量发行版：本地跑数据的最小后端（H2 零配置起步，无登录/管理后台），按需引 starter 升级</description>
 
-    <!-- 装配原则：只引核心三件（web + job），无 MySQL/H2、无 Redis、无安全/缓存/推送。
-         这是脚手架「按需裁剪」的示范装配，能力矩阵见 README「受支持装配」。 -->
+    <!-- 装配原则：web + data-jpa + observability + job 四件核心，H2 零中间件起步。
+         无 security（接口匿名）、无 module-system（无账号/角色/字典/配置中心/审计代码）。
+         需要更多能力 = 引对应 starter：security（登录）/ crypto（字段加密）/ redis /
+         storage（文件）/ message（短信）……逐步长成 scaffold-server 全功能形态。
+         能力矩阵见 README「受支持装配」。 -->
 
     <dependencies>
         <dependency>
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-web</artifactId>
         </dependency>
+        <!-- 本地跑数据核心：JPA + 雪花主键 + 审计字段（ddl-auto 建表，Liquibase 生产再接） -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- actuator + prometheus 指标（health/info/prometheus 已默认暴露） -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-observability</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-job</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- H2：默认内存库零配置启动；换 MySQL 只改 datasource + 驱动依赖 -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
