@@ -2,16 +2,18 @@ package com.scaffold.search.plan.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 查询计划关联表声明（对齐 db-spring @JoinTable）。
+ * 查询计划关联表声明（对齐 db-spring @JoinTable），可重复标注实现多表联查。
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
+@Repeatable(JoinTables.class)
 public @interface JoinTable {
 
     /** 表名 */

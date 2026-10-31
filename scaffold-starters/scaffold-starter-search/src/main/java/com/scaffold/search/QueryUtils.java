@@ -40,7 +40,8 @@ import java.util.Map;
  */
 public final class QueryUtils {
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
+            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     private static volatile BeanSearcher beanSearcher;
     private static volatile MapSearcher mapSearcher;

@@ -5,6 +5,7 @@ import com.scaffold.search.filter.SearchFilter;
 import com.scaffold.search.plan.QueryPlanRegistry;
 import com.scaffold.search.planpck.DeptUserSummary;
 import com.scaffold.search.planpck.DeptUserSummaryPlan;
+import com.scaffold.search.planpck.OrderView;
 import com.scaffold.search.planpck.UserPlan;
 import com.scaffold.search.planpck.UserVO;
 import org.junit.jupiter.api.BeforeAll;
@@ -42,18 +43,25 @@ class QueryPlanTest {
                 "id BIGINT PRIMARY KEY, dept_name VARCHAR(100))");
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS t_user (" +
                 "id BIGINT PRIMARY KEY, name VARCHAR(100), age INT, status INT, dept_id BIGINT)");
+        jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS t_order (" +
+                "id BIGINT PRIMARY KEY, order_no VARCHAR(50), amount INT, user_id BIGINT, deleted INT)");
     }
 
     @BeforeEach
     void cleanAndInsert() {
         jdbcTemplate.update("DELETE FROM t_user");
         jdbcTemplate.update("DELETE FROM t_dept");
+        jdbcTemplate.update("DELETE FROM t_order");
         jdbcTemplate.update("INSERT INTO t_dept VALUES (1, '研发部'), (2, '市场部')");
         jdbcTemplate.update("INSERT INTO t_user VALUES " +
                 "(1, '张三', 25, 1, 1)," +
                 "(2, '张四', 30, 1, 1)," +
                 "(3, '李五', 35, 0, 2)," +
                 "(4, '王六', 28, 1, 2)");
+        jdbcTemplate.update("INSERT INTO t_order VALUES " +
+                "(1, 'SO-001', 100, 1, 0)," +
+                "(2, 'SO-002', 200, 2, 0)," +
+                "(3, 'SO-003', 300, 3, 1)");  // 已删除，固定条件应过滤
     }
 
     @Test
@@ -100,5 +108,21 @@ class QueryPlanTest {
                 java.util.Collections.singletonList(
                         new SearchFilter(UserPlan::getAge, Operator.GE, 28)), null);
         assertEquals(2, list.size());
+    }
+
+    @Test
+    void testMultiJoinTablePlan() {
+        // 双 @JoinTable（o→u inner join，o→d 自定义 ON）+ 固定条件 deleted=0 + returnType 封装
+        List<OrderView> list = QueryUtils.doListQuery("orderPlan", null, null);
+        assertEquals(2, list.size());
+        assertEquals("SO-001", list.get(0).getOrderNo());
+        assertEquals("张三", list.get(0).getUserName());
+        assertEquals("研发部", list.get(0).getDeptName());
+        // 动态条件 + 排序
+        List<OrderView> filtered = QueryUtils.doListQuery("orderPlan",
+                java.util.Collections.singletonList(
+                        new SearchFilter("amount", Operator.GE, 200)), null);
+        assertEquals(1, filtered.size());
+        assertEquals("张四", filtered.get(0).getUserName());
     }
 }

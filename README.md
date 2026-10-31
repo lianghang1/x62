@@ -325,7 +325,8 @@ QueryUtils.doQuery("userPlan", filters, pageable);                 // 按名执�
 QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执行
 ```
 
-- 固定条件 `@Table.Fixed` 总是生效，前端无法覆盖；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
+- 固定条件 `@Table.Fixed` 总是生效，前端无法覆盖（**其引用的字段必须在计划类中有 `@Column` 映射**）；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
+- `@JoinTable` 可重复标注实现多表联查；`joinType` 支持 left join / inner join / right join
 - 计划类由 `scaffold.search.plan-packages` 扫描注册，或手动 `QueryPlanRegistry.register(Class)`
 
 **方式三：原生 Bean Searcher（前端参数驱动，可选）**
