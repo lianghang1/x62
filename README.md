@@ -207,6 +207,33 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
 - 达梦需 Liquibase 扩展：优先达梦安装包自带 liquibase-dm jar（install 到内网私服），
   连接串加 `CASE_SENSITIVE=0`；种子管理员 `admin/admin123` 仅联调用，交付前必须改密。
 
+## 多数据源动态切换（starter-data-jpa）
+
+- **默认关闭**：`scaffold.datasource.dynamic.enabled=true` 才装配；启用后整体接管数据源
+  （Boot 按 `spring.datasource.*` 建默认库的逻辑自动退避），单库场景不要开启；
+- 配置主库与各库连接（每库独立 Hikari 连接池）：
+  ```yaml
+  scaffold:
+    datasource:
+      dynamic:
+        enabled: true
+        primary: master            # 无注解上下文时路由到这里，必须是 datasources 中的 key
+        datasources:
+          master:
+            url: jdbc:mysql://localhost:3306/main
+            username: root
+            password: xxx
+          slave:
+            url: jdbc:mysql://localhost:3306/report
+            username: root
+            password: xxx
+  ```
+- 用法：方法或类标注 `@TargetDataSource("slave")`，方法优先于类；注解调用退出后自动恢复外层数据源；
+- 切面为最高优先级——先于事务拦截器执行，事务内的连接获取已按注解路由；
+  **同一事务内不可再切换**（连接在事务开始时绑定，这是 JDBC 事务模型的边界，不是组件限制）；
+- fail-fast：注解 key 未在 `datasources` 中配置直接抛异常，不静默回落主库掩盖配置错误；
+- 异步安全：数据源上下文走 TransmittableThreadLocal，经 `ScaffoldExecutors`/`@Async` 装饰的线程池照样取得到提交时刻的路由意图。
+
 ## 安全与审计
 
 | 能力 | 用法 | 出处 |
@@ -339,6 +366,12 @@ class RepoTest {
 | `scaffold.crypto.type` | `AES` | 算法类型：AES（默认）| SM4（国密/信创） | crypto |
 | `scaffold.data.datacenter-id` | `1` | 雪花算法 datacenterId（0-31）；多机房/多实例部署按环境区分 | data-jpa |
 | `scaffold.data.worker-id` | `1` | 雪花算法 workerId（0-31）；单机默认 1，多实例部署必须按实例区分，否则主键可能重复 | data-jpa |
+| `scaffold.datasource.dynamic.datasources.{name}.driver-class-name` | `—` | 该数据源驱动类名，缺省由连接串自动推断 | data-jpa |
+| `scaffold.datasource.dynamic.datasources.{name}.password` | `—` | 该数据源密码 | data-jpa |
+| `scaffold.datasource.dynamic.datasources.{name}.url` | `—` | 该数据源 JDBC 连接串 | data-jpa |
+| `scaffold.datasource.dynamic.datasources.{name}.username` | `—` | 该数据源用户名 | data-jpa |
+| `scaffold.datasource.dynamic.enabled` | `false` | 多数据源动态切换总开关；单库场景保持 false | data-jpa |
+| `scaffold.datasource.dynamic.primary` | `master` | 默认数据源名，无 `@TargetDataSource` 上下文时路由到这里 | data-jpa |
 | `scaffold.http.connect-timeout-ms` | `5000` | 建连超时（毫秒） | http |
 | `scaffold.http.enabled` | `true` | starter 总开关 | http |
 | `scaffold.http.read-timeout-ms` | `10000` | 读超时（毫秒） | http |

@@ -11,6 +11,38 @@
       "type": "java.lang.Long",
       "defaultValue": 1,
       "description": "雪花算法 datacenterId（0-31）；多机房/多实例部署按环境区分."
+    },
+    {
+      "name": "scaffold.datasource.dynamic.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "是否启用多数据源动态切换；单库场景保持 false，直接用 spring.datasource."
+    },
+    {
+      "name": "scaffold.datasource.dynamic.primary",
+      "type": "java.lang.String",
+      "defaultValue": "master",
+      "description": "默认数据源名，无 @TargetDataSource 上下文时路由到这里，必须是 datasources 中的 key."
+    },
+    {
+      "name": "scaffold.datasource.dynamic.datasources.{name}.url",
+      "type": "java.lang.String",
+      "description": "名为 {name} 的数据源 JDBC 连接串."
+    },
+    {
+      "name": "scaffold.datasource.dynamic.datasources.{name}.username",
+      "type": "java.lang.String",
+      "description": "名为 {name} 的数据源用户名."
+    },
+    {
+      "name": "scaffold.datasource.dynamic.datasources.{name}.password",
+      "type": "java.lang.String",
+      "description": "名为 {name} 的数据源密码."
+    },
+    {
+      "name": "scaffold.datasource.dynamic.datasources.{name}.driver-class-name",
+      "type": "java.lang.String",
+      "description": "名为 {name} 的数据源驱动类名，缺省由连接串自动推断."
     }
   ]
 }
