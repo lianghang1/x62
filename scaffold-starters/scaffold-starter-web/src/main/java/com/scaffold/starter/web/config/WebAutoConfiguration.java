@@ -17,6 +17,7 @@ import com.scaffold.starter.web.trace.TraceIdFilter;
 import com.scaffold.starter.web.trace.TraceTaskDecorator;
 import com.scaffold.starter.web.xss.XssFilter;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
@@ -27,6 +28,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -34,6 +36,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * starter-web 自动装配入口，统一注册 Web 层的基础设施 Bean。
@@ -50,7 +53,7 @@ import java.time.format.DateTimeFormatter;
  */
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableAsync
-@EnableConfigurationProperties(WebProperties.class)
+@EnableConfigurationProperties({WebProperties.class, BizExecutorProperties.class})
 public class WebAutoConfiguration {
 
     /** @deprecated 全局格式常量已收口 {@link DateUtils}，新代码直接引用 */
@@ -62,15 +65,36 @@ public class WebAutoConfiguration {
     public static final String TIME_PATTERN = "HH:mm:ss";
 
     /**
-     * @Async 异常兜底：不接管执行器（返回 null 走 Boot 默认 applicationTaskExecutor，
-     * 由下方 TaskExecutorCustomizer 继续生效），只替换未捕获异常处理器。
+     * @Async 专属池 {@code scaffoldAsyncExecutor}：经 AsyncConfigurer 显式指定，不依赖
+     * Boot 默认 applicationTaskExecutor（后者只要出现任意 Executor Bean 就会退避）。
+     * 业务定义同名 Bean 即整体接管。
+     */
+    @Bean(name = "scaffoldAsyncExecutor")
+    @ConditionalOnMissingBean(name = "scaffoldAsyncExecutor")
+    public ThreadPoolTaskExecutor scaffoldAsyncExecutor(BizExecutorProperties executorProperties) {
+        BizExecutorProperties.Async async = executorProperties.getAsync();
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(async.getCoreSize());
+        executor.setMaxPoolSize(async.getMaxSize());
+        executor.setQueueCapacity(async.getQueueCapacity());
+        executor.setThreadNamePrefix(async.getNamePrefix());
+        executor.setTaskDecorator(new TraceTaskDecorator());
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(async.getAwaitTerminationSeconds());
+        return executor;
+    }
+
+    /**
+     * @Async 异常兜底 + 显式执行器：void 方法未捕获异常补齐方法签名与入参记录，
+     * 异步任务静默失败可定位；执行器指定 {@code scaffoldAsyncExecutor}。
      */
     @Bean
-    public AsyncConfigurer scaffoldAsyncConfigurer() {
+    public AsyncConfigurer scaffoldAsyncConfigurer(ThreadPoolTaskExecutor scaffoldAsyncExecutor) {
         return new AsyncConfigurer() {
             @Override
             public org.springframework.core.task.AsyncTaskExecutor getAsyncExecutor() {
-                return null;
+                return scaffoldAsyncExecutor;
             }
 
             @Override
@@ -135,10 +159,44 @@ public class WebAutoConfiguration {
         return new AccessLogAspect(objectMapper);
     }
 
-    /** @Async 默认线程池：装饰器同时透传 MDC traceId 与 TTL 上下文（LoginContext/审计人），自建池请用 ScaffoldExecutors 包装。 */
+    /**
+     * Boot 默认 applicationTaskExecutor 的兜底加固：仅当它真实存在时生效（如业务关闭
+     * biz 池且接管 async 池后 Boot 池可能仍在），保证装饰器与有界队列不缺席。
+     */
     @Bean
-    public TaskExecutorCustomizer traceTaskExecutorCustomizer() {
-        return taskExecutor -> taskExecutor.setTaskDecorator(new TraceTaskDecorator());
+    public TaskExecutorCustomizer traceTaskExecutorCustomizer(BizExecutorProperties executorProperties) {
+        return taskExecutor -> {
+            taskExecutor.setTaskDecorator(new TraceTaskDecorator());
+            taskExecutor.setQueueCapacity(executorProperties.getAsync().getQueueCapacity());
+            taskExecutor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        };
+    }
+
+    /**
+     * 业务并行池：service 方法内需要多线程时直接注入使用（按名注入保证唯一）。
+     *
+     * <p>预置四件事：TraceTaskDecorator（TTL 上下文 + MDC traceId 透传）、有界队列、
+     * CallerRunsPolicy（队列打满时任务回落到提交线程执行，背压且不丢任务）、
+     * 优雅关闭。业务定义同名 Bean 即整体接管本配置。</p>
+     *
+     * <p>两条边界（详见 README「业务侧多线程规约」）：子任务事务与提交线程无关，
+     * 需要事务的在子任务上单独标注；{@code Future.get} 必须设超时。</p>
+     */
+    @Bean(name = "scaffoldBizExecutor")
+    @ConditionalOnProperty(prefix = "scaffold.executor.biz", name = "enabled", havingValue = "true", matchIfMissing = true)
+    @ConditionalOnMissingBean(name = "scaffoldBizExecutor")
+    public ThreadPoolTaskExecutor scaffoldBizExecutor(BizExecutorProperties executorProperties) {
+        BizExecutorProperties.Biz biz = executorProperties.getBiz();
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(biz.getCoreSize());
+        executor.setMaxPoolSize(biz.getMaxSize());
+        executor.setQueueCapacity(biz.getQueueCapacity());
+        executor.setThreadNamePrefix(biz.getNamePrefix());
+        executor.setTaskDecorator(new TraceTaskDecorator());
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.setWaitForTasksToCompleteOnShutdown(true);
+        executor.setAwaitTerminationSeconds(biz.getAwaitTerminationSeconds());
+        return executor;
     }
 
     /** CORS：仅当配置了 allowed-origins 时生效，默认关闭。 */

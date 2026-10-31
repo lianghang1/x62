@@ -255,6 +255,37 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
   不生效——按 id 越权访问须另行校验；
 - 部门等组织维度待组织实体模型落地后，以同样的 FilterDef + 切面方式扩展，使用方式不变。
 
+## 业务侧多线程规约（starter-web 预置池）
+
+框架预置两个线程池，业务**直接注入使用，禁止自建**（自建必须经 `ScaffoldExecutors.decorate` 包装，否则登录人/审计人/traceId 全丢）：
+
+| 池 | Bean 名 | 用途 | 配置前缀 |
+|---|---|---|---|
+| 业务并行池 | `scaffoldBizExecutor` | service 方法内并行任务：注入后 `submit`/`invokeAll` | `scaffold.executor.biz.*` |
+| @Async 专属池 | `scaffoldAsyncExecutor` | `@Async` 发后不管型异步（经 AsyncConfigurer 显式绑定，不依赖 Boot 默认池） | `scaffold.executor.async.*` |
+
+两者均已预置：TTL 透传（登录人/审计人/数据源路由）+ MDC traceId、**有界队列**、`CallerRunsPolicy`（打满回落提交线程，背压不丢任务）、优雅关闭。业务定义同名 Bean 即整体接管；`scaffold.executor.biz.enabled=false` 可整体关闭业务池。
+
+```java
+// 标准三步：注入 → 提交 → 汇总
+@Autowired
+private ThreadPoolTaskExecutor scaffoldBizExecutor;
+
+public ReportVO buildReport(Long orderId) {
+    Future<Order> order = scaffoldBizExecutor.submit(() -> orderRepository.findById(orderId).orElseThrow());
+    Future<UserVO> user = scaffoldBizExecutor.submit(() -> userClient.load(orderId));
+    return new ReportVO(order.get(5, TimeUnit.SECONDS), user.get(5, TimeUnit.SECONDS));
+}
+```
+
+三条硬边界：
+
+1. **事务不透传**——子线程各拿各的连接，与提交线程不在同一事务；需要事务的子任务单独标 `@Transactional`。同一事务内也不可切换数据源（见多数据源章节）。
+2. **`Future.get` 必须设超时**——不设超时的并行等待是挂死高发点。
+3. **异常收口**——`get` 会把子任务异常包成 `ExecutionException` 抛回；发后不管型任务体内自行 try-catch（`@Async` void 方法由 AsyncExceptionHandler 统一记录）。
+
+> 设计说明：不依赖 Boot 默认 applicationTaskExecutor——它带 `@ConditionalOnMissingBean(Executor.class)`，classpath 里出现任意 Executor Bean（如我们的业务池）它就退避，依赖它等于依赖装配顺序。所以 `@Async` 走显式绑定的 `scaffoldAsyncExecutor`。
+
 ## 安全与审计
 
 | 能力 | 用法 | 出处 |
@@ -393,6 +424,17 @@ class RepoTest {
 | `scaffold.datasource.dynamic.datasources.{name}.username` | `—` | 该数据源用户名 | data-jpa |
 | `scaffold.datasource.dynamic.enabled` | `false` | 多数据源动态切换总开关；单库场景保持 false | data-jpa |
 | `scaffold.datasource.dynamic.primary` | `master` | 默认数据源名，无 `@TargetDataSource` 上下文时路由到这里 | data-jpa |
+| `scaffold.executor.async.core-size` | `8` | @Async 专属池核心线程数 | web |
+| `scaffold.executor.async.max-size` | `16` | @Async 专属池最大线程数 | web |
+| `scaffold.executor.async.queue-capacity` | `1000` | @Async 专属池有界队列容量 | web |
+| `scaffold.executor.async.name-prefix` | `scaffold-async-` | @Async 专属池线程名前缀 | web |
+| `scaffold.executor.async.await-termination-seconds` | `30` | 优雅关闭等待秒数 | web |
+| `scaffold.executor.biz.enabled` | `true` | 业务并行池开关；业务同名 Bean 可整体接管 | web |
+| `scaffold.executor.biz.core-size` | `4` | 业务并行池核心线程数 | web |
+| `scaffold.executor.biz.max-size` | `8` | 业务并行池最大线程数 | web |
+| `scaffold.executor.biz.queue-capacity` | `1000` | 业务并行池有界队列容量 | web |
+| `scaffold.executor.biz.name-prefix` | `scaffold-biz-` | 业务并行池线程名前缀 | web |
+| `scaffold.executor.biz.await-termination-seconds` | `30` | 优雅关闭等待秒数 | web |
 | `scaffold.http.connect-timeout-ms` | `5000` | 建连超时（毫秒） | http |
 | `scaffold.http.enabled` | `true` | starter 总开关 | http |
 | `scaffold.http.read-timeout-ms` | `10000` | 读超时（毫秒） | http |
