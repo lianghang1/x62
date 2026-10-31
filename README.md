@@ -234,6 +234,19 @@ scaffold.ws.enabled: true   # 端点 /online/ws?token=xxx，与 SSE 共用 PushS
 - fail-fast：注解 key 未在 `datasources` 中配置直接抛异常，不静默回落主库掩盖配置错误；
 - 异步安全：数据源上下文走 TransmittableThreadLocal，经 `ScaffoldExecutors`/`@Async` 装饰的线程池照样取得到提交时刻的路由意图。
 
+## 数据权限（starter-data-jpa）
+
+- 用法：服务方法或类标注 `@DataScope(DataScopeType.SELF)`（仅本人）/ `ALL`（不过滤）；
+- SELF 通过 Hibernate Filter 在 SQL 层追加 `create_by = 当前审计人`——**实体按需白名单加入**：
+  实体类标注 `@Filter(name = DataScopeAspect.FILTER_SELF)` 的才参与过滤，不标注的完全不受影响；
+- 当前审计人即登录账号（`ScaffoldAuditorHolder`，security 层写入），data-jpa 不依赖 security；
+- fail-closed：SELF 且无登录态直接抛异常，绝不静默放全量；
+- 事务自动兜底：方法在事务内则复用，否则切面自动开启（REQUIRED）——Filter 必须挂在贯穿全部查询的
+  Session 上，这一步不依赖使用者的 `@Transactional` 习惯，与事务注解的先后顺序无关；
+- 已知边界（Hibernate Filter 机制）：对 HQL/Criteria 查询生效，对 `em.find()` 按主键直达与原生 SQL
+  不生效——按 id 越权访问须另行校验；
+- 部门等组织维度待组织实体模型落地后，以同样的 FilterDef + 切面方式扩展，使用方式不变。
+
 ## 安全与审计
 
 | 能力 | 用法 | 出处 |

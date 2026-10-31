@@ -1,6 +1,7 @@
 package com.scaffold.starter.data.jpa.config;
 
 import com.scaffold.starter.data.jpa.audit.ScaffoldAuditorHolder;
+import com.scaffold.starter.data.jpa.datascope.DataScopeAspect;
 import com.scaffold.starter.data.jpa.id.Snowflake;
 import com.scaffold.starter.data.jpa.id.SnowflakeIdentifierGenerator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -11,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Optional;
 
@@ -49,5 +51,11 @@ public class DataJpaAutoConfiguration {
     @ConditionalOnMissingBean(AuditorAware.class)
     public AuditorAware<String> scaffoldAuditorAware() {
         return () -> Optional.ofNullable(ScaffoldAuditorHolder.get());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(DataScopeAspect.class)
+    public DataScopeAspect dataScopeAspect(PlatformTransactionManager transactionManager) {
+        return new DataScopeAspect(transactionManager);
     }
 }

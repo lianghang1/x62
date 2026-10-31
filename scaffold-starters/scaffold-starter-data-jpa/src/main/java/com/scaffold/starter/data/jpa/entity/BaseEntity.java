@@ -1,7 +1,9 @@
 package com.scaffold.starter.data.jpa.entity;
 
 import com.scaffold.starter.data.jpa.id.SnowflakeIdentifierGenerator;
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.ParamDef;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -26,10 +28,17 @@ import java.time.LocalDateTime;
  * <p>删除一律走 {@code deleted} 标记的逻辑删除，不做物理 delete，查询时
  * 须由 Repository 层按约定过滤。需要乐观锁的实体请继承 {@link VersionedEntity}。</p>
  *
+ * <p>本类同时注册数据权限的 Hibernate FilterDef（PU 全局生效，声明处仅此一处）：
+ * 实体类标注 {@code @Filter(name = DataScopeAspect.FILTER_SELF)} 即加入「仅本人」
+ * 过滤白名单，配合服务方法的 {@code @DataScope(SELF)} 注解按 create_by 过滤。</p>
+ *
  * @author lianghang
  */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
+@FilterDef(name = "scaffold_data_scope_self",
+        parameters = @ParamDef(name = "owner", type = "string"),
+        defaultCondition = "create_by = :owner")
 public abstract class BaseEntity {
 
     @Id
