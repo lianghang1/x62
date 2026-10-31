@@ -1,7 +1,5 @@
 package com.scaffold.search.plan.annotation;
 
-import com.scaffold.search.filter.Operator;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,6 +8,10 @@ import java.lang.annotation.Target;
 
 /**
  * 查询计划主表声明（对齐 db-spring @Table）。
+ *
+ * <p>db-spring 的 {@code useIndex}（强制索引提示）未实现：跨数据库方言语义不同
+ * （MySQL force index / Oracle hint），Bean Searcher 无对应概念；需要时可直接在
+ * {@link Column#name()} 里写方言 hint 或自定义 tables。
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -26,26 +28,5 @@ public @interface Table {
     String pkColumn() default "id";
 
     /** 固定过滤条件（总是生效，前端无法覆盖） */
-    Fixed[] filters() default {};
-
-    /**
-     * 固定过滤条件。
-     */
-    @Target({})
-    @Retention(RetentionPolicy.RUNTIME)
-    @Documented
-    @interface Fixed {
-
-        /** 属性名（计划类字段名） */
-        String name();
-
-        /** 运算符 */
-        Operator op() default Operator.EQ;
-
-        /** 固定值（字符串，按 type 解析） */
-        String value() default "";
-
-        /** 值类型 */
-        Class<?> type() default String.class;
-    }
+    SearchFilter[] filters() default {};
 }

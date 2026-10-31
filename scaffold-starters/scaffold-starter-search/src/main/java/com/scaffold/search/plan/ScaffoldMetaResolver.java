@@ -100,8 +100,10 @@ public class ScaffoldMetaResolver implements MetaResolver {
             tables.append(' ').append(table.alias());
         }
         for (JoinTable joinTable : planClass.getAnnotationsByType(JoinTable.class)) {
+            String joinTableName = joinTable.schema().isEmpty()
+                    ? joinTable.name() : joinTable.schema() + "." + joinTable.name();
             tables.append(' ').append(joinTable.joinType().trim())
-                    .append(' ').append(joinTable.name())
+                    .append(' ').append(joinTableName)
                     .append(' ').append(joinTable.alias());
             List<String> conditions = new ArrayList<>();
             for (JoinColumn jc : joinTable.columns()) {

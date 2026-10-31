@@ -212,7 +212,7 @@ public final class QueryUtils {
             return null;
         }
         List<SearchFilter> filters = new ArrayList<>();
-        for (Table.Fixed f : table.filters()) {
+        for (com.scaffold.search.plan.annotation.SearchFilter f : table.filters()) {
             filters.add(new SearchFilter(f.name(), f.op(), parseFixedValue(f.value(), f.type())));
         }
         return filters;

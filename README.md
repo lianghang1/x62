@@ -313,8 +313,8 @@ long count       = QueryUtils.doCount(filters, UserVO.class);
 ```java
 @QueryPlan(name = "userPlan", returnType = DeptUserSummary.class)   // returnType 缺省直接返回计划类
 @Table(name = "t_user", alias = "u",
-        filters = @Table.Fixed(name = "status", op = Operator.EQ, value = "1", type = Integer.class))
-@JoinTable(name = "t_dept", alias = "d",
+        filters = @SearchFilter(name = "status", op = Operator.EQ, value = "1", type = Integer.class))
+@JoinTable(name = "t_dept", alias = "d", schema = "", joinType = "left join",
         columns = @JoinColumn(name = "id", referencedColumnName = "dept_id"))  // d.id = u.dept_id
 public class UserPlan {
     @Column("u.name")       private String name;
@@ -325,8 +325,9 @@ QueryUtils.doQuery("userPlan", filters, pageable);                 // 按名执�
 QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执行
 ```
 
-- 固定条件 `@Table.Fixed` 总是生效，前端无法覆盖（**其引用的字段必须在计划类中有 `@Column` 映射**）；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
-- `@JoinTable` 可重复标注实现多表联查；`joinType` 支持 left join / inner join / right join
+- 固定条件 `@SearchFilter`（顶层注解，对齐 db-spring：name/op/value/type）总是生效，前端无法覆盖（**其引用的字段必须在计划类中有 `@Column` 映射**）；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
+- `@JoinTable` 可重复标注实现多表联查；`joinType` 支持 left join / inner join / right join；`schema` 拼为 schema.table
+- `useIndex`（db-spring 索引提示）不支持：跨方言语义不同，需要时在 `@Column` 表达式里写方言 hint
 - 计划类由 `scaffold.search.plan-packages` 扫描注册，或手动 `QueryPlanRegistry.register(Class)`
 
 **方式三：原生 Bean Searcher（前端参数驱动，可选）**

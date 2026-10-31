@@ -5,6 +5,7 @@ import com.scaffold.search.plan.annotation.Column;
 import com.scaffold.search.plan.annotation.JoinColumn;
 import com.scaffold.search.plan.annotation.JoinTable;
 import com.scaffold.search.plan.annotation.QueryPlan;
+import com.scaffold.search.plan.annotation.SearchFilter;
 import com.scaffold.search.plan.annotation.Table;
 
 /**
@@ -13,7 +14,7 @@ import com.scaffold.search.plan.annotation.Table;
  */
 @QueryPlan(name = "orderPlan", returnType = OrderView.class)
 @Table(name = "t_order", alias = "o",
-        filters = @Table.Fixed(name = "deleted", op = Operator.EQ, value = "0", type = Integer.class))
+        filters = @SearchFilter(name = "deleted", op = Operator.EQ, value = "0", type = Integer.class))
 @JoinTable(name = "t_user", alias = "u", joinType = "inner join",
         columns = @JoinColumn(name = "id", referencedColumnName = "user_id"))
 @JoinTable(name = "t_dept", alias = "d",

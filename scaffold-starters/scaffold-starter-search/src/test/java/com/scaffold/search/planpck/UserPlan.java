@@ -4,6 +4,7 @@ import com.scaffold.search.plan.annotation.Column;
 import com.scaffold.search.plan.annotation.JoinColumn;
 import com.scaffold.search.plan.annotation.JoinTable;
 import com.scaffold.search.plan.annotation.QueryPlan;
+import com.scaffold.search.plan.annotation.SearchFilter;
 import com.scaffold.search.plan.annotation.Table;
 
 /**
@@ -11,7 +12,7 @@ import com.scaffold.search.plan.annotation.Table;
  */
 @QueryPlan(name = "userPlan")
 @Table(name = "t_user", alias = "u",
-        filters = @Table.Fixed(name = "status", op = com.scaffold.search.filter.Operator.EQ,
+        filters = @SearchFilter(name = "status", op = com.scaffold.search.filter.Operator.EQ,
                 value = "1", type = Integer.class))
 @JoinTable(name = "t_dept", alias = "d",
         columns = @JoinColumn(name = "id", referencedColumnName = "dept_id"))
