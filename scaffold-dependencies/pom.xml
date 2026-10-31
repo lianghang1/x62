@@ -24,6 +24,11 @@
         <okhttp.version>4.12.0</okhttp.version>
         <easyexcel.version>3.3.4</easyexcel.version>
         <xfilestorage.version>2.3.0</xfilestorage.version>
+        <!-- 共享注解库钉版：guava/caffeine 等各自携带不同版本，dependencyConvergence 要求收敛（Enforcer 强制） -->
+        <checker-qual.version>3.37.0</checker-qual.version>
+        <error-prone.version>2.21.1</error-prone.version>
+        <annotation-api.version>1.3.2</annotation-api.version>
+        <scala-library.version>2.13.3</scala-library.version>
     </properties>
 
     <dependencyManagement>
@@ -84,6 +89,28 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+
+            <!-- 共享注解库钉版（版本收敛见 properties 注释） -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>${checker-qual.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${error-prone.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>${annotation-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-library.version}</version>
             </dependency>
 
             <!-- ArchUnit：架构规约测试（import 唯一性强制），starter-test 提供 ScaffoldArchRules -->

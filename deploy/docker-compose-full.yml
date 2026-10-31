@@ -1,0 +1,42 @@
+version: "3.8"
+
+# full 版单机完整部署：Redis + MySQL + scaffold-server 一键起
+# 前提：mvn -pl scaffold-server -am package 已产出可执行 jar
+# 启动：docker compose -f docker-compose-full.yml up -d --build
+# 验证：curl http://localhost:8080/ping
+services:
+  redis:
+    image: redis:6-alpine
+    command: redis-server --requirepass change-me
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: change-me
+      MYSQL_DATABASE: scaffold
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  server:
+    image: eclipse-temurin:8-jre
+    working_dir: /app
+    depends_on:
+      - redis
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/scaffold?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: change-me
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PASSWORD: change-me
+      SCAFFOLD_CRYPTO_KEY: ${SCAFFOLD_CRYPTO_KEY:-please-inject-by-env}
+    volumes:
+      - ../scaffold-server/target/scaffold-server-1.0.0-SNAPSHOT.jar:/app/server.jar:ro
+    command: java -jar /app/server.jar
+
+volumes:
+  mysql-data:
