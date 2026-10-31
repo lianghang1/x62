@@ -1,6 +1,8 @@
 package com.scaffold.starter.web.log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.scaffold.common.util.IpUtils;
+import com.scaffold.starter.web.ip.IpRegionUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -41,16 +43,26 @@ public class AccessLogAspect {
         long start = System.currentTimeMillis();
         try {
             Object result = pjp.proceed();
-            log.info("[access] {} {} args={} cost={}ms",
-                    httpMethod(), uri(), serializeArgs(pjp.getArgs()),
+            log.info("[access] {} {} {} args={} cost={}ms",
+                    clientRegion(), httpMethod(), uri(), serializeArgs(pjp.getArgs()),
                     System.currentTimeMillis() - start);
             return result;
         } catch (Throwable t) {
-            log.info("[access] {} {} args={} cost={}ms error={}",
-                    httpMethod(), uri(), serializeArgs(pjp.getArgs()),
+            log.info("[access] {} {} {} args={} cost={}ms error={}",
+                    clientRegion(), httpMethod(), uri(), serializeArgs(pjp.getArgs()),
                     System.currentTimeMillis() - start, t.getClass().getSimpleName());
             throw t;
         }
+    }
+
+    /** 客户端 IP 及其归属地，格式 {@code ip(归属地)}；无请求上下文时为 {@code -}。 */
+    private String clientRegion() {
+        HttpServletRequest request = currentRequest();
+        if (request == null) {
+            return "-";
+        }
+        String ip = IpUtils.clientIp(request);
+        return ip + "(" + IpRegionUtil.getRegion(ip) + ")";
     }
 
     private String httpMethod() {

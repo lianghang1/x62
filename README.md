@@ -11,7 +11,7 @@ scaffold/
 ├── scaffold-dependencies/    BOM：三方依赖版本唯一出口
 ├── scaffold-common/          公共地基（纯工具层，非 starter）：全局常量(traceId/指标名契约) / R / PageResult / 错误码分段 / BizException / 域工具类（excel/json/mask/ip）
 ├── scaffold-starters/        技术组件（全部可插拔，自动装配）
-│   ├── starter-web           traceId 全链路 / 全局异常 / 访问日志 / Jackson / CORS / knife4j
+│   ├── starter-web           traceId 全链路 / 全局异常 / 访问日志（IP 归属地）/ Jackson / CORS / knife4j
 │   ├── starter-data-jpa      雪花 ID / 审计基类 BaseEntity / 乐观锁 VersionedEntity / EncryptedStringConverter
 │   ├── starter-search        动态检索：Bean Searcher 底座 + SearchFilter/QueryUtils 门面 + QueryPlan 联表计划
 │   ├── starter-security      三入口安全链 + token 会话(Redis) + TTL 上下文 + openapi HMAC 签名
@@ -521,6 +521,7 @@ class RepoTest {
 | `scaffold.security.renew-threshold-percent` | `20` | 剩余有效期低于该百分比时自动续期 | security |
 | `scaffold.security.token-ttl-seconds` | `0` | token 会话 TTL（秒），默认 7 天 | security |
 | `scaffold.web.access-log-enabled` | `true` | 访问日志切面开关 | web |
+| `scaffold.web.ip-region-enabled` | `true` | IP 归属地库（ip2region.xdb 约 11MB）启动加载开关，关闭后 `IpRegionUtil.getRegion` 返回空串 | web |
 | `scaffold.web.cors.allowed-headers` | `—` |  | web |
 | `scaffold.web.cors.allowed-methods` | `—` |  | web |
 | `scaffold.web.cors.allowed-origins` | `—` | 允许的跨域来源；为空表示不启用 CORS 配置（默认关闭，禁止全放开） | web |

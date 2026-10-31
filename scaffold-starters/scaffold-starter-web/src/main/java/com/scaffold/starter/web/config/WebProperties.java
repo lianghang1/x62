@@ -21,6 +21,9 @@ public class WebProperties {
     /** 访问日志切面开关。 */
     private boolean accessLogEnabled = true;
 
+    /** IP 归属地库（ip2region.xdb 约 11MB）启动加载开关，关闭后 getRegion 返回空串。 */
+    private boolean ipRegionEnabled = true;
+
     /** XSS 过滤（默认开启，参数与 body 尖括号转义）。 */
     private Xss xss = new Xss();
 
@@ -116,5 +119,13 @@ public class WebProperties {
 
     public void setAccessLogEnabled(boolean accessLogEnabled) {
         this.accessLogEnabled = accessLogEnabled;
+    }
+
+    public boolean isIpRegionEnabled() {
+        return ipRegionEnabled;
+    }
+
+    public void setIpRegionEnabled(boolean ipRegionEnabled) {
+        this.ipRegionEnabled = ipRegionEnabled;
     }
 }
