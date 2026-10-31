@@ -1,4 +1,4 @@
-package com.scaffold.starter.web.ip;
+package com.scaffold.starter.ip;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

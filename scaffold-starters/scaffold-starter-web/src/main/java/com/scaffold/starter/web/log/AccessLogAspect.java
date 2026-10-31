@@ -2,7 +2,7 @@ package com.scaffold.starter.web.log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.scaffold.common.util.IpUtils;
-import com.scaffold.starter.web.ip.IpRegionUtil;
+import com.scaffold.starter.ip.IpRegionUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

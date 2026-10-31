@@ -521,7 +521,7 @@ class RepoTest {
 | `scaffold.security.renew-threshold-percent` | `20` | 剩余有效期低于该百分比时自动续期 | security |
 | `scaffold.security.token-ttl-seconds` | `0` | token 会话 TTL（秒），默认 7 天 | security |
 | `scaffold.web.access-log-enabled` | `true` | 访问日志切面开关 | web |
-| `scaffold.web.ip-region-enabled` | `true` | IP 归属地库（ip2region.xdb 约 11MB）启动加载开关，关闭后 `IpRegionUtil.getRegion` 返回空串 | web |
+| `scaffold.ip.enabled` | `true` | IP 归属地库（ip2region.xdb 约 11MB）启动加载开关，关闭后 `IpRegionUtil.getRegion` 返回空串 | ip |
 | `scaffold.web.cors.allowed-headers` | `—` |  | web |
 | `scaffold.web.cors.allowed-methods` | `—` |  | web |
 | `scaffold.web.cors.allowed-origins` | `—` | 允许的跨域来源；为空表示不启用 CORS 配置（默认关闭，禁止全放开） | web |

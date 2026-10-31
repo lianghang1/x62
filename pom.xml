@@ -52,6 +52,11 @@
             </dependency>
             <dependency>
                 <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-ip</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
                 <artifactId>scaffold-starter-data-jpa</artifactId>
                 <version>${project.version}</version>
             </dependency>

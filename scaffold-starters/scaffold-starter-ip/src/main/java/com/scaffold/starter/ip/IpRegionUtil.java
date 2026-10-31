@@ -1,4 +1,4 @@
-package com.scaffold.starter.web.ip;
+package com.scaffold.starter.ip;
 
 import org.lionsoul.ip2region.xdb.Searcher;
 import org.slf4j.Logger;
