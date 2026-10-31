@@ -59,6 +59,35 @@ public class SearchAutoConfiguration {
     }
 
     /**
+     * 固定条件参数过滤器：@Table.filters 总是生效，同字段动态参数被丢弃。
+     * bean-searcher-boot-starter 自动收集容器内 ParamFilter Bean。
+     */
+    @Bean
+    @org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+    public FixedFilterParamFilter fixedFilterParamFilter() {
+        return new FixedFilterParamFilter();
+    }
+
+    /**
+     * 参数风格默认值：字段与运算符分隔符默认为 {@code _}（{@code age_gt=25} 风格），
+     * Bean Searcher 原默认为 {@code -}（{@code age-gt}）。最低优先级，用户可覆盖。
+     * {@link FixedFilterParamFilter} 注入的 {@code _op} / {@code _ic} key 依赖此风格。
+     */
+    @Bean
+    public static org.springframework.beans.factory.config.BeanFactoryPostProcessor searchParamStyleDefaults() {
+        return beanFactory -> {
+            if (beanFactory instanceof org.springframework.beans.factory.config.ConfigurableListableBeanFactory) {
+                org.springframework.core.env.ConfigurableEnvironment env =
+                        beanFactory.getBean(org.springframework.core.env.ConfigurableEnvironment.class);
+                java.util.Map<String, Object> defaults = new java.util.HashMap<>();
+                defaults.put("bean-searcher.params.separator", "_");
+                env.getPropertySources().addLast(
+                        new org.springframework.core.env.MapPropertySource("scaffoldSearchParamDefaults", defaults));
+            }
+        };
+    }
+
+    /**
      * 检索器后置处理器：替换 metaResolver 为合成版（保留原实现为 fallback）。
      */
     static class SearcherPostProcessor implements BeanPostProcessor {

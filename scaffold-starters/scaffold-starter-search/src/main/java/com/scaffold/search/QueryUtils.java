@@ -305,12 +305,13 @@ public final class QueryUtils {
     // ==================== 内部实现 ====================
 
     /**
-     * 构建参数：固定条件（@Table.filters）+ 动态条件 + OR 条件 + 分页 + 排序。
+     * 构建参数：动态条件 + OR 条件 + 分页 + 排序。
+     * 固定条件（@Table.filters）不再在此注入——由 FixedFilterParamFilter
+     * 统一处理（避免与动态条件同字段时被覆盖，且对前端直通参数同样生效）。
      */
     private static MapBuilder builder(Class<?> beanClass, List<SearchFilter> filters,
                                       List<SearchFilter> orFilters, Pageable pageable, Sort sort) {
         MapBuilder mb = MapUtils.builder();
-        FilterParams.applyAll(mb, fixedFilters(beanClass));
         FilterParams.applyAll(mb, filters);
         if (orFilters != null && !orFilters.isEmpty()) {
             FilterParams.apply(mb, SearchFilter.or(orFilters.toArray(new SearchFilter[0])));

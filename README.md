@@ -325,10 +325,11 @@ QueryUtils.doQuery("userPlan", filters, pageable);                 // 按名执�
 QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执行
 ```
 
-- 固定条件 `@SearchFilter`（顶层注解，对齐 db-spring：name/op/value/type）总是生效，前端无法覆盖（**其引用的字段必须在计划类中有 `@Column` 映射**）；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
+- 固定条件 `@SearchFilter`（顶层注解，对齐 db-spring：name/op/value/type）**总是生效**：由 `FixedFilterParamFilter` 在参数解析层注入并丢弃同字段的动态参数（编程式、按名/按类、前端直通三种用法统一），前端无法覆盖；其引用的字段必须在计划类中有 `@Column` 映射或可自动映射，否则条件无处挂载；`@JoinColumn` 支持 `sql()` 自定义 ON / `referencedValue` 常量 ON / 标准字段对字段三种模式
 - `@JoinTable` 可重复标注实现多表联查；`joinType` 支持 left join / inner join / right join；`schema` 拼为 schema.table；`useIndex` 生成 MySQL `FORCE INDEX(idx)`（同 db-spring）
-- **字段映射对齐 db-spring**：未标注 `@Column` 的字段自动映射（驼峰转下划线 + 主表别名），`@IgnoreProperty`（字段级）/`@IgnoreProperties`（类级）排除，`@FieldType`/`@FieldTypes` 覆盖字段数据类型
+- **字段映射对齐 db-spring**：未标注 `@Column` 的字段自动映射（驼峰转下划线 + **仅主表**，关联表字段必须显式 `@Column(name, table)`），`@IgnoreProperty`（字段级）/`@IgnoreProperties`（类级）排除，`@FieldType`/`@FieldTypes` 覆盖字段数据类型
 - 计划类由 `scaffold.search.plan-packages` 扫描注册，或手动 `QueryPlanRegistry.register(Class)`
+- **参数风格**：starter 默认把 `bean-searcher.params.separator` 设为 `_`（最低优先级，可覆盖），前端直通参数即 `?status=1&name_ct=张&age_gt=25`；运算符 key 为 `字段_op`、忽略大小写为 `字段_ic`
 - 其余对齐能力：`QueryUtils.parse(request.getParameterMap())` 前端前缀协议（`EQ_status=1`，值支持 `v1||GE_age||30` OR 分支）；`QueryUtils.doNativeQuery(sql, params, pageable, returnType)` 原生 SQL 查询（LIMIT/OFFSET 方言，下划线列自动映射驼峰）；orFilters 独立重载（`doQuery(filters, orFilters, pageable, clazz)`）；只排序不分页重载（`doListQuery(filters, sort, clazz)`）；doSyncQuery 无需对等 API（Bean Searcher 单 SQL 同时取列表与总数，天然合并）
 
 **方式三：原生 Bean Searcher（前端参数驱动，可选）**
