@@ -24,6 +24,17 @@ public class UserVO {
     @DbField("d.dept_name")
     private String deptName;
 
+    @DbField("u.deleted_at")
+    private java.util.Date deletedAt;
+
+    public java.util.Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(java.util.Date deletedAt) {
+        this.deletedAt = deletedAt;
+    }
+
     public Long getId() {
         return id;
     }

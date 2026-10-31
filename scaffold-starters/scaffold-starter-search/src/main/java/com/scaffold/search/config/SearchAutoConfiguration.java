@@ -48,8 +48,9 @@ public class SearchAutoConfiguration {
     }
 
     @Bean
-    public QueryUtilsInitializer queryUtilsInitializer(BeanSearcher beanSearcher, MapSearcher mapSearcher) {
-        return new QueryUtilsInitializer(beanSearcher, mapSearcher);
+    public QueryUtilsInitializer queryUtilsInitializer(BeanSearcher beanSearcher, MapSearcher mapSearcher,
+                                                       org.springframework.beans.factory.ObjectProvider<org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate> namedJdbc) {
+        return new QueryUtilsInitializer(beanSearcher, mapSearcher, namedJdbc.getIfAvailable());
     }
 
     @Bean
@@ -77,8 +78,12 @@ public class SearchAutoConfiguration {
      */
     static class QueryUtilsInitializer {
 
-        QueryUtilsInitializer(BeanSearcher beanSearcher, MapSearcher mapSearcher) {
+        QueryUtilsInitializer(BeanSearcher beanSearcher, MapSearcher mapSearcher,
+                              org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate namedJdbc) {
             QueryUtils.configure(beanSearcher, mapSearcher);
+            if (namedJdbc != null) {
+                QueryUtils.configureNative(namedJdbc);
+            }
         }
     }
 

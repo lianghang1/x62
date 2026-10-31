@@ -48,7 +48,8 @@ final class FilterParams {
     private static void applyField(cn.zhxu.bs.util.Builder<?> b, SearchFilter filter) {
         Operator op = filter.getOperator();
         if (op.isValueless()) {
-            b.field(filter.getFieldName());
+            // 无值运算符也必须带一个空串占位值，否则 FieldParam 会被引擎丢弃
+            b.field(filter.getFieldName(), "");
         } else if (op == Operator.IN || op == Operator.NI || op == Operator.BT || op == Operator.NBT) {
             Object value = filter.getValue();
             if (value instanceof Collection) {

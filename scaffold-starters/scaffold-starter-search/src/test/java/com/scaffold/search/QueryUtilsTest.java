@@ -41,7 +41,7 @@ class QueryUtilsTest {
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS t_dept (" +
                 "id BIGINT PRIMARY KEY, dept_name VARCHAR(100))");
         jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS t_user (" +
-                "id BIGINT PRIMARY KEY, name VARCHAR(100), age INT, status INT, dept_id BIGINT)");
+                "id BIGINT PRIMARY KEY, name VARCHAR(100), age INT, status INT, dept_id BIGINT, deleted_at TIMESTAMP NULL)");
     }
 
     @BeforeEach
@@ -50,10 +50,10 @@ class QueryUtilsTest {
         jdbcTemplate.update("DELETE FROM t_dept");
         jdbcTemplate.update("INSERT INTO t_dept VALUES (1, '研发部'), (2, '市场部')");
         jdbcTemplate.update("INSERT INTO t_user VALUES " +
-                "(1, '张三', 25, 1, 1)," +
-                "(2, '张四', 30, 1, 1)," +
-                "(3, '李五', 35, 0, 2)," +
-                "(4, '王六', 28, 1, 2)");
+                "(1, '张三', 25, 1, 1, NULL)," +
+                "(2, '张四', 30, 1, 1, NULL)," +
+                "(3, '李五', 35, 0, 2, NULL)," +
+                "(4, '王六', 28, 1, 2, NULL)");
     }
 
     private List<SearchFilter> filters(SearchFilter... items) {
@@ -91,6 +91,11 @@ class QueryUtilsTest {
                 new SearchFilter("name", Operator.RL, "六")), UserVO.class));
         assertEquals(4, QueryUtils.doCount(filters(
                 new SearchFilter("deletedAt", Operator.NU)), UserVO.class));
+        jdbcTemplate.update("UPDATE t_user SET deleted_at = '2026-01-01' WHERE id = 1");
+        assertEquals(1, QueryUtils.doCount(filters(
+                new SearchFilter("deletedAt", Operator.NN)), UserVO.class));
+        assertEquals(3, QueryUtils.doCount(filters(
+                new SearchFilter("deletedAt", Operator.NU)), UserVO.class));
     }
 
     @Test
@@ -123,7 +128,7 @@ class QueryUtilsTest {
     @Test
     void testParticipatesInSpringTransaction() {
         transactionTemplate.executeWithoutResult(status -> {
-            jdbcTemplate.update("INSERT INTO t_user VALUES (99, '事务内', 40, 1, 1)");
+            jdbcTemplate.update("INSERT INTO t_user VALUES (99, '事务内', 40, 1, 1, NULL)");
             long count = QueryUtils.doCount(filters(
                     new SearchFilter("name", Operator.EQ, "事务内")), UserVO.class);
             assertEquals(1, count);

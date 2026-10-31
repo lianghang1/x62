@@ -326,9 +326,10 @@ QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执�
 ```
 
 - 固定条件 `@SearchFilter`（顶层注解，对齐 db-spring：name/op/value/type）总是生效，前端无法覆盖（**其引用的字段必须在计划类中有 `@Column` 映射**）；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
-- `@JoinTable` 可重复标注实现多表联查；`joinType` 支持 left join / inner join / right join；`schema` 拼为 schema.table
-- `useIndex`（db-spring 索引提示）不支持：跨方言语义不同，需要时在 `@Column` 表达式里写方言 hint
+- `@JoinTable` 可重复标注实现多表联查；`joinType` 支持 left join / inner join / right join；`schema` 拼为 schema.table；`useIndex` 生成 MySQL `FORCE INDEX(idx)`（同 db-spring）
+- **字段映射对齐 db-spring**：未标注 `@Column` 的字段自动映射（驼峰转下划线 + 主表别名），`@IgnoreProperty`（字段级）/`@IgnoreProperties`（类级）排除，`@FieldType`/`@FieldTypes` 覆盖字段数据类型
 - 计划类由 `scaffold.search.plan-packages` 扫描注册，或手动 `QueryPlanRegistry.register(Class)`
+- 其余对齐能力：`QueryUtils.parse(request.getParameterMap())` 前端前缀协议（`EQ_status=1`，值支持 `v1||GE_age||30` OR 分支）；`QueryUtils.doNativeQuery(sql, params, pageable, returnType)` 原生 SQL 查询（LIMIT/OFFSET 方言，下划线列自动映射驼峰）；orFilters 独立重载（`doQuery(filters, orFilters, pageable, clazz)`）；只排序不分页重载（`doListQuery(filters, sort, clazz)`）；doSyncQuery 无需对等 API（Bean Searcher 单 SQL 同时取列表与总数，天然合并）
 
 **方式三：原生 Bean Searcher（前端参数驱动，可选）**
 
