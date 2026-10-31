@@ -26,6 +26,11 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-web</artifactId>
         </dependency>
+        <!-- 统一日志格式：文本 + JSON + 独立错误文件 -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-log</artifactId>
+        </dependency>
         <!-- 本地跑数据核心：JPA + 雪花主键 + 审计字段（ddl-auto 建表，Liquibase 生产再接） -->
         <dependency>
             <groupId>com.scaffold</groupId>

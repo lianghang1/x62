@@ -102,6 +102,3 @@ powerjob:
 
 knife4j:
   enable: true
-
-logging:
-  config: classpath:logback-spring.xml

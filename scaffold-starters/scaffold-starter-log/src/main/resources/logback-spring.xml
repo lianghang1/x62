@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  全脚手架统一日志配置（随 scaffold-starter-log 分发，应用引入即生效；
+  需自定义时在应用本地放同名文件覆盖——classpath 本地优先于 jar）。
+
+  输出通道：
+  - CONSOLE      文本（本地开发观察）
+  - FILE         文本滚动文件（常规采集）
+  - JSON-FILE    JSON 结构化文件（对齐 ELK / 日志平台采集，traceId 经 MDC 自动写入）
+  - FILE-ERROR   独立错误文件（排障直达，保留 90 天）
+
+  应用名与环境经 springProperty 注入，无需各应用维护：
+  - APP_NAME 取 spring.application.name，未配置时回退 scaffold
+  - APP_ENV  取 spring.profiles.active，未配置时回退 default
+-->
+<configuration scan="true" scanPeriod="30 seconds">
+
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name" defaultValue="scaffold"/>
+    <springProperty scope="context" name="APP_ENV" source="spring.profiles.active" defaultValue="default"/>
+
+    <property name="LOG_HOME" value="${LOG_HOME:-./logs}"/>
+    <property name="LOG_ARCHIVE" value="${LOG_HOME}/archive"/>
+    <!-- 文本行统一格式：traceId 在 %X{traceId}，一次请求全链路日志可串联 -->
+    <property name="PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId}] %logger{40} - %msg%n"/>
+
+    <!-- 控制台 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 应用文本日志：按天+大小滚动 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_ARCHIVE}/${APP_NAME}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- JSON 结构化日志：日志平台采集通道（traceId 等 MDC 键自动入 JSON） -->
+    <appender name="JSON-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}-json.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_ARCHIVE}/${APP_NAME}-json.%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>5GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <timeZone>GMT+8</timeZone>
+            <timestampPattern>yyyy-MM-dd'T'HH:mm:ss.SSSX</timestampPattern>
+            <customFields>{"app":"${APP_NAME}","env":"${APP_ENV}"}</customFields>
+            <includeMdc>true</includeMdc>
+        </encoder>
+    </appender>
+
+    <!-- 独立错误日志：排障直达 -->
+    <appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${APP_NAME}-error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_ARCHIVE}/${APP_NAME}-error.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>90</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="JSON-FILE"/>
+        <appender-ref ref="FILE-ERROR"/>
+    </root>
+
+    <springProfile name="dev">
+        <logger name="com.scaffold" level="DEBUG"/>
+    </springProfile>
+</configuration>

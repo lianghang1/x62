@@ -17,6 +17,7 @@
 
     <modules>
         <module>scaffold-starter-web</module>
+        <module>scaffold-starter-log</module>
         <module>scaffold-starter-ip</module>
         <module>scaffold-starter-data-jpa</module>
         <module>scaffold-starter-search</module>

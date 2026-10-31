@@ -22,6 +22,10 @@
         </dependency>
         <dependency>
             <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.scaffold</groupId>
             <artifactId>scaffold-module-system-biz</artifactId>
         </dependency>
 
