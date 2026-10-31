@@ -13,6 +13,7 @@ scaffold/
 ├── scaffold-starters/        技术组件（全部可插拔，自动装配）
 │   ├── starter-web           traceId 全链路 / 全局异常 / 访问日志 / Jackson / CORS / knife4j
 │   ├── starter-data-jpa      雪花 ID / 审计基类 BaseEntity / 乐观锁 VersionedEntity / EncryptedStringConverter
+│   ├── starter-search        动态检索：Bean Searcher 底座 + SearchFilter/QueryUtils 门面 + QueryPlan 联表计划
 │   ├── starter-security      三入口安全链 + token 会话(Redis) + TTL 上下文 + openapi HMAC 签名
 │   ├── starter-cache         Caffeine L1 + Redis L2 两级缓存
 │   ├── starter-protection    Lua 原子限流 / @Idempotent 幂等 / @DistributedLock
@@ -286,6 +287,51 @@ public ReportVO buildReport(Long orderId) {
 
 > 设计说明：不依赖 Boot 默认 applicationTaskExecutor——它带 `@ConditionalOnMissingBean(Executor.class)`，classpath 里出现任意 Executor Bean（如我们的业务池）它就退避，依赖它等于依赖装配顺序。所以 `@Async` 走显式绑定的 `scaffoldAsyncExecutor`。
 
+## 动态检索（starter-search）
+
+底层 Bean Searcher，门面保留 db-spring QueryUtils 写法；`SpringSqlExecutor` 默认感知 Spring 事务（`@Transactional` 内自动复用事务连接），联表/分页保护/防注入由引擎承担。
+
+**方式一：SearchFilter + QueryUtils（后台编程式）**
+
+```java
+List<SearchFilter> filters = new ArrayList<>();
+filters.add(new SearchFilter("status", Operator.EQ, 1));
+filters.add(new SearchFilter(UserVO::getName, Operator.CN, "张"));   // lambda 字段，重构安全
+filters.add(SearchFilter.or(                                        // OR 分组
+        new SearchFilter("deptId", Operator.EQ, 1L),
+        new SearchFilter("deptId", Operator.EQ, 2L)));
+
+Page<UserVO> page = QueryUtils.doQuery(filters, PageRequest.of(0, 15, Sort.by(desc("age"))), UserVO.class);
+List<UserVO> list = QueryUtils.doListQuery(filters, UserVO.class);
+long count       = QueryUtils.doCount(filters, UserVO.class);
+```
+
+运算符（对齐 db-spring Operator 命名）：EQ/NE/GT/GE/LT/LE、IN/NI、CN/NC（like %x%）、LL/RL（like x%/%x）、NU/NN（is null）、BT/NBT（between，值传两元素集合）、BLANK/NBLANK。
+
+**方式二：QueryPlan 命名联表计划（注解声明，运行时合成元数据）**
+
+```java
+@QueryPlan(name = "userPlan", returnType = DeptUserSummary.class)   // returnType 缺省直接返回计划类
+@Table(name = "t_user", alias = "u",
+        filters = @Table.Fixed(name = "status", op = Operator.EQ, value = "1", type = Integer.class))
+@JoinTable(name = "t_dept", alias = "d",
+        columns = @JoinColumn(name = "id", referencedColumnName = "dept_id"))  // d.id = u.dept_id
+public class UserPlan {
+    @Column("u.name")       private String name;
+    @Column("d.dept_name")  private String deptName;   // 未标注的字段不参与 SQL
+}
+
+QueryUtils.doQuery("userPlan", filters, pageable);                 // 按名执行（注册表）
+QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执行
+```
+
+- 固定条件 `@Table.Fixed` 总是生效，前端无法覆盖；`@JoinColumn` 支持 `sql()` 写自定义 ON 条件
+- 计划类由 `scaffold.search.plan-packages` 扫描注册，或手动 `QueryPlanRegistry.register(Class)`
+
+**方式三：原生 Bean Searcher（前端参数驱动，可选）**
+
+直接注入 `BeanSearcher`/`MapSearcher`，前端传 `?status=1&name_ct=张&age_gt=25&page=0&size=15`，后端一行 `beanSearcher.search(UserVO.class)`。三种方式共用同一引擎与事务。
+
 ## 安全与审计
 
 | 能力 | 用法 | 出处 |
@@ -450,6 +496,8 @@ class RepoTest {
 | `scaffold.push.multi-instance` | `false` | 多实例转发：部署多于一个节点时必须开启（Redis pub/sub 扇出）， 否则只投递到「收到推送请求的那个节点」上的连接 | push |
 | `scaffold.push.relay-topic` | `—` | Redis 转发频道名（多实例时各节点订阅同一频道） | push |
 | `scaffold.push.sse-timeout-ms` | `0` | SSE emitter 超时（毫秒；0 表示永不超时，存活靠心跳） | push |
+| `scaffold.search.enabled` | `true` | 动态检索总开关（QueryUtils/QueryPlan/Bean Searcher） | search |
+| `scaffold.search.plan-packages` | `—` | QueryPlan 计划类扫描包（启动时注册到注册表） | search |
 | `scaffold.security.captcha.fail-threshold` | `3` | after_fail 模式的触发阈值（连续失败次数） | security |
 | `scaffold.security.captcha.mode` | `after_fail` | 模式：off=不启用 | always=每次都要 | after_fail=连续失败 failThreshold 次后强制 | security |
 | `scaffold.security.captcha.ttl-seconds` | `120` | 验证码有效期（秒） | security |

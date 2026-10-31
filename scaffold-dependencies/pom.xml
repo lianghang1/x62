@@ -24,6 +24,7 @@
         <okhttp.version>4.12.0</okhttp.version>
         <easyexcel.version>3.3.4</easyexcel.version>
         <xfilestorage.version>2.3.0</xfilestorage.version>
+        <bean-searcher.version>4.8.12</bean-searcher.version>
         <!-- 共享注解库钉版：guava/caffeine 等各自携带不同版本，dependencyConvergence 要求收敛（Enforcer 强制） -->
         <checker-qual.version>3.37.0</checker-qual.version>
         <error-prone.version>2.21.1</error-prone.version>
@@ -144,6 +145,13 @@
                 <groupId>org.dromara.x-file-storage</groupId>
                 <artifactId>x-file-storage-spring</artifactId>
                 <version>${xfilestorage.version}</version>
+            </dependency>
+
+            <!-- Bean Searcher：starter-search 声明式动态检索（JDK8 兼容，与 JPA 正交共存） -->
+            <dependency>
+                <groupId>cn.zhxu</groupId>
+                <artifactId>bean-searcher-boot-starter</artifactId>
+                <version>${bean-searcher.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

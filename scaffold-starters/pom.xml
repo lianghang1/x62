@@ -18,6 +18,7 @@
     <modules>
         <module>scaffold-starter-web</module>
         <module>scaffold-starter-data-jpa</module>
+        <module>scaffold-starter-search</module>
         <module>scaffold-starter-security</module>
         <module>scaffold-starter-cache</module>
         <module>scaffold-starter-protection</module>
