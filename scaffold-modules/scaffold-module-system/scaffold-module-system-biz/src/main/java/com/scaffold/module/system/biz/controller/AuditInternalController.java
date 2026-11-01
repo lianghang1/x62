@@ -2,6 +2,7 @@ package com.scaffold.module.system.biz.controller;
 
 import com.scaffold.common.result.PageResult;
 import com.scaffold.common.result.R;
+import com.scaffold.starter.security.permission.RequirePermission;
 import com.scaffold.module.system.biz.entity.ChangeLog;
 import com.scaffold.module.system.biz.entity.LoginLog;
 import com.scaffold.module.system.biz.entity.OperLog;
@@ -34,6 +35,7 @@ import java.util.List;
  */
 @Tag(name = "internal-审计日志")
 @RestController
+@RequirePermission("system:audit:query")
 @RequestMapping("/internal/system/audit")
 public class AuditInternalController {
 

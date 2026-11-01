@@ -340,6 +340,7 @@ QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执�
 
 | 能力 | 用法 | 出处 |
 |---|---|---|
+| RBAC 权限校验 | 管理接口加 `@RequirePermission("system:account:manage")`（方法或类级，多值 any-of），无权 403/未登录 401；权限点登录时装入会话（角色 permissions 逗号分隔），支持段级通配 `system:*` 与超管全量 `*`；权限点目录：`system:{account,role,app,job,config,dict}:manage`、`system:{audit,online}:query` | starter-security（PermissionInterceptor）+ module-system |
 | 登录日志 | 每次登录（成功/失败）自动落 `sys_login_log`（IP/UA/失败原因），异步落库不拖慢主流程；查询 `GET /internal/system/audit/login`（账号/成败/时间段过滤，时间倒序分页） | module-system，AuthService→AuditLogListener |
 | 失败锁定 | 同账号连续失败 5 次锁 15 分钟（Redis 计数），`scaffold.security.password-policy` 可调 | starter-security |
 | IP 防撞库 | 同 IP 窗口内登录失败达上限拒绝该 IP 登录，`scaffold.security.ip-guard` 可调 | starter-security |

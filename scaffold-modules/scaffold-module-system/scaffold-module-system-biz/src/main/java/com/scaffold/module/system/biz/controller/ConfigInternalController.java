@@ -3,6 +3,7 @@ package com.scaffold.module.system.biz.controller;
 import com.scaffold.module.system.api.annotation.OperLog;
 import com.scaffold.common.result.PageResult;
 import com.scaffold.common.result.R;
+import com.scaffold.starter.security.permission.RequirePermission;
 import com.scaffold.module.system.biz.entity.SysConfig;
 import com.scaffold.module.system.biz.repository.SysConfigRepository;
 import com.scaffold.module.system.biz.service.ConfigServiceImpl;
@@ -33,6 +34,7 @@ import java.util.List;
  */
 @Tag(name = "internal-系统配置")
 @RestController
+@RequirePermission("system:config:manage")
 @RequestMapping("/internal/system/config")
 public class ConfigInternalController {
 

@@ -186,4 +186,26 @@ public class ScaffoldSecurityAutoConfiguration {
                         UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    /**
+     * 权限校验拦截器：对声明 {@code @RequirePermission} 的管理接口做 any-of 校验，
+     * 无注解接口零开销直通。执行于认证过滤器之后，LoginContext 已就绪。
+     */
+    @Bean
+    @ConditionalOnMissingBean(com.scaffold.starter.security.permission.PermissionInterceptor.class)
+    public org.springframework.web.servlet.HandlerInterceptor permissionInterceptor() {
+        return new com.scaffold.starter.security.permission.PermissionInterceptor();
+    }
+
+    @Bean
+    public org.springframework.web.servlet.config.annotation.WebMvcConfigurer permissionInterceptorConfigurer(
+            org.springframework.web.servlet.HandlerInterceptor permissionInterceptor) {
+        return new org.springframework.web.servlet.config.annotation.WebMvcConfigurer() {
+            @Override
+            public void addInterceptors(
+                    org.springframework.web.servlet.config.annotation.InterceptorRegistry registry) {
+                registry.addInterceptor(permissionInterceptor).addPathPatterns("/**");
+            }
+        };
+    }
 }

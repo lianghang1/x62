@@ -37,8 +37,25 @@ public class LoginUser implements Serializable {
         return roles != null && roles.contains(role.startsWith("ROLE_") ? role : "ROLE_" + role);
     }
 
+    /**
+     * 权限判定：{@code *} 全量放行（超级管理员）；精确匹配；
+     * 或持有 {@code system:account:*} 形式的段级通配。任一命中即放行。
+     */
     public boolean hasPermission(String permission) {
-        return permissions != null && permissions.contains(permission);
+        if (permissions == null || permission == null) {
+            return false;
+        }
+        if (permissions.contains("*") || permissions.contains(permission)) {
+            return true;
+        }
+        int wildcard = permission.lastIndexOf(':');
+        while (wildcard > 0) {
+            if (permissions.contains(permission.substring(0, wildcard) + ":*")) {
+                return true;
+            }
+            wildcard = permission.lastIndexOf(':', wildcard - 1);
+        }
+        return false;
     }
 
     public Long getAccountId() {
