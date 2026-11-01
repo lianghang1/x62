@@ -18,10 +18,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * 访问日志切面，对所有 {@code @RestController} 方法记录进站与出站全程：
+ * 访问日志 END 行切面，对所有 {@code @RestController} 方法在退出时记录出站结果：
  * URI、入参、HTTP 状态码、响应摘要与耗时。
  *
- * <p>日志行自带 MDC 中的 traceId，可与链路日志直接关联；入参与出站结果经
+ * <p>与 {@code TraceIdFilter} 的 START 行靠 traceId 配对成完整访问审计：
+ * START 证明请求到达，END 记录处理结果；有 START 无 END 即请求中断信号。
+ * 日志行自带 MDC 中的 traceId，可与链路日志直接关联；入参与出站结果经
  * JSON 序列化并对 password/token 等敏感字段脱敏，超长截断、文件等大对象
  * 降级为文件名——任何序列化失败都不影响业务主流程，仅降级为类型名。</p>
  *
@@ -46,13 +48,13 @@ public class AccessLogAspect {
         long start = System.currentTimeMillis();
         try {
             Object result = pjp.proceed();
-            log.info("[access] {} {} {} status={} cost={}ms args={} result={}",
+            log.info("[access] END {} {} {} status={} cost={}ms args={} result={}",
                     clientRegion(), httpMethod(), uri(), httpStatus(),
                     System.currentTimeMillis() - start,
                     serializeArgs(pjp.getArgs()), serializeResult(result));
             return result;
         } catch (Throwable t) {
-            log.info("[access] {} {} {} status={} cost={}ms args={} error={}",
+            log.info("[access] END {} {} {} status={} cost={}ms args={} error={}",
                     clientRegion(), httpMethod(), uri(), httpStatus(),
                     System.currentTimeMillis() - start,
                     serializeArgs(pjp.getArgs()), errorSummary(t));

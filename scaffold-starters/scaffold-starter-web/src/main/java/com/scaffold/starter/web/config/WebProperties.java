@@ -18,8 +18,14 @@ public class WebProperties {
 
     private Cors cors = new Cors();
 
-    /** 访问日志切面开关。 */
+    /** 访问日志切面开关（END 行）。 */
     private boolean accessLogEnabled = true;
+
+    /**
+     * 访问日志 START 行开关：进入请求时在 TraceIdFilter 记录到达性证明，
+     * 与 END 行靠 traceId 配对；有 START 无 END 即请求中断信号。默认开启。
+     */
+    private boolean accessLogStartLine = true;
 
     /** IP 归属地库（ip2region.xdb 约 11MB）启动加载开关，关闭后 getRegion 返回空串。 */
     private boolean ipRegionEnabled = true;
@@ -119,6 +125,14 @@ public class WebProperties {
 
     public void setAccessLogEnabled(boolean accessLogEnabled) {
         this.accessLogEnabled = accessLogEnabled;
+    }
+
+    public boolean isAccessLogStartLine() {
+        return accessLogStartLine;
+    }
+
+    public void setAccessLogStartLine(boolean accessLogStartLine) {
+        this.accessLogStartLine = accessLogStartLine;
     }
 
     public boolean isIpRegionEnabled() {

@@ -105,9 +105,10 @@ public class WebAutoConfiguration {
     }
 
     @Bean
-    public FilterRegistrationBean<TraceIdFilter> traceIdFilterRegistration() {
+    public FilterRegistrationBean<TraceIdFilter> traceIdFilterRegistration(WebProperties properties) {
         FilterRegistrationBean<TraceIdFilter> registration =
-                new FilterRegistrationBean<>(new TraceIdFilter());
+                new FilterRegistrationBean<>(new TraceIdFilter(
+                        properties.isAccessLogEnabled() && properties.isAccessLogStartLine()));
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         registration.addUrlPatterns("/*");
         registration.setName("traceIdFilter");

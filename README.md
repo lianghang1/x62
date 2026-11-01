@@ -521,7 +521,8 @@ class RepoTest {
 | `scaffold.security.password-policy.require-letter-and-digit` | `true` | 是否必须同时包含字母和数字 | security |
 | `scaffold.security.renew-threshold-percent` | `20` | 剩余有效期低于该百分比时自动续期 | security |
 | `scaffold.security.token-ttl-seconds` | `0` | token 会话 TTL（秒），默认 7 天 | security |
-| `scaffold.web.access-log-enabled` | `true` | 访问日志切面开关 | web |
+| `scaffold.web.access-log-enabled` | `true` | 访问日志 END 行切面开关 | web |
+| `scaffold.web.access-log-start-line` | `true` | 访问日志 START 行开关（TraceIdFilter 进入时记录到达性证明，与 END 行靠 traceId 配对；受 access-log-enabled 总开关约束） | web |
 | `scaffold.ip.enabled` | `true` | IP 归属地库（ip2region.xdb 约 11MB）启动加载开关，关闭后 `IpRegionUtil.getRegion` 返回空串 | ip |
 | `scaffold.web.cors.allowed-headers` | `—` |  | web |
 | `scaffold.web.cors.allowed-methods` | `—` |  | web |
