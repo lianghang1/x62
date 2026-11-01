@@ -1,10 +1,12 @@
 package com.scaffold.starter.data.jpa.config;
 
 import com.scaffold.starter.data.jpa.audit.ScaffoldAuditorHolder;
+import com.scaffold.starter.data.jpa.datachange.DataChangeEventListener;
 import com.scaffold.starter.data.jpa.datascope.DataScopeAspect;
 import com.scaffold.starter.data.jpa.id.Snowflake;
 import com.scaffold.starter.data.jpa.id.SnowflakeIdentifierGenerator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +16,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import java.util.Optional;
 
 /**
@@ -57,5 +60,17 @@ public class DataJpaAutoConfiguration {
     @ConditionalOnMissingBean(DataScopeAspect.class)
     public DataScopeAspect dataScopeAspect(PlatformTransactionManager transactionManager) {
         return new DataScopeAspect(transactionManager);
+    }
+
+    /**
+     * 数据变更留痕监听器：注册 Hibernate POST_COMMIT 事件组，
+     * 对 {@code @DataChange} 实体在事务提交后发布变更事件。
+     * {@code scaffold.data.data-change-enabled=false} 可整体关闭。
+     */
+    @Bean
+    @ConditionalOnProperty(prefix = "scaffold.data", name = "data-change-enabled",
+            havingValue = "true", matchIfMissing = true)
+    public DataChangeEventListener dataChangeEventListener(EntityManagerFactory entityManagerFactory) {
+        return new DataChangeEventListener(entityManagerFactory);
     }
 }

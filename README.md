@@ -467,6 +467,7 @@ class RepoTest {
 | `scaffold.crypto.key` | `—` | 加密口令（派生密钥用），必须环境变量注入，禁止硬编码 | crypto |
 | `scaffold.crypto.type` | `AES` | 算法类型：AES（默认）| SM4（国密/信创） | crypto |
 | `scaffold.data.datacenter-id` | `1` | 雪花算法 datacenterId（0-31）；多机房/多实例部署按环境区分 | data-jpa |
+| `scaffold.data.data-change-enabled` | `true` | 数据变更留痕（`@DataChange` 实体增/改/删发事件，module-system 落 `sys_change_log`） | data-jpa |
 | `scaffold.data.worker-id` | `1` | 雪花算法 workerId（0-31）；单机默认 1，多实例部署必须按实例区分，否则主键可能重复 | data-jpa |
 | `scaffold.datasource.dynamic.datasources.{name}.driver-class-name` | `—` | 该数据源驱动类名，缺省由连接串自动推断 | data-jpa |
 | `scaffold.datasource.dynamic.datasources.{name}.password` | `—` | 该数据源密码 | data-jpa |

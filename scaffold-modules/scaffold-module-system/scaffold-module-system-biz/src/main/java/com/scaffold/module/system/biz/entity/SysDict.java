@@ -1,5 +1,6 @@
 package com.scaffold.module.system.biz.entity;
 
+import com.scaffold.starter.data.jpa.datachange.DataChange;
 import com.scaffold.starter.data.jpa.entity.BaseEntity;
 
 import javax.persistence.Column;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
  *
  * @author lianghang
  */
+@DataChange("数据字典")
 @Entity
 @Table(name = "sys_dict")
 public class SysDict extends BaseEntity {

@@ -18,11 +18,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
- * 访问日志切面，对所有 {@code @RestController} 方法记录 URI、参数与耗时。
+ * 访问日志切面，对所有 {@code @RestController} 方法记录进站与出站全程：
+ * URI、入参、HTTP 状态码、响应摘要与耗时。
  *
- * <p>日志行自带 MDC 中的 traceId，可与链路日志直接关联；参数经 JSON 序列化并
- * 对 password/token 等敏感字段脱敏，超长截断、文件等大对象降级为文件名——
- * 任何序列化失败都不影响业务主流程，仅降级为类型列表。</p>
+ * <p>日志行自带 MDC 中的 traceId，可与链路日志直接关联；入参与出站结果经
+ * JSON 序列化并对 password/token 等敏感字段脱敏，超长截断、文件等大对象
+ * 降级为文件名——任何序列化失败都不影响业务主流程，仅降级为类型名。</p>
  *
  * @author lianghang
  */
@@ -31,6 +32,8 @@ public class AccessLogAspect {
 
     private static final Logger log = LoggerFactory.getLogger(AccessLogAspect.class);
     private static final int MAX_ARGS_LENGTH = 500;
+    /** 响应摘要最大长度：出站只留概貌，全量结果以响应体为准 */
+    private static final int MAX_RESULT_LENGTH = 300;
 
     private final ObjectMapper objectMapper;
 
@@ -43,14 +46,16 @@ public class AccessLogAspect {
         long start = System.currentTimeMillis();
         try {
             Object result = pjp.proceed();
-            log.info("[access] {} {} {} args={} cost={}ms",
-                    clientRegion(), httpMethod(), uri(), serializeArgs(pjp.getArgs()),
-                    System.currentTimeMillis() - start);
+            log.info("[access] {} {} {} status={} cost={}ms args={} result={}",
+                    clientRegion(), httpMethod(), uri(), httpStatus(),
+                    System.currentTimeMillis() - start,
+                    serializeArgs(pjp.getArgs()), serializeResult(result));
             return result;
         } catch (Throwable t) {
-            log.info("[access] {} {} {} args={} cost={}ms error={}",
-                    clientRegion(), httpMethod(), uri(), serializeArgs(pjp.getArgs()),
-                    System.currentTimeMillis() - start, t.getClass().getSimpleName());
+            log.info("[access] {} {} {} status={} cost={}ms args={} error={}",
+                    clientRegion(), httpMethod(), uri(), httpStatus(),
+                    System.currentTimeMillis() - start,
+                    serializeArgs(pjp.getArgs()), errorSummary(t));
             throw t;
         }
     }
@@ -83,6 +88,37 @@ public class AccessLogAspect {
         ServletRequestAttributes attrs =
                 (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return attrs == null ? null : attrs.getRequest();
+    }
+
+    /** 当前响应 HTTP 状态码；无请求上下文时为 {@code -}。 */
+    private int httpStatus() {
+        ServletRequestAttributes attrs =
+                (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        return attrs == null ? -1 : attrs.getResponse() == null ? -1 : attrs.getResponse().getStatus();
+    }
+
+    /**
+     * 响应结果摘要：JSON 序列化（与入参同套脱敏规则）后截断；
+     * 序列化失败降级为类型名——出站日志不能反噬主流程。
+     */
+    private String serializeResult(Object result) {
+        if (result == null) {
+            return "null";
+        }
+        try {
+            String json = objectMapper.writeValueAsString(simplify(result));
+            json = maskSensitive(json);
+            return json.length() > MAX_RESULT_LENGTH ? json.substring(0, MAX_RESULT_LENGTH) + "..." : json;
+        } catch (Exception e) {
+            return result.getClass().getSimpleName();
+        }
+    }
+
+    /** 异常摘要：类名 + 消息，消息超长截断。 */
+    private String errorSummary(Throwable t) {
+        String message = t.getMessage() == null ? "" : ": " + t.getMessage();
+        String summary = t.getClass().getSimpleName() + message;
+        return summary.length() > MAX_RESULT_LENGTH ? summary.substring(0, MAX_RESULT_LENGTH) + "..." : summary;
     }
 
     private String serializeArgs(Object[] args) {

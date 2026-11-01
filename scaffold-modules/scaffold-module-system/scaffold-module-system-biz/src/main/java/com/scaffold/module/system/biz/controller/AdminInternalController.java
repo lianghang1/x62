@@ -1,5 +1,6 @@
 package com.scaffold.module.system.biz.controller;
 
+import com.scaffold.module.system.api.annotation.OperLog;
 import com.scaffold.common.result.R;
 import com.scaffold.module.system.biz.entity.AppInfo;
 import com.scaffold.module.system.biz.service.AccountAdminService;
@@ -61,7 +62,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "创建三方应用（返回 appKey/appSecret，secret 仅此一次展示）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "三方应用", action = "创建应用")
+    @OperLog(module = "三方应用", action = "创建应用")
     @Idempotent(windowSeconds = 5)
     @PostMapping("/apps")
     public R<Map<String, Object>> createApp(@RequestParam String appName,
@@ -76,7 +77,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "重置三方应用密钥")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "三方应用", action = "重置密钥")
+    @OperLog(module = "三方应用", action = "重置密钥")
     @PostMapping("/apps/{id}/reset-secret")
     public R<Map<String, Object>> resetSecret(@PathVariable Long id) {
         AppInfo app = accountService.resetSecret(id);
@@ -101,7 +102,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "给操作员分配角色")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "分配角色")
+    @OperLog(module = "角色", action = "分配角色")
     @PostMapping("/accounts/{accountId}/roles")
     public R<Void> assignRoles(@PathVariable Long accountId,
                                @RequestParam("roleIds") List<Long> roleIds) {
@@ -110,7 +111,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "踢人下线")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "在线用户", action = "踢人下线")
+    @OperLog(module = "在线用户", action = "踢人下线")
     @PostMapping("/accounts/{accountId}/kick")
     public R<Void> kick(@PathVariable Long accountId) {
         tokenService.revokeAll(accountId);
@@ -133,7 +134,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "创建操作员账号（密码强度校验 + BCrypt 落库）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "账号管理", action = "创建账号")
+    @OperLog(module = "账号管理", action = "创建账号")
     @PostMapping("/accounts")
     public R<Map<String, Object>> createAccount(@RequestParam String accountNo,
                                                 @RequestParam String password) {
@@ -141,7 +142,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "启用/停用账号（停用即全端下线）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "账号管理", action = "变更状态")
+    @OperLog(module = "账号管理", action = "变更状态")
     @PostMapping("/accounts/{accountId}/status")
     public R<Void> changeStatus(@PathVariable Long accountId, @RequestParam boolean enable) {
         accountAdminService.changeStatus(accountId, enable);
@@ -149,7 +150,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "重置密码（随机密码明文仅此一次返回，并全端下线强制重登）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "账号管理", action = "重置密码")
+    @OperLog(module = "账号管理", action = "重置密码")
     @PostMapping("/accounts/{accountId}/reset-password")
     public R<Map<String, Object>> resetPassword(@PathVariable Long accountId) {
         String rawPassword = accountAdminService.resetPassword(accountId);
@@ -167,7 +168,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "保存任务配置（改 cron/启停，落表并动态刷新调度，不重启）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "任务管理", action = "保存配置")
+    @OperLog(module = "任务管理", action = "保存配置")
     @PostMapping("/jobs/{jobKey}/config")
     public R<Void> saveJobConfig(@PathVariable String jobKey,
                                  @RequestParam String cron,
@@ -178,7 +179,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "立即触发一次任务（异步，锁/日志语义与定时触发一致）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "任务管理", action = "触发任务")
+    @OperLog(module = "任务管理", action = "触发任务")
     @PostMapping("/jobs/{jobKey}/trigger")
     public R<Void> triggerJob(@PathVariable String jobKey) {
         jobAdminService.trigger(jobKey);
@@ -197,7 +198,7 @@ public class AdminInternalController {
     // ---------------- 角色管理 ----------------
 
     @Operation(summary = "创建角色（编码唯一）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "创建角色")
+    @OperLog(module = "角色", action = "创建角色")
     @PostMapping("/roles")
     public R<SysRole> createRole(@RequestParam String code,
                                  @RequestParam String name,
@@ -206,7 +207,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "更新角色（名称/权限串，编码不可改）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "更新角色")
+    @OperLog(module = "角色", action = "更新角色")
     @PostMapping("/roles/{roleId}/update")
     public R<SysRole> updateRole(@PathVariable Long roleId,
                                  @RequestParam(required = false) String name,
@@ -215,7 +216,7 @@ public class AdminInternalController {
     }
 
     @Operation(summary = "删除角色（有账号绑定时拒绝）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "角色", action = "删除角色")
+    @OperLog(module = "角色", action = "删除角色")
     @PostMapping("/roles/{roleId}/delete")
     public R<Void> deleteRole(@PathVariable Long roleId) {
         roleAdminService.delete(roleId);

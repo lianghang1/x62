@@ -2,8 +2,10 @@ package com.scaffold.module.system.biz.controller;
 
 import com.scaffold.common.result.PageResult;
 import com.scaffold.common.result.R;
+import com.scaffold.module.system.biz.entity.ChangeLog;
 import com.scaffold.module.system.biz.entity.LoginLog;
 import com.scaffold.module.system.biz.entity.OperLog;
+import com.scaffold.module.system.biz.repository.ChangeLogRepository;
 import com.scaffold.module.system.biz.repository.LoginLogRepository;
 import com.scaffold.module.system.biz.repository.OperLogRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,11 +39,14 @@ public class AuditInternalController {
 
     private final LoginLogRepository loginLogRepository;
     private final OperLogRepository operLogRepository;
+    private final ChangeLogRepository changeLogRepository;
 
     public AuditInternalController(LoginLogRepository loginLogRepository,
-                                   OperLogRepository operLogRepository) {
+                                   OperLogRepository operLogRepository,
+                                   ChangeLogRepository changeLogRepository) {
         this.loginLogRepository = loginLogRepository;
         this.operLogRepository = operLogRepository;
+        this.changeLogRepository = changeLogRepository;
     }
 
     @Operation(summary = "登录日志分页（按账号/成败/时间段过滤）")
@@ -105,6 +110,27 @@ public class AuditInternalController {
             return cb.and(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
         };
         Page<OperLog> page = operLogRepository.findAll(spec, pageOf(pageNum, pageSize, "createTime"));
+        return R.ok(PageResult.of(page.getContent(), page.getTotalElements(), pageNum, pageSize));
+    }
+
+    @Operation(summary = "数据变更留痕分页（按表+记录回溯单条数据的变更历史）")
+    @GetMapping("/change")
+    public R<PageResult<ChangeLog>> changeLogs(@RequestParam(defaultValue = "1") int pageNum,
+                                               @RequestParam(defaultValue = "20") int pageSize,
+                                               @RequestParam(required = false) String tableName,
+                                               @RequestParam(required = false) String recordId,
+                                               @RequestParam(required = false) String operator) {
+        if (StringUtils.isNotBlank(operator)) {
+            Page<ChangeLog> page = changeLogRepository.findByOperatorOrderByIdDesc(
+                    operator, pageOf(pageNum, pageSize, "id"));
+            return R.ok(PageResult.of(page.getContent(), page.getTotalElements(), pageNum, pageSize));
+        }
+        if (StringUtils.isBlank(tableName) || StringUtils.isBlank(recordId)) {
+            return R.fail(com.scaffold.common.exception.GlobalErrorCode.BAD_REQUEST,
+                    "tableName+recordId 与 operator 至少提供一组");
+        }
+        Page<ChangeLog> page = changeLogRepository.findByTableNameAndRecordIdOrderByIdDesc(
+                tableName, recordId, pageOf(pageNum, pageSize, "id"));
         return R.ok(PageResult.of(page.getContent(), page.getTotalElements(), pageNum, pageSize));
     }
 

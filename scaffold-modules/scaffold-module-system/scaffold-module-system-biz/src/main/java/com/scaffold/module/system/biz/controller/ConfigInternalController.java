@@ -1,5 +1,6 @@
 package com.scaffold.module.system.biz.controller;
 
+import com.scaffold.module.system.api.annotation.OperLog;
 import com.scaffold.common.result.PageResult;
 import com.scaffold.common.result.R;
 import com.scaffold.module.system.biz.entity.SysConfig;
@@ -67,7 +68,7 @@ public class ConfigInternalController {
     }
 
     @Operation(summary = "保存配置（新增或按 key 覆盖，需 system:config:manage 权限）")
-    @com.scaffold.module.system.api.annotation.OperLog(module = "系统配置", action = "保存配置")
+    @OperLog(module = "系统配置", action = "保存配置")
     @PostMapping
     public R<Long> save(@RequestBody SysConfig config) {
         return R.ok(configService.save(config));

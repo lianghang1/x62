@@ -1,5 +1,6 @@
 package com.scaffold.module.system.biz.entity;
 
+import com.scaffold.starter.data.jpa.datachange.DataChange;
 import com.scaffold.starter.data.jpa.entity.BaseEntity;
 import com.scaffold.starter.security.identity.AccountType;
 
@@ -18,6 +19,7 @@ import javax.persistence.Table;
  *
  * @author lianghang
  */
+@DataChange("账户")
 @Entity
 @Table(name = "sys_account")
 public class SysAccount extends BaseEntity {

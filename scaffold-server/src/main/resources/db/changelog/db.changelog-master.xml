@@ -20,5 +20,6 @@
     <include file="db/changelog/v1.0.0/04-security-tables.xml"/>
     <include file="db/changelog/v1.0.0/05-job-admin-tables.xml"/>
     <include file="db/changelog/v1.0.0/06-config-tables.xml"/>
+    <include file="db/changelog/v1.0.0/07-change-log-table.xml"/>
 
 </databaseChangeLog>
