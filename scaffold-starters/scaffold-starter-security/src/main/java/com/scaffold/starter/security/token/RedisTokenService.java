@@ -4,11 +4,15 @@ import com.scaffold.common.util.StringUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -133,5 +137,47 @@ public class RedisTokenService implements TokenService {
             }
         }
         return sessions;
+    }
+
+    @Override
+    public Map<String, SessionInfo> listAllOnlineSessions() {
+        Map<String, SessionInfo> result = new LinkedHashMap<>();
+        for (String accountKey : scanKeys(ACCOUNT_KEY + "*")) {
+            String accountId = accountKey.substring(ACCOUNT_KEY.length());
+            Set<String> tokens = redisTemplate.opsForSet().members(accountKey);
+            if (tokens == null) {
+                continue;
+            }
+            for (String token : tokens) {
+                SessionInfo session = resolve(token);
+                if (session != null) {
+                    result.put(token, session);
+                } else {
+                    // 清理过期残留索引，避免账户索引无限膨胀
+                    redisTemplate.opsForSet().remove(accountKey, token);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * SCAN 遍历匹配键——不用 KEYS：SCAN 游标分批，不阻塞 Redis 主线程，
+     * 会话量增长时列表接口依然温和。
+     */
+    private Set<String> scanKeys(String pattern) {
+        Set<String> keys = new java.util.HashSet<>();
+        redisTemplate.execute((org.springframework.data.redis.core.RedisCallback<Void>) connection -> {
+            try (Cursor<byte[]> cursor = connection.scan(
+                    ScanOptions.scanOptions().match(pattern).count(200).build())) {
+                while (cursor.hasNext()) {
+                    keys.add(new String(cursor.next(), java.nio.charset.StandardCharsets.UTF_8));
+                }
+            } catch (RuntimeException e) {
+                throw new IllegalStateException("SCAN 会话索引失败", e);
+            }
+            return null;
+        });
+        return keys;
     }
 }

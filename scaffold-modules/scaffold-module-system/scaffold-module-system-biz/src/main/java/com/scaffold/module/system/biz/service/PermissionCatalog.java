@@ -49,7 +49,8 @@ public final class PermissionCatalog {
             new Item("system:config:manage", "参数配置管理", "系统"),
             new Item("system:dict:manage", "字典管理", "系统"),
             new Item("system:audit:query", "审计日志查询", "审计"),
-            new Item("system:online:query", "在线用户查询", "审计"));
+            new Item("system:online:query", "在线用户查询", "审计"),
+            new Item("system:online:manage", "在线用户踢人", "审计"));
 
     private PermissionCatalog() {
     }

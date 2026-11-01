@@ -79,7 +79,7 @@ class RbacEndToEndTest {
         mockMvc.perform(get("/internal/roles/permissions").with(bearer("role-token")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(0))
-                .andExpect(jsonPath("$.data.length()").value(8));
+                .andExpect(jsonPath("$.data.length()").value(9));
     }
 
     @Test

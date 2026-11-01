@@ -1,6 +1,7 @@
 package com.scaffold.starter.security.token;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 基于「不透明 token + Redis 会话」的 token 会话服务。
@@ -34,4 +35,12 @@ public interface TokenService {
 
     /** 某账户剩余有效 token（在线用户管理用） */
     List<SessionInfo> onlineSessions(Long accountId);
+
+    /**
+     * 全部在线会话（token → 会话内容），在线用户管理列表用。
+     *
+     * <p>扫描账户索引收集所有活跃会话并顺带清理过期残留；
+     * key 为 token 本身，管理端踢单个会话直接调 {@link #revoke(String)}。</p>
+     */
+    Map<String, SessionInfo> listAllOnlineSessions();
 }
