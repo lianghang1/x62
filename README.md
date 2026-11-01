@@ -407,6 +407,18 @@ QueryUtils.doQuery(UserPlan.class, filters, pageable);             // 按类执�
   一行打点，命名规约 `scaffold.<模块>.<指标>`；
 - lite 轻量版不含本 starter（零外部依赖形态不需要指标端点）。
 
+### 日志链路与演进路线
+
+- **traceId 串联**：`TraceIdFilter` 按优先级解析——W3C `traceparent`（32 位 hex traceId 段，
+  格式非法视为不可信回退生成）→ `X-Trace-Id`（≤32 字符宽松复用，网关自定义 ID 兼容）→ 本地生成；
+  响应**双写**两个头，出站 `ScaffoldHttpClient` 同样双发，自家体系与 OTel/云厂商体系对接都不丢链路；
+- **访问审计 START/END**：进入（Filter 层，含 404/Filter 链异常）记 START，退出（切面层）记 END，
+  靠 traceId 配对，有 START 无 END 即请求中断信号；
+- **异步写入**：文件/JSON/错误通道均经 AsyncAppender（队列 8192，`neverBlock` 打满丢弃、
+  永不阻塞业务线程，`discardingThreshold=0` 保证 INFO 及以上不被自动丢弃），日志编码不在请求热路径；
+- **演进预留**：分布式 span 级追踪（请求内 DB/出站分段计时）推荐接 SkyWalking javaagent（零代码），
+  traceId 格式（32 位小写 hex）与其天然兼容；高 QPS 场景可为访问日志加采样。
+
 ## 统一测试底座（starter-test）
 
 业务方以 **test scope** 引入本模块，替代散装样板：

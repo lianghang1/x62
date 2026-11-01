@@ -80,9 +80,13 @@ public class ScaffoldHttpClient {
      */
     public TransportResponse execute(String method, String url, byte[] body, String contentType) {
         Map<String, String> headers = new LinkedHashMap<String, String>();
-        String traceId = MDC.get("traceId");
+        String traceId = MDC.get(TraceConstants.TRACE_ID_KEY);
         if (traceId != null) {
             headers.put(TRACE_ID_HEADER, traceId);
+            // W3C Trace Context：对接 OTel/云厂商体系时链路不断
+            headers.put(TraceConstants.TRACEPARENT_HEADER,
+                    "00-" + traceId + "-"
+                            + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 16) + "-01");
         }
         TransportRequest request = new TransportRequest(method, url, headers, body, contentType,
                 properties.getConnectTimeoutMs(), properties.getReadTimeoutMs());

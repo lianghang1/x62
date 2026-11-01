@@ -81,11 +81,37 @@
         </encoder>
     </appender>
 
+    <!-- 异步包装：文件通道写入与 JSON 编码移出请求线程，高 QPS 下日志不再是热路径开销。
+         neverBlock=true——队列满时丢弃新日志而不是阻塞业务线程（审计留痕优先保主流程）；
+         discardingThreshold=0——禁用 logback 默认「队列剩余 20% 时丢 INFO 以下」的行为，
+         INFO/WARN/ERROR 与审计日志一律不自动丢，仅在彻底打满时整体丢弃。 -->
+    <appender name="ASYNC-FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <includeCallerData>false</includeCallerData>
+        <appender-ref ref="FILE"/>
+    </appender>
+    <appender name="ASYNC-JSON" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <includeCallerData>false</includeCallerData>
+        <appender-ref ref="JSON-FILE"/>
+    </appender>
+    <appender name="ASYNC-ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>2048</queueSize>
+        <discardingThreshold>0</discardingThreshold>
+        <neverBlock>true</neverBlock>
+        <includeCallerData>false</includeCallerData>
+        <appender-ref ref="FILE-ERROR"/>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
-        <appender-ref ref="FILE"/>
-        <appender-ref ref="JSON-FILE"/>
-        <appender-ref ref="FILE-ERROR"/>
+        <appender-ref ref="ASYNC-FILE"/>
+        <appender-ref ref="ASYNC-JSON"/>
+        <appender-ref ref="ASYNC-ERROR"/>
     </root>
 
     <springProfile name="dev">

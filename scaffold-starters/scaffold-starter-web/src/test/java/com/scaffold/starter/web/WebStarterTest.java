@@ -71,6 +71,41 @@ public class WebStarterTest {
     }
 
     @Test
+    public void traceparent_shouldBeReusedAndEchoed() throws Exception {
+        String upstream = "00-47fe0a4b1a9d4f2c8e3d5a6b7c8d9e0f-0af7651916cd43dd-01";
+        mockMvc.perform(get("/ok").header("traceparent", upstream))
+                .andExpect(status().isOk())
+                // W3C traceparent 的 traceId 段被复用为 X-Trace-Id
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("X-Trace-Id", "47fe0a4b1a9d4f2c8e3d5a6b7c8d9e0f"))
+                // 响应回写 traceparent，格式合法且 traceId 段一致
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("traceparent",
+                                org.hamcrest.Matchers.matchesPattern(
+                                        "00-47fe0a4b1a9d4f2c8e3d5a6b7c8d9e0f-[0-9a-f]{16}-01")));
+    }
+
+    @Test
+    public void traceparent_shouldBeGeneratedWhenMissing() throws Exception {
+        mockMvc.perform(get("/ok"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("traceparent",
+                                org.hamcrest.Matchers.matchesPattern(
+                                        "00-[0-9a-f]{32}-[0-9a-f]{16}-01")));
+    }
+
+    @Test
+    public void traceparent_shouldBeRejectedWhenMalformed() throws Exception {
+        // 格式非法视为不可信：回退本地生成，X-Trace-Id 不等于脏输入
+        mockMvc.perform(get("/ok").header("traceparent", "00-not-hex-at-all!!-0af7651916cd43dd-01"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers
+                        .header().string("X-Trace-Id",
+                                org.hamcrest.Matchers.not("not-hex-at-all!!")));
+    }
+
+    @Test
     public void bizException_shouldMapToBusinessCode() throws Exception {
         // FORBIDDEN 带 httpStatus=403：HTTP 状态码与业务码双轨一致
         mockMvc.perform(get("/biz-error"))
