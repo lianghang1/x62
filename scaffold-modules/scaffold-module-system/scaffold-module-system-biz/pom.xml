@@ -32,6 +32,11 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-security</artifactId>
         </dependency>
+        <!-- 角色分页查询走动态检索 -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-search</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-cache</artifactId>
@@ -49,6 +54,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- security 对 micrometer 为 optional（生产由 observability 提供）；独立测试上下文补齐 -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

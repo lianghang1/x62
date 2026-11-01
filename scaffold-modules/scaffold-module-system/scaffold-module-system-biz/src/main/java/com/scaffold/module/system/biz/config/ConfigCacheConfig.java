@@ -5,6 +5,7 @@ import com.scaffold.module.system.biz.service.ConfigServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -17,12 +18,15 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
  *
  * <p>类路径有 Redis 时注册监听容器，收到 {@link RedisKeys#CONFIG_REFRESH}
  * 广播后回源被改键；无 Redis（如 server-lite）时跳过——单实例下本机缓存
- * 已在保存时刷新，功能完整。</p>
+ * 已在保存时刷新，功能完整。{@code scaffold.config.refresh-listener-enabled=false}
+ * 可显式关闭（独立测试上下文等无 Redis 环境）。</p>
  *
  * @author lianghang
  */
 @Configuration
 @ConditionalOnClass(StringRedisTemplate.class)
+@ConditionalOnProperty(prefix = "scaffold.config", name = "refresh-listener-enabled",
+        havingValue = "true", matchIfMissing = true)
 public class ConfigCacheConfig {
 
     private static final Logger log = LoggerFactory.getLogger(ConfigCacheConfig.class);

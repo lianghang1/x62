@@ -54,6 +54,7 @@ public class SystemInternalController {
 
     @Operation(summary = "新增/修改字典项（需 system:dict:manage 权限）")
     @OperLog(module = "数据字典", action = "保存字典")
+    @RequirePermission("system:dict:manage")
     @PostMapping("/dict")
     public R<Long> saveDict(@RequestBody SysDict dict) {
         return R.ok(dictService.save(dict).getId());

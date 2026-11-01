@@ -17,6 +17,7 @@ import com.scaffold.search.plan.annotation.JoinTable;
 import com.scaffold.search.plan.annotation.QueryPlan;
 import com.scaffold.search.plan.annotation.Table;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -44,6 +45,33 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ScaffoldMetaResolver implements MetaResolver {
 
+    /** JPA {@code @Column} 注解类（类路径可选，反射加载；无 JPA 环境为 null） */
+    private static final Class<? extends java.lang.annotation.Annotation> jpaColumnClass = loadJpaColumnClass();
+
+    /** JPA {@code @Entity} 注解类（类路径可选，反射加载；无 JPA 环境为 null） */
+    private static final Class<? extends java.lang.annotation.Annotation> entityAnnotationClass = loadJpaClass("javax.persistence.Entity");
+
+    /** JPA {@code @Table} 注解类（类路径可选，反射加载；无 JPA 环境为 null） */
+    private static final Class<? extends java.lang.annotation.Annotation> entityTableClass = loadJpaClass("javax.persistence.Table");
+
+    @SuppressWarnings("unchecked")
+    private static Class<? extends java.lang.annotation.Annotation> loadJpaColumnClass() {
+        try {
+            return (Class<? extends java.lang.annotation.Annotation>) Class.forName("javax.persistence.Column");
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Class<? extends java.lang.annotation.Annotation> loadJpaClass(String className) {
+        try {
+            return (Class<? extends java.lang.annotation.Annotation>) Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
+    }
+
     private final MetaResolver fallback;
     private final Map<Class<?>, BeanMeta<?>> cache = new ConcurrentHashMap<>();
 
@@ -56,6 +84,10 @@ public class ScaffoldMetaResolver implements MetaResolver {
     public <T> BeanMeta<T> resolve(Class<T> beanClass) {
         if (beanClass.isAnnotationPresent(QueryPlan.class) && beanClass.isAnnotationPresent(Table.class)) {
             return (BeanMeta<T>) cache.computeIfAbsent(beanClass, this::synthesize);
+        }
+        // JPA 实体：按 ORM 列名规则合成元数据（检索过滤字段与建表列名保持一致），如 SysRole
+        if (isJpaEntity(beanClass)) {
+            return (BeanMeta<T>) cache.computeIfAbsent(beanClass, this::synthesizeEntity);
         }
         return fallback.resolve(beanClass);
     }
@@ -83,8 +115,52 @@ public class ScaffoldMetaResolver implements MetaResolver {
                 true, false, 0, 0, 0);
 
         DefaultDbTypeMapper dbTypeMapper = new DefaultDbTypeMapper();
+        attachFields(beanMeta, mainAlias, planClass, ignored, typeOverrides, dbTypeMapper,
+                "QueryPlan [" + planClass.getName() + "]");
+        return beanMeta;
+    }
+
+    /** JPA 实体元数据合成：表名取 {@code @Table.name}（反射读取），缺省驼峰转下划线。 */
+    @SuppressWarnings("unchecked")
+    private BeanMeta<?> synthesizeEntity(Class<?> entityClass) {
+        String table = entityTableName(entityClass);
+        BeanMeta<?> beanMeta = new BeanMeta<>(entityClass, null,
+                new SqlSnippet(table), new SqlSnippet(""), new SqlSnippet(""),
+                new SqlSnippet(""), new SqlSnippet(""), true, false, 0, 0, 0);
+        attachFields(beanMeta, table, entityClass,
+                java.util.Collections.emptySet(), java.util.Collections.emptyMap(),
+                new DefaultDbTypeMapper(), "实体 [" + entityClass.getName() + "]");
+        return beanMeta;
+    }
+
+    private boolean isJpaEntity(Class<?> beanClass) {
+        return entityAnnotationClass != null && beanClass.isAnnotationPresent(entityAnnotationClass);
+    }
+
+    /** 实体表名：优先 {@code @Table.name}，缺省按类名驼峰转下划线（与 Hibernate 命名策略一致）。 */
+    private String entityTableName(Class<?> entityClass) {
+        if (entityTableClass != null) {
+            Annotation table = entityClass.getAnnotation(entityTableClass);
+            if (table != null) {
+                try {
+                    Object name = entityTableClass.getMethod("name").invoke(table);
+                    if (name instanceof String && !((String) name).isEmpty()) {
+                        return (String) name;
+                    }
+                } catch (ReflectiveOperationException e) {
+                    // 忽略，走缺省命名
+                }
+            }
+        }
+        return snakeCase(entityClass.getSimpleName());
+    }
+
+    /** 字段遍历与列名映射：JPA 显式列名 > 检索 @Column > 驼峰转下划线。 */
+    private void attachFields(BeanMeta<?> beanMeta, String mainAlias, Class<?> clazz,
+                              Set<String> ignored, Map<String, Class<?>> typeOverrides,
+                              DefaultDbTypeMapper dbTypeMapper, String errorLabel) {
         int mapped = 0;
-        for (Field field : allFields(planClass)) {
+        for (Field field : allFields(clazz)) {
             String property = field.getName();
             if (ignored.contains(property)) {
                 continue;
@@ -92,7 +168,12 @@ public class ScaffoldMetaResolver implements MetaResolver {
             Column column = field.getAnnotation(Column.class);
             String prefix = column != null && !column.table().isEmpty() ? column.table() : mainAlias;
             String columnExpr;
-            if (column != null && (!column.name().isEmpty() || !column.value().isEmpty())) {
+            // JPA 实体的显式列名优先（如 SysRole.code -> role_code），保证检索 SQL 与 ORM 建表一致；
+            // 经反射读取——本模块不依赖 JPA，类路径无 javax.persistence 时跳过
+            String jpaColumnName = jpaColumnNameOf(field);
+            if (jpaColumnName != null) {
+                columnExpr = jpaColumnName;
+            } else if (column != null && (!column.name().isEmpty() || !column.value().isEmpty())) {
                 columnExpr = !column.name().isEmpty() ? column.name() : column.value();
             } else {
                 // 自动映射：驼峰转下划线
@@ -112,10 +193,9 @@ public class ScaffoldMetaResolver implements MetaResolver {
             mapped++;
         }
         if (mapped == 0) {
-            throw new IllegalStateException("QueryPlan [" + planClass.getName()
-                    + "] 没有任何可映射字段，请检查 @Column / @IgnoreProperty 配置");
+            throw new IllegalStateException(errorLabel
+                    + " 没有任何可映射字段，请检查 @Column / @IgnoreProperty 配置");
         }
-        return beanMeta;
     }
 
     /**
@@ -213,5 +293,30 @@ public class ScaffoldMetaResolver implements MetaResolver {
             }
         }
         return sb.toString();
+    }
+
+    /** 类路径存在 JPA 时读取字段 {@code @javax.persistence.Column.name}，否则返回 null。 */
+    private String jpaColumnNameOf(java.lang.reflect.Field field) {
+        if (jpaColumnClass == null) {
+            return null;
+        }
+        Annotation annotation = field.getAnnotation(jpaColumnClass);
+        if (annotation == null) {
+            return null;
+        }
+        try {
+            Object name = jpaColumnClass.getMethod("name").invoke(annotation);
+            if (name instanceof String && !((String) name).isEmpty()) {
+                return (String) name;
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            // name() 取不到再试 value()
+        }
+        try {
+            Object value = jpaColumnClass.getMethod("value").invoke(annotation);
+            return value instanceof String && !((String) value).isEmpty() ? (String) value : null;
+        } catch (ReflectiveOperationException e) {
+            return null;
+        }
     }
 }

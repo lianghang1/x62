@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+
 
 /**
  * internal 端管理接口。
@@ -91,17 +91,48 @@ public class AdminInternalController {
         return R.ok(result);
     }
 
-    @Operation(summary = "角色列表")
+    @Operation(summary = "角色分页查询（编码/名称过滤）")
     @RequirePermission("system:role:manage")
     @GetMapping("/roles")
-    public R<List<Map<String, Object>>> roles() {
-        return R.ok(StreamSupport.stream(roleRepository.findAll().spliterator(), false)
-                .map(r -> {
+    public R<com.scaffold.common.result.PageResult<Map<String, Object>>> roles(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        List<com.scaffold.search.filter.SearchFilter> filters = new java.util.ArrayList<>();
+        if (code != null && !code.isEmpty()) {
+            filters.add(new com.scaffold.search.filter.SearchFilter(
+                    "code", com.scaffold.search.filter.Operator.CN, code));
+        }
+        if (name != null && !name.isEmpty()) {
+            filters.add(new com.scaffold.search.filter.SearchFilter(
+                    "name", com.scaffold.search.filter.Operator.CN, name));
+        }
+        org.springframework.data.domain.Page<com.scaffold.module.system.biz.entity.SysRole> page =
+                com.scaffold.search.QueryUtils.doQuery(
+                        com.scaffold.module.system.biz.entity.SysRole.class, filters,
+                        org.springframework.data.domain.PageRequest.of(pageNum - 1, pageSize));
+        List<Map<String, Object>> rows = page.getContent().stream().map(r -> {
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", r.getId());
+            m.put("code", r.getCode());
+            m.put("name", r.getName());
+            m.put("permissions", r.getPermissions());
+            return m;
+        }).collect(Collectors.toList());
+        return R.ok(com.scaffold.common.result.PageResult.of(rows, page.getTotalElements(), pageNum, pageSize));
+    }
+
+    @Operation(summary = "权限点目录（角色编辑勾选数据源）")
+    @RequirePermission("system:role:manage")
+    @GetMapping("/roles/permissions")
+    public R<List<Map<String, Object>>> permissionCatalog() {
+        return R.ok(com.scaffold.module.system.biz.service.PermissionCatalog.ALL.stream()
+                .map(item -> {
                     Map<String, Object> m = new HashMap<>();
-                    m.put("id", r.getId());
-                    m.put("code", r.getCode());
-                    m.put("name", r.getName());
-                    m.put("permissions", r.getPermissions());
+                    m.put("code", item.getCode());
+                    m.put("name", item.getName());
+                    m.put("module", item.getModule());
                     return m;
                 }).collect(Collectors.toList()));
     }
