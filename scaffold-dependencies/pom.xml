@@ -29,6 +29,7 @@
         <logstash-logback.version>6.6</logstash-logback.version>
         <!-- 墓园数据链路（module-cemlink）上行通信 SDK -->
         <linkora.version>0.6.0</linkora.version>
+        <contract.version>3.0.0-SNAPSHOT</contract.version>
         <!-- 共享注解库钉版：guava/caffeine 等各自携带不同版本，dependencyConvergence 要求收敛（Enforcer 强制） -->
         <checker-qual.version>3.37.0</checker-qual.version>
         <error-prone.version>2.21.1</error-prone.version>
@@ -64,8 +65,18 @@
             <!-- 墓园数据链路上行通信 SDK（与 ERP 侧 contract 模块同版本） -->
             <dependency>
                 <groupId>io.github.lianghang1</groupId>
-                <artifactId>linkora-client-spring</artifactId>
+                <artifactId>linkora-client-spring-boot-starter</artifactId>
                 <version>${linkora.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.lianghang1</groupId>
+                <artifactId>linkora-testkit</artifactId>
+                <version>${linkora.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sfi.mall</groupId>
+                <artifactId>contract-base</artifactId>
+                <version>${contract.version}</version>
             </dependency>
 
             <!-- BouncyCastle：SM3/SM4 国密（starter-crypto） -->

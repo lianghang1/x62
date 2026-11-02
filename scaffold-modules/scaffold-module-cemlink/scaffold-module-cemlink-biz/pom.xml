@@ -16,29 +16,40 @@
     <description>墓园数据链路实现：墓园库采集（调度/水位线/园区定制）+ linkora 上行对接</description>
 
     <dependencies>
+        <!-- 契约（topic/payload）：ERP 侧 contract-base jar，两端同源 -->
         <dependency>
-            <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-module-cemlink-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.sfi.mall</groupId>
+            <artifactId>contract-base</artifactId>
         </dependency>
         <!-- 采集调度：AbstractJob 模板（cron/锁/执行日志/系统身份） -->
         <dependency>
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-job</artifactId>
         </dependency>
-        <!-- 墓园本地库只读访问 -->
+        <!-- 墓园本地库只读访问（JdbcTemplate，不走 JPA） -->
         <dependency>
-            <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-starter-data-jpa</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-        <!-- linkora 上行（先落本地 sqlite 队列再发送，断线补发） -->
+        <!-- linkora 客户端装配（sqlite 本地队列 + UplinkPublisher），后期切换为 contract-client -->
         <dependency>
             <groupId>io.github.lianghang1</groupId>
-            <artifactId>linkora-client-spring</artifactId>
+            <artifactId>linkora-client-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 端到端测试：内嵌 linkora 服务端 -->
+        <dependency>
+            <groupId>io.github.lianghang1</groupId>
+            <artifactId>linkora-testkit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
