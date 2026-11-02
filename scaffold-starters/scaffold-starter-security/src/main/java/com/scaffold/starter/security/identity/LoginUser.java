@@ -33,6 +33,27 @@ public class LoginUser implements Serializable {
     /** 登录设备/来源：internal / online / openapi:{appKey} */
     private String device;
 
+    /**
+     * 系统任务身份工厂：定时任务、消息消费等无 HTTP 请求的后台线程使用。
+     *
+     * <p>accountId 固定 0（不入库的身份），accountType 取 OPERATOR（内部操作方），
+     * permissions 为 {@code *} 全量——后台任务以系统身份执行业务时不受权限拦截，
+     * 审计字段 createBy/updateBy 自动落 {@code system}。
+     * 经 {@code LoginContext.set} 写入后，TTL 底座保证子线程同样可见。</p>
+     *
+     * @param operator 操作来源标识，如 job 名（log/审计展示用）
+     */
+    public static LoginUser system(String operator) {
+        LoginUser user = new LoginUser();
+        user.setAccountId(0L);
+        user.setAccountNo("system");
+        user.setAccountType(AccountType.OPERATOR);
+        user.setDisplayName("system:" + (operator == null ? "task" : operator));
+        user.setPermissions(Collections.singleton("*"));
+        user.setDevice("job");
+        return user;
+    }
+
     public boolean hasRole(String role) {
         return roles != null && roles.contains(role.startsWith("ROLE_") ? role : "ROLE_" + role);
     }
