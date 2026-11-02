@@ -1,6 +1,8 @@
 package com.scaffold.module.cemlink.config;
 
 import com.scaffold.module.cemlink.collect.BlockDataCollectionJob;
+import com.scaffold.module.cemlink.collect.DepositCollectionJob;
+import com.scaffold.module.cemlink.collect.ServiceItemCollectionJob;
 import com.scaffold.module.cemlink.collect.TombDataCollectionJob;
 import com.scaffold.module.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.module.cemlink.increment.WatermarkStore;
@@ -11,6 +13,8 @@ import com.scaffold.module.cemlink.park.TombParkStrategy;
 import com.scaffold.module.cemlink.park.WeijiajiaoBlockParkStrategy;
 import com.scaffold.module.cemlink.park.WeijiajiaoTombParkStrategy;
 import com.scaffold.module.cemlink.source.BlockSourceReader;
+import com.scaffold.module.cemlink.source.DepositSourceReader;
+import com.scaffold.module.cemlink.source.ServiceItemSourceReader;
 import com.scaffold.module.cemlink.source.TombSourceReader;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.ObjectProvider;
@@ -95,6 +99,18 @@ public class CemlinkConfig {
         return new TombSourceReader(cemlinkParkJdbc, parkStrategy);
     }
 
+    @Bean
+    public ServiceItemSourceReader serviceItemSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc) {
+        return new ServiceItemSourceReader(cemlinkParkJdbc);
+    }
+
+    @Bean
+    public DepositSourceReader depositSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc) {
+        return new DepositSourceReader(cemlinkParkJdbc);
+    }
+
     @Bean(destroyMethod = "close")
     public WatermarkStore watermarkStore(CemlinkProperties properties) {
         return new WatermarkStore(Paths.get(properties.getWatermarkDbPath()));
@@ -116,5 +132,21 @@ public class CemlinkConfig {
                                                          CemeteryLinkoraClient cemeteryLinkoraClient,
                                                          WatermarkStore watermarkStore) {
         return new BlockDataCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
+    }
+
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public ServiceItemCollectionJob serviceItemCollectionJob(ServiceItemSourceReader reader,
+                                                             CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                             WatermarkStore watermarkStore) {
+        return new ServiceItemCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
+    }
+
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public DepositCollectionJob depositCollectionJob(DepositSourceReader reader,
+                                                     CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                     WatermarkStore watermarkStore) {
+        return new DepositCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
     }
 }

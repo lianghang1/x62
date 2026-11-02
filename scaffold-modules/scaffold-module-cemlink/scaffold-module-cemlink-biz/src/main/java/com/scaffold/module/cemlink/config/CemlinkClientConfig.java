@@ -1,11 +1,18 @@
 package com.scaffold.module.cemlink.config;
 
+import com.linkora.client.LinkoraClient;
 import com.linkora.client.UplinkPublisher;
 import com.scaffold.module.cemlink.client.MallLinkoraClient;
 import com.scaffold.module.cemlink.client.cemetery.CemeteryLinkoraClient;
+import com.scaffold.module.cemlink.down.CemlinkDownlinkRegistrar;
+import com.scaffold.module.cemlink.down.DepositBindDownlinkHandler;
+import com.scaffold.module.cemlink.down.ServiceItemDownlinkHandler;
+import com.scaffold.module.cemlink.down.WorkDownlinkHandler;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 /**
  * linkora 客户端封装装配
@@ -25,5 +32,40 @@ public class CemlinkClientConfig {
     @ConditionalOnBean(MallLinkoraClient.class)
     public CemeteryLinkoraClient cemeteryLinkoraClient(MallLinkoraClient mallLinkoraClient) {
         return new CemeteryLinkoraClient(mallLinkoraClient);
+    }
+
+    @Bean
+    @ConditionalOnBean(name = "cemlinkParkJdbc")
+    public ServiceItemDownlinkHandler serviceItemDownlinkHandler(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            MallLinkoraClient mallLinkoraClient) {
+        return new ServiceItemDownlinkHandler(cemlinkParkJdbc, mallLinkoraClient);
+    }
+
+    @Bean
+    @ConditionalOnBean(name = "cemlinkParkJdbc")
+    public WorkDownlinkHandler workDownlinkHandler(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            MallLinkoraClient mallLinkoraClient) {
+        return new WorkDownlinkHandler(cemlinkParkJdbc, mallLinkoraClient);
+    }
+
+    @Bean
+    @ConditionalOnBean(name = "cemlinkParkJdbc")
+    public DepositBindDownlinkHandler depositBindDownlinkHandler(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            MallLinkoraClient mallLinkoraClient) {
+        return new DepositBindDownlinkHandler(cemlinkParkJdbc, mallLinkoraClient);
+    }
+
+    @Bean
+    @ConditionalOnBean({LinkoraClient.class, ServiceItemDownlinkHandler.class,
+            WorkDownlinkHandler.class, DepositBindDownlinkHandler.class})
+    public CemlinkDownlinkRegistrar cemlinkDownlinkRegistrar(LinkoraClient linkoraClient,
+                                                             ServiceItemDownlinkHandler serviceItemDownlinkHandler,
+                                                             WorkDownlinkHandler workDownlinkHandler,
+                                                             DepositBindDownlinkHandler depositBindDownlinkHandler) {
+        return new CemlinkDownlinkRegistrar(linkoraClient,
+                serviceItemDownlinkHandler, workDownlinkHandler, depositBindDownlinkHandler);
     }
 }
