@@ -41,6 +41,8 @@ public class ServiceOrderData {
     private String paySerialNo;
     /** 发票号 */
     private String invoiceNo;
+    /** 电子印章文档ID */
+    private String dzyzDocumentId;
     /** 备注 */
     private String remark;
     /** 联系人姓名 */
@@ -188,6 +190,14 @@ public class ServiceOrderData {
 
     public void setInvoiceNo(String invoiceNo) {
         this.invoiceNo = invoiceNo;
+    }
+
+    public String getDzyzDocumentId() {
+        return dzyzDocumentId;
+    }
+
+    public void setDzyzDocumentId(String dzyzDocumentId) {
+        this.dzyzDocumentId = dzyzDocumentId;
     }
 
     public String getRemark() {

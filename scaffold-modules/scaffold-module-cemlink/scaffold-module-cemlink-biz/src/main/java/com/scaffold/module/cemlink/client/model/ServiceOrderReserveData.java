@@ -7,6 +7,8 @@ package com.scaffold.module.cemlink.client.model;
  */
 public class ServiceOrderReserveData {
 
+    /** 预订服务类型 */
+    private String type;
     /** 服务ID */
     private String serviceId;
     /** 服务名称 */
@@ -15,6 +17,14 @@ public class ServiceOrderReserveData {
     private Long price;
     /** 数量 */
     private Integer qty;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public String getServiceId() {
         return serviceId;

@@ -29,6 +29,10 @@ public class ServiceOrderInvoiceData {
     private Date invoiceTime;
     /** PDF 地址 */
     private String pdfUrl;
+    /** H5 地址 */
+    private String h5Url;
+    /** 图片地址 */
+    private String imgUrl;
 
     public String getInvoiceType() {
         return invoiceType;
@@ -108,5 +112,21 @@ public class ServiceOrderInvoiceData {
 
     public void setPdfUrl(String pdfUrl) {
         this.pdfUrl = pdfUrl;
+    }
+
+    public String getH5Url() {
+        return h5Url;
+    }
+
+    public void setH5Url(String h5Url) {
+        this.h5Url = h5Url;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 }
