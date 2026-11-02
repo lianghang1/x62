@@ -6,6 +6,7 @@ import com.scaffold.module.cemlink.client.model.DepositData;
 import com.scaffold.module.cemlink.client.model.ServiceItemData;
 import com.scaffold.module.cemlink.client.model.TombBlockData;
 import com.scaffold.module.cemlink.client.model.TombServiceItemData;
+import com.scaffold.module.cemlink.client.model.ServiceOrderUpdateData;
 import com.sfi.mall.contract.base.model.cemetery.TransportTomb;
 import com.sfi.mall.contract.base.topic.cemetery.CemeteryTopic;
 
@@ -43,5 +44,10 @@ public class CemeteryLinkoraClient {
 
     public String uploadDeposits(List<DepositData> data) {
         return mallLinkoraClient.publish(CemlinkTopics.UPLINK_TOMB_ASHES_DEPOSIT, data);
+    }
+
+    /** 回传订单同步状态（原 CMD dataCollection/tomb/order/update 语义） */
+    public String uploadOrderUpdates(List<ServiceOrderUpdateData> data) {
+        return mallLinkoraClient.publish(CemlinkTopics.UPLINK_ORDER_UPDATE, data);
     }
 }

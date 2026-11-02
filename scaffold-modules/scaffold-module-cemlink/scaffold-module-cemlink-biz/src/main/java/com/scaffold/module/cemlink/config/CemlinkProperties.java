@@ -16,6 +16,9 @@ public class CemlinkProperties {
     /** 本地水位线 SQLite 文件路径 */
     private String watermarkDbPath = "./linkora/cemlink-watermark.db";
 
+    /** 订单图片下载根目录 */
+    private String uploadPath = "./uploadFile";
+
     private final Source source = new Source();
 
     private final Collect collect = new Collect();
@@ -90,6 +93,14 @@ public class CemlinkProperties {
 
     public void setWatermarkDbPath(String watermarkDbPath) {
         this.watermarkDbPath = watermarkDbPath;
+    }
+
+    public String getUploadPath() {
+        return uploadPath;
+    }
+
+    public void setUploadPath(String uploadPath) {
+        this.uploadPath = uploadPath;
     }
 
     public Source getSource() {

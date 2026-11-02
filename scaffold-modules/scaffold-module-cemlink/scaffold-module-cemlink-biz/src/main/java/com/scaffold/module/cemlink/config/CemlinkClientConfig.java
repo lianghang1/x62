@@ -6,6 +6,7 @@ import com.scaffold.module.cemlink.client.MallLinkoraClient;
 import com.scaffold.module.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.module.cemlink.down.CemlinkDownlinkRegistrar;
 import com.scaffold.module.cemlink.down.DepositBindDownlinkHandler;
+import com.scaffold.module.cemlink.down.OrderDownlinkHandler;
 import com.scaffold.module.cemlink.down.ServiceItemDownlinkHandler;
 import com.scaffold.module.cemlink.down.WorkDownlinkHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -59,13 +60,23 @@ public class CemlinkClientConfig {
     }
 
     @Bean
+    @ConditionalOnBean(name = "cemlinkParkJdbc")
+    public OrderDownlinkHandler orderDownlinkHandler(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            MallLinkoraClient mallLinkoraClient,
+            CemlinkProperties properties) {
+        return new OrderDownlinkHandler(cemlinkParkJdbc, mallLinkoraClient, properties.getUploadPath());
+    }
+
+    @Bean
     @ConditionalOnBean({LinkoraClient.class, ServiceItemDownlinkHandler.class,
             WorkDownlinkHandler.class, DepositBindDownlinkHandler.class})
     public CemlinkDownlinkRegistrar cemlinkDownlinkRegistrar(LinkoraClient linkoraClient,
                                                              ServiceItemDownlinkHandler serviceItemDownlinkHandler,
                                                              WorkDownlinkHandler workDownlinkHandler,
-                                                             DepositBindDownlinkHandler depositBindDownlinkHandler) {
+                                                             DepositBindDownlinkHandler depositBindDownlinkHandler,
+                                                             OrderDownlinkHandler orderDownlinkHandler) {
         return new CemlinkDownlinkRegistrar(linkoraClient,
-                serviceItemDownlinkHandler, workDownlinkHandler, depositBindDownlinkHandler);
+                serviceItemDownlinkHandler, workDownlinkHandler, depositBindDownlinkHandler, orderDownlinkHandler);
     }
 }

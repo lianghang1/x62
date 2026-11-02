@@ -19,15 +19,18 @@ public class CemlinkDownlinkRegistrar implements SmartInitializingSingleton {
     private final ServiceItemDownlinkHandler serviceItemDownlinkHandler;
     private final WorkDownlinkHandler workDownlinkHandler;
     private final DepositBindDownlinkHandler depositBindDownlinkHandler;
+    private final OrderDownlinkHandler orderDownlinkHandler;
 
     public CemlinkDownlinkRegistrar(LinkoraClient linkoraClient,
                                     ServiceItemDownlinkHandler serviceItemDownlinkHandler,
                                     WorkDownlinkHandler workDownlinkHandler,
-                                    DepositBindDownlinkHandler depositBindDownlinkHandler) {
+                                    DepositBindDownlinkHandler depositBindDownlinkHandler,
+                                    OrderDownlinkHandler orderDownlinkHandler) {
         this.linkoraClient = linkoraClient;
         this.serviceItemDownlinkHandler = serviceItemDownlinkHandler;
         this.workDownlinkHandler = workDownlinkHandler;
         this.depositBindDownlinkHandler = depositBindDownlinkHandler;
+        this.orderDownlinkHandler = orderDownlinkHandler;
     }
 
     @Override
@@ -35,6 +38,7 @@ public class CemlinkDownlinkRegistrar implements SmartInitializingSingleton {
         linkoraClient.addListener(CemlinkTopics.DOWNLINK_SERVICE_ITEM, serviceItemDownlinkHandler);
         linkoraClient.addListener(CemlinkTopics.DOWNLINK_WORK_CHECK, workDownlinkHandler);
         linkoraClient.addListener(CemlinkTopics.DOWNLINK_DEPOSIT_BIND, depositBindDownlinkHandler);
-        log.info("[cemlink] 下行监听已注册：服务项目回写 / 工单验收 / 寄存绑定");
+        linkoraClient.addListener(CemlinkTopics.DOWNLINK_ORDER, orderDownlinkHandler);
+        log.info("[cemlink] 下行监听已注册：服务项目回写 / 工单验收 / 寄存绑定 / 售后订单");
     }
 }

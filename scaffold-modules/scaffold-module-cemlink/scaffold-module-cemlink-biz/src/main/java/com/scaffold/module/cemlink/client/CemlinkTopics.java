@@ -21,9 +21,11 @@ public final class CemlinkTopics {
     public static final String UPLINK_WORK_UPDATE = "cemetery-tomb-work-update";
     public static final String UPLINK_SERVICE_ITEM_UPDATE = "cemetery-tomb-service-item-update";
     public static final String UPLINK_DEPOSIT_BIND_UPDATE = "cemetery-tomb-ashes-deposit-bind-update";
+    public static final String UPLINK_ORDER_UPDATE = "cemetery-tomb-order-update";
 
     /** 下行：server 处理结果下发（原 HTTP 同步 response 内 datas 语义） */
     public static final String DOWNLINK_WORK_CHECK = "cemetery-tomb-work-check";
     public static final String DOWNLINK_SERVICE_ITEM = "cemetery-tomb-service-item-push";
     public static final String DOWNLINK_DEPOSIT_BIND = "cemetery-tomb-ashes-deposit-bind-push";
+    public static final String DOWNLINK_ORDER = "cemetery-tomb-order-push";
 }
