@@ -30,18 +30,22 @@ public class DepositCollectionJob extends AbstractJob {
     private final DepositSourceReader reader;
     private final CemeteryLinkoraClient client;
     private final WatermarkStore watermark;
+    /** 初始水位：该时间之前的存量数据不采集，null 则首轮全量 */
+    private final Date initialWatermark;
 
     public DepositCollectionJob(DepositSourceReader reader,
                                 CemeteryLinkoraClient client,
-                                WatermarkStore watermark) {
+                                WatermarkStore watermark,
+                                Date initialWatermark) {
         this.reader = reader;
         this.client = client;
         this.watermark = watermark;
+        this.initialWatermark = initialWatermark;
     }
 
     @Override
     protected void doExecute(JobContext context) {
-        List<DepositSourceReader.DepositRow> rows = reader.readDeposits();
+        List<DepositSourceReader.DepositRow> rows = reader.readDeposits(initialWatermark);
         if (rows.isEmpty()) {
             log.info("[cemlink] 寄存业务数据无增量");
             return;

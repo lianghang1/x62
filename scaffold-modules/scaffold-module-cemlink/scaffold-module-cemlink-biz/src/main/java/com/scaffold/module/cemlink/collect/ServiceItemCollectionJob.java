@@ -30,18 +30,22 @@ public class ServiceItemCollectionJob extends AbstractJob {
     private final ServiceItemSourceReader reader;
     private final CemeteryLinkoraClient client;
     private final WatermarkStore watermark;
+    /** 初始水位：该时间之前的存量数据不采集，null 则首轮全量 */
+    private final Date initialWatermark;
 
     public ServiceItemCollectionJob(ServiceItemSourceReader reader,
                                     CemeteryLinkoraClient client,
-                                    WatermarkStore watermark) {
+                                    WatermarkStore watermark,
+                                    Date initialWatermark) {
         this.reader = reader;
         this.client = client;
         this.watermark = watermark;
+        this.initialWatermark = initialWatermark;
     }
 
     @Override
     protected void doExecute(JobContext context) {
-        List<ServiceItemSourceReader.ServiceItemRow> rows = reader.readServiceItems();
+        List<ServiceItemSourceReader.ServiceItemRow> rows = reader.readServiceItems(initialWatermark);
         if (rows.isEmpty()) {
             log.info("[cemlink] 服务项目数据无增量");
             return;

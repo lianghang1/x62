@@ -73,7 +73,7 @@ public class DepositWorkDownlinkTest {
 
         Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
         watermark = new WatermarkStore(watermarkDb);
-        depositJob = new DepositCollectionJob(new DepositSourceReader(parkJdbc), cemeteryClient, watermark);
+        depositJob = new DepositCollectionJob(new DepositSourceReader(parkJdbc), cemeteryClient, watermark, null);
     }
 
     @AfterEach

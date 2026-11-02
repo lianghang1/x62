@@ -116,7 +116,7 @@ public class ServiceItemEndToEndTest {
         Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
         watermark = new WatermarkStore(watermarkDb);
 
-        job = new ServiceItemCollectionJob(new ServiceItemSourceReader(parkJdbc), recordingCemeteryClient, watermark);
+        job = new ServiceItemCollectionJob(new ServiceItemSourceReader(parkJdbc), recordingCemeteryClient, watermark, null);
     }
 
     @AfterEach
@@ -163,6 +163,18 @@ public class ServiceItemEndToEndTest {
         parkJdbc.update("UPDATE t_sfi_code_service SET modify_date = {ts '2027-06-01 00:00:00'} WHERE id = 101");
         job.run();
         assertEquals(2, recordingCemeteryClient.batches.size(), "修改时间推进应再次推送");
+    }
+
+    @Test
+    public void initialWatermarkSkipsHistoryRows() {
+        ServiceItemCollectionJob floorJob = new ServiceItemCollectionJob(new ServiceItemSourceReader(parkJdbc),
+                recordingCemeteryClient, watermark, java.sql.Timestamp.valueOf("2024-01-01 12:00:00"));
+        floorJob.run();
+
+        assertEquals(1, recordingCemeteryClient.batches.size());
+        List<TombServiceItemData> payload = recordingCemeteryClient.batches.get(0);
+        assertEquals(1, payload.size(), "初始水位之前的 101 应被忽略");
+        assertEquals("102", payload.get(0).getId());
     }
 
     @Test

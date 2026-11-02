@@ -32,9 +32,15 @@ public class ServiceItemSourceReader {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    /** 原程序 t_sfi_bus_collection_service 水位改由本地水位线承担，仅保留微商订单类型非空的有效行 */
-    public List<ServiceItemRow> readServiceItems() {
-        List<ServiceItemQueryBean> rows = NativeQueryExecutor.query(jdbcTemplate, SERVICE_SQL, ServiceItemQueryBean.class);
+    /** 原程序 t_sfi_bus_collection_service 水位改由本地水位线承担，仅保留微商订单类型非空的有效行；floorTime 非空时过滤该时间之前的存量数据 */
+    public List<ServiceItemRow> readServiceItems(Date floorTime) {
+        String sql = SERVICE_SQL;
+        Object[] params = new Object[0];
+        if (floorTime != null) {
+            sql += " AND IFNULL( t3.modify_date, t3.create_date ) > ?";
+            params = new Object[]{floorTime};
+        }
+        List<ServiceItemQueryBean> rows = NativeQueryExecutor.query(jdbcTemplate, sql, ServiceItemQueryBean.class, params);
         List<ServiceItemRow> result = new ArrayList<>();
         for (ServiceItemQueryBean bean : rows) {
             if (BillSubType.盆花租摆.getCode().equals(bean.getBillSubType())) {

@@ -138,15 +138,19 @@ public class CemlinkConfig {
     @ConditionalOnProperty("linkora.client.server-url")
     public ServiceItemCollectionJob serviceItemCollectionJob(ServiceItemSourceReader reader,
                                                              CemeteryLinkoraClient cemeteryLinkoraClient,
-                                                             WatermarkStore watermarkStore) {
-        return new ServiceItemCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
+                                                             WatermarkStore watermarkStore,
+                                                             CemlinkProperties properties) {
+        return new ServiceItemCollectionJob(reader, cemeteryLinkoraClient, watermarkStore,
+                properties.parseInitialWatermark());
     }
 
     @Bean
     @ConditionalOnProperty("linkora.client.server-url")
     public DepositCollectionJob depositCollectionJob(DepositSourceReader reader,
                                                      CemeteryLinkoraClient cemeteryLinkoraClient,
-                                                     WatermarkStore watermarkStore) {
-        return new DepositCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
+                                                     WatermarkStore watermarkStore,
+                                                     CemlinkProperties properties) {
+        return new DepositCollectionJob(reader, cemeteryLinkoraClient, watermarkStore,
+                properties.parseInitialWatermark());
     }
 }

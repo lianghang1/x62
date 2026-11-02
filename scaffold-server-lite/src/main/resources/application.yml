@@ -36,6 +36,8 @@ logging:
 cemlink:
   park-code: zqqy
   watermark-db-path: ./linkora/cemlink-watermark.db
+  # 初始水位：该时间之前的存量数据不采集（首次接入时配一个历史节点），留空则首轮全量
+  initial-watermark: ""
   upload-path: ./uploadFile
   collect:
     page-size: 200

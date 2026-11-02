@@ -47,8 +47,9 @@ public class DepositSourceReader {
             "LEFT JOIN t_sfi_ashes_bus_grid t3 ON t.id = t3.business_id   AND t3.is_validate = '1' AND IFNULL(t3.is_transfer_flag,'0') = '0' " +
             "LEFT JOIN t_sfi_ashes_grid t4 ON t4.id = t3.grid_id " +
             "LEFT JOIN t_sfi_ashes_block t6 ON t6.id = t4.block_id " +
-            "WHERE t.is_validate = '1' and t.pay_status in ('1','2') " +
-            "ORDER BY t.id DESC";
+            "WHERE t.is_validate = '1' and t.pay_status in ('1','2') ";
+
+    private static final String DEPOSIT_ORDER_BY = "ORDER BY t.id DESC";
 
     /** 原程序 AshesBusItemDao.findBusItemByBillType 平移（仅取 sum 参与管理费计算） */
     private static final String BUS_ITEM_SQL =
@@ -60,9 +61,16 @@ public class DepositSourceReader {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    /** 原程序 t_sfi_ashes_bus_collection_detail 水位改由本地水位线承担 */
-    public List<DepositRow> readDeposits() {
-        List<DepositQueryBean> rows = NativeQueryExecutor.query(jdbcTemplate, DEPOSIT_SQL, DepositQueryBean.class);
+    /** 原程序 t_sfi_ashes_bus_collection_detail 水位改由本地水位线承担；floorTime 非空时过滤该时间之前的存量数据 */
+    public List<DepositRow> readDeposits(Date floorTime) {
+        String sql = DEPOSIT_SQL;
+        Object[] params = new Object[0];
+        if (floorTime != null) {
+            sql += " AND IFNULL( t.modify_date, t.create_date ) > ?";
+            params = new Object[]{floorTime};
+        }
+        sql += DEPOSIT_ORDER_BY;
+        List<DepositQueryBean> rows = NativeQueryExecutor.query(jdbcTemplate, sql, DepositQueryBean.class, params);
         List<DepositRow> result = new ArrayList<>();
         for (DepositQueryBean bean : rows) {
             if (bean.getDirectorName() != null && !bean.getDirectorName().isEmpty()) {

@@ -16,6 +16,9 @@ public class CemlinkProperties {
     /** 本地水位线 SQLite 文件路径 */
     private String watermarkDbPath = "./linkora/cemlink-watermark.db";
 
+    /** 初始水位时间（yyyy-MM-dd HH:mm:ss）：该时间之前的存量数据不采集，空则首轮全量 */
+    private String initialWatermark;
+
     /** 订单图片下载根目录 */
     private String uploadPath = "./uploadFile";
 
@@ -93,6 +96,26 @@ public class CemlinkProperties {
 
     public void setWatermarkDbPath(String watermarkDbPath) {
         this.watermarkDbPath = watermarkDbPath;
+    }
+
+    public String getInitialWatermark() {
+        return initialWatermark;
+    }
+
+    public void setInitialWatermark(String initialWatermark) {
+        this.initialWatermark = initialWatermark;
+    }
+
+    /** 解析初始水位时间为 Date，未配置或格式非法返回 null */
+    public java.util.Date parseInitialWatermark() {
+        if (initialWatermark == null || initialWatermark.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(initialWatermark.trim());
+        } catch (java.text.ParseException e) {
+            throw new IllegalStateException("cemlink.initial-watermark 格式应为 yyyy-MM-dd HH:mm:ss: " + initialWatermark, e);
+        }
     }
 
     public String getUploadPath() {
