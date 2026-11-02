@@ -40,6 +40,23 @@ public class WatermarkStore implements AutoCloseable {
 
     /** 版本大于已推送版本（或未推送过）才需要推 */
     public synchronized boolean needPush(String domain, String bizId, int version) {
+        return needPush(domain, bizId, Long.valueOf(version));
+    }
+
+    /** 采集时间晚于已推送时间（或未推送过）才需要推，对应原程序 COLLECTION_TIME 水位 */
+    public synchronized boolean needPush(String domain, String bizId, java.util.Date collectedAt) {
+        return needPush(domain, bizId, collectedAt == null ? 0L : collectedAt.getTime());
+    }
+
+    public synchronized void markPushed(String domain, String bizId, int version) {
+        markPushed(domain, bizId, Long.valueOf(version));
+    }
+
+    public synchronized void markPushed(String domain, String bizId, java.util.Date collectedAt) {
+        markPushed(domain, bizId, collectedAt == null ? 0L : collectedAt.getTime());
+    }
+
+    private synchronized boolean needPush(String domain, String bizId, long value) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "SELECT version FROM cemlink_watermark WHERE domain = ? AND biz_id = ?")) {
             ps.setString(1, domain);
@@ -48,20 +65,20 @@ public class WatermarkStore implements AutoCloseable {
                 if (!rs.next()) {
                     return true;
                 }
-                return version > rs.getInt(1);
+                return value > rs.getLong(1);
             }
         } catch (SQLException e) {
             throw new IllegalStateException("水位线查询失败: " + domain + "/" + bizId, e);
         }
     }
 
-    public synchronized void markPushed(String domain, String bizId, int version) {
+    private void markPushed(String domain, String bizId, Long value) {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT OR REPLACE INTO cemlink_watermark"
                         + " (domain, biz_id, version, updated_at) VALUES (?, ?, ?, ?)")) {
             ps.setString(1, domain);
             ps.setString(2, bizId);
-            ps.setInt(3, version);
+            ps.setLong(3, value);
             ps.setString(4, java.time.LocalDateTime.now().toString());
             ps.executeUpdate();
         } catch (SQLException e) {

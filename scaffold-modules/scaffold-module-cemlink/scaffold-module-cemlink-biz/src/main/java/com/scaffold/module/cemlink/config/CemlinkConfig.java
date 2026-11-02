@@ -1,10 +1,14 @@
 package com.scaffold.module.cemlink.config;
 
+import com.scaffold.module.cemlink.collect.BlockDataCollectionJob;
 import com.scaffold.module.cemlink.collect.TombDataCollectionJob;
 import com.scaffold.module.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.module.cemlink.increment.WatermarkStore;
+import com.scaffold.module.cemlink.park.BlockParkStrategy;
+import com.scaffold.module.cemlink.park.DefaultBlockParkStrategy;
 import com.scaffold.module.cemlink.park.DefaultTombParkStrategy;
 import com.scaffold.module.cemlink.park.TombParkStrategy;
+import com.scaffold.module.cemlink.source.BlockSourceReader;
 import com.scaffold.module.cemlink.source.TombSourceReader;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.ObjectProvider;
@@ -30,7 +34,7 @@ import javax.sql.DataSource;
 @ConditionalOnProperty("cemlink.source.url")
 public class CemlinkConfig {
 
-    /** 墓园库只读采集源，最小连接数即可 */
+    /** 墓园库采集源：上行采集只读，工单/服务项/寄存下行回写需要写权限 */
     @Bean(name = "cemlinkParkDataSource")
     public DataSource cemlinkParkDataSource(CemlinkProperties properties) {
         CemlinkProperties.Source source = properties.getSource();
@@ -41,7 +45,6 @@ public class CemlinkConfig {
         ds.setDriverClassName(source.getDriverClassName());
         ds.setMinimumIdle(1);
         ds.setMaximumPoolSize(2);
-        ds.setReadOnly(true);
         ds.setPoolName("cemlink-park");
         return ds;
     }
@@ -56,6 +59,19 @@ public class CemlinkConfig {
     @ConditionalOnMissingBean(TombParkStrategy.class)
     public TombParkStrategy tombParkStrategy() {
         return new DefaultTombParkStrategy();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(BlockParkStrategy.class)
+    public BlockParkStrategy blockParkStrategy() {
+        return new DefaultBlockParkStrategy();
+    }
+
+    @Bean
+    public BlockSourceReader blockSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            BlockParkStrategy blockParkStrategy) {
+        return new BlockSourceReader(cemlinkParkJdbc, blockParkStrategy);
     }
 
     @Bean
@@ -78,5 +94,13 @@ public class CemlinkConfig {
                                                        WatermarkStore watermarkStore,
                                                        CemlinkProperties properties) {
         return new TombDataCollectionJob(reader, cemeteryLinkoraClient, watermarkStore, properties);
+    }
+
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public BlockDataCollectionJob blockDataCollectionJob(BlockSourceReader reader,
+                                                         CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                         WatermarkStore watermarkStore) {
+        return new BlockDataCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
     }
 }

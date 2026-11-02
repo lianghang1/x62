@@ -1,6 +1,8 @@
 package com.scaffold.module.cemlink.client.cemetery;
 
+import com.scaffold.module.cemlink.client.CemlinkTopics;
 import com.scaffold.module.cemlink.client.MallLinkoraClient;
+import com.scaffold.module.cemlink.client.model.TombBlockData;
 import com.sfi.mall.contract.base.model.cemetery.TransportTomb;
 import com.sfi.mall.contract.base.topic.cemetery.CemeteryTopic;
 
@@ -21,5 +23,9 @@ public class CemeteryLinkoraClient {
 
     public String uploadTombs(List<TransportTomb> data) {
         return mallLinkoraClient.publish(CemeteryTopic.Uplink.TOMB, data);
+    }
+
+    public String uploadBlocks(List<TombBlockData> data) {
+        return mallLinkoraClient.publish(CemlinkTopics.UPLINK_TOMB_BLOCK, data);
     }
 }
