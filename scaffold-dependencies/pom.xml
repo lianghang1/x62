@@ -27,7 +27,7 @@
         <bean-searcher.version>4.8.12</bean-searcher.version>
         <ip2region.version>2.7.0</ip2region.version>
         <logstash-logback.version>6.6</logstash-logback.version>
-        <!-- 墓园数据链路（module-cemlink）上行通信 SDK -->
+        <!-- 墓园数据链路（server-lite 采集端）上行通信 SDK -->
         <linkora.version>0.6.0</linkora.version>
         <contract.version>3.0.0-SNAPSHOT</contract.version>
         <!-- 共享注解库钉版：guava/caffeine 等各自携带不同版本，dependencyConvergence 要求收敛（Enforcer 强制） -->

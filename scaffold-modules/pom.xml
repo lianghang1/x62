@@ -17,6 +17,5 @@
 
     <modules>
         <module>scaffold-module-system</module>
-        <module>scaffold-module-cemlink</module>
     </modules>
 </project>

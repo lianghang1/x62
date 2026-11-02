@@ -153,11 +153,6 @@
                 <artifactId>scaffold-module-system-biz</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-module-cemlink-biz</artifactId>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

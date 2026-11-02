@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.scaffold.cemlink.config.CemlinkConfig,\
+com.scaffold.cemlink.config.CemlinkClientConfig

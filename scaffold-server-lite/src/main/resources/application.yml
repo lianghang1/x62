@@ -31,7 +31,7 @@ logging:
   level:
     com.scaffold: info
 
-# ==================== data-link 采集端（module-cemlink） ====================
+# ==================== 墓园数据链路采集端（cemlink，spring.factories 自动装配） ====================
 # 不配置 cemlink.source.url 时采集端整体不装配，lite 仍是纯本地形态
 cemlink:
   park-code: zqqy

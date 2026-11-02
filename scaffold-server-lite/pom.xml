@@ -45,15 +45,45 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-job</artifactId>
         </dependency>
-        <!-- data-link 采集端：墓园库只读采集 + linkora 上行（data-link 分支形态） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <!-- 墓园本地库只读采集（JdbcTemplate 独立数据源，不走 JPA） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <!-- cemlink 采集端依赖脚手架公共工具与 http 封装 -->
         <dependency>
             <groupId>com.scaffold</groupId>
-            <artifactId>scaffold-module-cemlink-biz</artifactId>
+            <artifactId>scaffold-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-http</artifactId>
+        </dependency>
+        <!-- 契约（topic/payload）：ERP 侧 contract-base jar，两端同源 -->
+        <dependency>
+            <groupId>com.sfi.mall</groupId>
+            <artifactId>contract-base</artifactId>
+        </dependency>
+        <!-- linkora 客户端装配（sqlite 本地队列 + UplinkPublisher），后期切换为 contract-client -->
+        <dependency>
+            <groupId>io.github.lianghang1</groupId>
+            <artifactId>linkora-client-spring-boot-starter</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 端到端测试：内嵌 linkora 服务端 -->
+        <dependency>
+            <groupId>io.github.lianghang1</groupId>
+            <artifactId>linkora-testkit</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <!-- H2：默认内存库零配置启动；换 MySQL 只改 datasource + 驱动依赖 -->

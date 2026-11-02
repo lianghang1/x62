@@ -1,0 +1,149 @@
+package com.scaffold.cemlink.config;
+
+import com.scaffold.cemlink.collect.BlockDataCollectionJob;
+import com.scaffold.cemlink.collect.DepositCollectionJob;
+import com.scaffold.cemlink.collect.ServiceItemCollectionJob;
+import com.scaffold.cemlink.collect.TombDataCollectionJob;
+import com.scaffold.cemlink.client.cemetery.CemeteryLinkoraClient;
+import com.scaffold.cemlink.increment.WatermarkStore;
+import com.scaffold.cemlink.park.BlockParkStrategy;
+import com.scaffold.cemlink.park.DefaultBlockParkStrategy;
+import com.scaffold.cemlink.park.DefaultTombParkStrategy;
+import com.scaffold.cemlink.park.TombParkStrategy;
+import com.scaffold.cemlink.park.WeijiajiaoBlockParkStrategy;
+import com.scaffold.cemlink.park.WeijiajiaoTombParkStrategy;
+import com.scaffold.cemlink.source.BlockSourceReader;
+import com.scaffold.cemlink.source.DepositSourceReader;
+import com.scaffold.cemlink.source.ServiceItemSourceReader;
+import com.scaffold.cemlink.source.TombSourceReader;
+import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import java.nio.file.Paths;
+
+import javax.sql.DataSource;
+
+/**
+ * cemlink 装配：墓园本地库只读数据源
+ *
+ * <p>园区策略：各园区专属策略类自带 {@code @ConditionalOnProperty(park-code)} 激活条件，
+ * 在 {@code @Import} 中登记即可；未命中园区的类型走下方 {@code @ConditionalOnMissingBean} 默认兜底</p>
+ *
+ * @author lianghang
+ */
+@Configuration
+@Import({WeijiajiaoTombParkStrategy.class, WeijiajiaoBlockParkStrategy.class})
+@EnableConfigurationProperties(CemlinkProperties.class)
+@ConditionalOnProperty("cemlink.source.url")
+public class CemlinkConfig {
+
+    /** 墓园库采集源：上行采集只读，工单/服务项/寄存下行回写需要写权限 */
+    @Bean(name = "cemlinkParkDataSource")
+    public DataSource cemlinkParkDataSource(CemlinkProperties properties) {
+        CemlinkProperties.Source source = properties.getSource();
+        HikariDataSource ds = new HikariDataSource();
+        ds.setJdbcUrl(source.getUrl());
+        ds.setUsername(source.getUsername());
+        ds.setPassword(source.getPassword());
+        ds.setDriverClassName(source.getDriverClassName());
+        ds.setMinimumIdle(1);
+        ds.setMaximumPoolSize(2);
+        ds.setPoolName("cemlink-park");
+        return ds;
+    }
+
+    @Bean(name = "cemlinkParkJdbc")
+    public JdbcTemplate cemlinkParkJdbc(DataSource cemlinkParkDataSource) {
+        return new JdbcTemplate(cemlinkParkDataSource);
+    }
+
+    /** 默认兜底：专属策略未激活时生效，外部声明同类型 Bean 也可覆盖 */
+    @Bean
+    @ConditionalOnMissingBean(TombParkStrategy.class)
+    public TombParkStrategy tombParkStrategy() {
+        return new DefaultTombParkStrategy();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(BlockParkStrategy.class)
+    public BlockParkStrategy blockParkStrategy() {
+        return new DefaultBlockParkStrategy();
+    }
+
+    @Bean
+    public BlockSourceReader blockSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            BlockParkStrategy blockParkStrategy) {
+        return new BlockSourceReader(cemlinkParkJdbc, blockParkStrategy);
+    }
+
+    @Bean
+    public TombSourceReader tombSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
+            TombParkStrategy parkStrategy) {
+        return new TombSourceReader(cemlinkParkJdbc, parkStrategy);
+    }
+
+    @Bean
+    public ServiceItemSourceReader serviceItemSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc) {
+        return new ServiceItemSourceReader(cemlinkParkJdbc);
+    }
+
+    @Bean
+    public DepositSourceReader depositSourceReader(
+            @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc) {
+        return new DepositSourceReader(cemlinkParkJdbc);
+    }
+
+    @Bean(destroyMethod = "close")
+    public WatermarkStore watermarkStore(CemlinkProperties properties) {
+        return new WatermarkStore(Paths.get(properties.getWatermarkDbPath()));
+    }
+
+    /** linkora 客户端未启用（无 server-url）时不注册采集任务 */
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public TombDataCollectionJob tombDataCollectionJob(TombSourceReader reader,
+                                                       CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                       WatermarkStore watermarkStore,
+                                                       CemlinkProperties properties) {
+        return new TombDataCollectionJob(reader, cemeteryLinkoraClient, watermarkStore, properties);
+    }
+
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public BlockDataCollectionJob blockDataCollectionJob(BlockSourceReader reader,
+                                                         CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                         WatermarkStore watermarkStore) {
+        return new BlockDataCollectionJob(reader, cemeteryLinkoraClient, watermarkStore);
+    }
+
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public ServiceItemCollectionJob serviceItemCollectionJob(ServiceItemSourceReader reader,
+                                                             CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                             WatermarkStore watermarkStore,
+                                                             CemlinkProperties properties) {
+        return new ServiceItemCollectionJob(reader, cemeteryLinkoraClient, watermarkStore,
+                properties.parseInitialWatermark());
+    }
+
+    @Bean
+    @ConditionalOnProperty("linkora.client.server-url")
+    public DepositCollectionJob depositCollectionJob(DepositSourceReader reader,
+                                                     CemeteryLinkoraClient cemeteryLinkoraClient,
+                                                     WatermarkStore watermarkStore,
+                                                     CemlinkProperties properties) {
+        return new DepositCollectionJob(reader, cemeteryLinkoraClient, watermarkStore,
+                properties.parseInitialWatermark());
+    }
+}
