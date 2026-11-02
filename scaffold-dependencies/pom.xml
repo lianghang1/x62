@@ -27,6 +27,8 @@
         <bean-searcher.version>4.8.12</bean-searcher.version>
         <ip2region.version>2.7.0</ip2region.version>
         <logstash-logback.version>6.6</logstash-logback.version>
+        <!-- 墓园数据链路（module-cemlink）上行通信 SDK -->
+        <linkora.version>0.6.0</linkora.version>
         <!-- 共享注解库钉版：guava/caffeine 等各自携带不同版本，dependencyConvergence 要求收敛（Enforcer 强制） -->
         <checker-qual.version>3.37.0</checker-qual.version>
         <error-prone.version>2.21.1</error-prone.version>
@@ -57,6 +59,13 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>transmittable-thread-local</artifactId>
                 <version>${ttl.version}</version>
+            </dependency>
+
+            <!-- 墓园数据链路上行通信 SDK（与 ERP 侧 contract 模块同版本） -->
+            <dependency>
+                <groupId>io.github.lianghang1</groupId>
+                <artifactId>linkora-client-spring</artifactId>
+                <version>${linkora.version}</version>
             </dependency>
 
             <!-- BouncyCastle：SM3/SM4 国密（starter-crypto） -->

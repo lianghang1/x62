@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.scaffold</groupId>
+        <artifactId>scaffold-module-cemlink</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>scaffold-module-cemlink-biz</artifactId>
+    <packaging>jar</packaging>
+    <name>scaffold-module-cemlink-biz</name>
+    <description>墓园数据链路实现：墓园库采集（调度/水位线/园区定制）+ linkora 上行对接</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-module-cemlink-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- 采集调度：AbstractJob 模板（cron/锁/执行日志/系统身份） -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-job</artifactId>
+        </dependency>
+        <!-- 墓园本地库只读访问 -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-starter-data-jpa</artifactId>
+        </dependency>
+        <!-- linkora 上行（先落本地 sqlite 队列再发送，断线补发） -->
+        <dependency>
+            <groupId>io.github.lianghang1</groupId>
+            <artifactId>linkora-client-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
