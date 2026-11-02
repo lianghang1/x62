@@ -2,6 +2,7 @@ package com.scaffold.module.cemlink.config;
 
 import com.linkora.client.LinkoraClient;
 import com.linkora.client.UplinkPublisher;
+import com.linkora.spring.boot.LinkoraClientAutoConfiguration;
 import com.scaffold.module.cemlink.client.MallLinkoraClient;
 import com.scaffold.module.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.module.cemlink.down.CemlinkDownlinkRegistrar;
@@ -12,6 +13,7 @@ import com.scaffold.module.cemlink.down.WorkDownlinkHandler;
 import com.scaffold.starter.http.ScaffoldHttpClient;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +25,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @author lianghang
  */
 @Configuration
+@AutoConfigureAfter(LinkoraClientAutoConfiguration.class)
 public class CemlinkClientConfig {
 
     @Bean

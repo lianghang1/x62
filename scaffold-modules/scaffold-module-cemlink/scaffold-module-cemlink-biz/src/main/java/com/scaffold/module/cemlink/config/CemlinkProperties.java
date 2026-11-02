@@ -1,5 +1,6 @@
 package com.scaffold.module.cemlink.config;
 
+import com.scaffold.common.util.DateUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -106,16 +107,11 @@ public class CemlinkProperties {
         this.initialWatermark = initialWatermark;
     }
 
-    /** 解析初始水位时间为 Date，未配置或格式非法返回 null */
+    /** 解析初始水位时间为 Date，未配置返回 null，格式非法 fail-fast */
     public java.util.Date parseInitialWatermark() {
-        if (initialWatermark == null || initialWatermark.trim().isEmpty()) {
-            return null;
-        }
-        try {
-            return new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(initialWatermark.trim());
-        } catch (java.text.ParseException e) {
-            throw new IllegalStateException("cemlink.initial-watermark 格式应为 yyyy-MM-dd HH:mm:ss: " + initialWatermark, e);
-        }
+        java.time.LocalDateTime dateTime = DateUtils.parseDateTime(initialWatermark);
+        return dateTime == null ? null
+                : java.util.Date.from(dateTime.atZone(java.time.ZoneId.systemDefault()).toInstant());
     }
 
     public String getUploadPath() {

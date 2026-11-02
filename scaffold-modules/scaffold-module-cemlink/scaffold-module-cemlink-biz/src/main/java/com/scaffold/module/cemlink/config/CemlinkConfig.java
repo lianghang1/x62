@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.nio.file.Paths;
@@ -33,9 +34,13 @@ import javax.sql.DataSource;
 /**
  * cemlink 装配：墓园本地库只读数据源
  *
+ * <p>园区策略：各园区专属策略类自带 {@code @ConditionalOnProperty(park-code)} 激活条件，
+ * 在 {@code @Import} 中登记即可；未命中园区的类型走下方 {@code @ConditionalOnMissingBean} 默认兜底</p>
+ *
  * @author lianghang
  */
 @Configuration
+@Import({WeijiajiaoTombParkStrategy.class, WeijiajiaoBlockParkStrategy.class})
 @EnableConfigurationProperties(CemlinkProperties.class)
 @ConditionalOnProperty("cemlink.source.url")
 public class CemlinkConfig {
@@ -60,19 +65,7 @@ public class CemlinkConfig {
         return new JdbcTemplate(cemlinkParkDataSource);
     }
 
-    /** 园区差异覆盖点：特殊园区声明同类型 Bean 即替换默认实现 */
-    @Bean
-    @ConditionalOnProperty(name = "cemlink.park-code", havingValue = "weijiaojiao")
-    public TombParkStrategy weijiaojiaoTombParkStrategy() {
-        return new WeijiajiaoTombParkStrategy();
-    }
-
-    @Bean
-    @ConditionalOnProperty(name = "cemlink.park-code", havingValue = "weijiaojiao")
-    public BlockParkStrategy weijiaojiaoBlockParkStrategy() {
-        return new WeijiajiaoBlockParkStrategy();
-    }
-
+    /** 默认兜底：专属策略未激活时生效，外部声明同类型 Bean 也可覆盖 */
     @Bean
     @ConditionalOnMissingBean(TombParkStrategy.class)
     public TombParkStrategy tombParkStrategy() {

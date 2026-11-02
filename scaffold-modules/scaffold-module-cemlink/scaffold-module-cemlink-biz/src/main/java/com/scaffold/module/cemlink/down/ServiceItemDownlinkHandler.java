@@ -1,9 +1,9 @@
 package com.scaffold.module.cemlink.down;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linkora.client.LinkoraReceivedMessage;
 import com.linkora.client.MessageListener;
+import com.scaffold.common.util.JsonUtils;
 import com.scaffold.module.cemlink.client.CemlinkTopics;
 import com.scaffold.module.cemlink.client.MallLinkoraClient;
 import com.scaffold.module.cemlink.client.model.ServiceItemData;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ public class ServiceItemDownlinkHandler implements MessageListener {
 
     private final JdbcTemplate jdbcTemplate;
     private final MallLinkoraClient mallLinkoraClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ServiceItemDownlinkHandler(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
                                       MallLinkoraClient mallLinkoraClient) {
@@ -48,11 +46,10 @@ public class ServiceItemDownlinkHandler implements MessageListener {
             return;
         }
         try {
-            List<ServiceItemData> items = objectMapper.readValue(message.getPayload(),
-                    new TypeReference<List<ServiceItemData>>() {
-                    });
+            List<ServiceItemData> items = JsonUtils.fromJson(new String(message.getPayload(), java.nio.charset.StandardCharsets.UTF_8), new TypeReference<List<ServiceItemData>>() {
+            });
             handle(items);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("服务项目下行数据解析失败", e);
         }
     }

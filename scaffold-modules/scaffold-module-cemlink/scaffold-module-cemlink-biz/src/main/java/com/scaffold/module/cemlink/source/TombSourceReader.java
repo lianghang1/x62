@@ -7,8 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -154,11 +152,9 @@ public class TombSourceReader {
         if (!hasLength(value)) {
             return null;
         }
-        try {
-            return new SimpleDateFormat("yyyy-MM-dd").parse(value);
-        } catch (ParseException e) {
-            return null;
-        }
+        java.time.LocalDate localDate = com.scaffold.common.util.DateUtils.parseDate(value);
+        return localDate == null ? null
+                : Date.from(localDate.atStartOfDay(java.time.ZoneId.systemDefault()).toInstant());
     }
 
     /** 最近一次维护费记录，字段对齐 t_sfi_bus_maintenance 列别名 */

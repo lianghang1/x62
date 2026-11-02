@@ -3,7 +3,7 @@ package com.scaffold.module.cemlink.source;
 import com.scaffold.module.cemlink.client.model.TombServiceItemData;
 import com.scaffold.module.cemlink.contract.BillSubType;
 import com.scaffold.module.cemlink.contract.OrderType;
-import org.apache.commons.lang3.StringUtils;
+import com.scaffold.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 

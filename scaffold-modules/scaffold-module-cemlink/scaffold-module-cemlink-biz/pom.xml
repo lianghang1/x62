@@ -28,6 +28,10 @@
         </dependency>
         <dependency>
             <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-http</artifactId>
         </dependency>
         <!-- 墓园本地库只读访问（JdbcTemplate，不走 JPA） -->

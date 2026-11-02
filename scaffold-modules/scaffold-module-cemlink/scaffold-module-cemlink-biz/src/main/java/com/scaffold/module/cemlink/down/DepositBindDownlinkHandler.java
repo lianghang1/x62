@@ -1,9 +1,9 @@
 package com.scaffold.module.cemlink.down;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linkora.client.LinkoraReceivedMessage;
 import com.linkora.client.MessageListener;
+import com.scaffold.common.util.JsonUtils;
 import com.scaffold.module.cemlink.client.CemlinkTopics;
 import com.scaffold.module.cemlink.client.MallLinkoraClient;
 import com.scaffold.module.cemlink.client.model.DepositBindData;
@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,7 +32,6 @@ public class DepositBindDownlinkHandler implements MessageListener {
 
     private final JdbcTemplate jdbcTemplate;
     private final MallLinkoraClient mallLinkoraClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public DepositBindDownlinkHandler(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
                                       MallLinkoraClient mallLinkoraClient) {
@@ -47,11 +45,10 @@ public class DepositBindDownlinkHandler implements MessageListener {
             return;
         }
         try {
-            List<DepositBindData> items = objectMapper.readValue(message.getPayload(),
-                    new TypeReference<List<DepositBindData>>() {
-                    });
+            List<DepositBindData> items = JsonUtils.fromJson(new String(message.getPayload(), java.nio.charset.StandardCharsets.UTF_8), new TypeReference<List<DepositBindData>>() {
+            });
             handle(items);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new IllegalStateException("寄存绑定下行数据解析失败", e);
         }
     }
