@@ -45,6 +45,11 @@
             <groupId>com.scaffold</groupId>
             <artifactId>scaffold-starter-job</artifactId>
         </dependency>
+        <!-- data-link 采集端：墓园库只读采集 + linkora 上行（data-link 分支形态） -->
+        <dependency>
+            <groupId>com.scaffold</groupId>
+            <artifactId>scaffold-module-cemlink-biz</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

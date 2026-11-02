@@ -30,3 +30,27 @@ scaffold:
 logging:
   level:
     com.scaffold: info
+
+# ==================== data-link 采集端（module-cemlink） ====================
+# 不配置 cemlink.source.url 时采集端整体不装配，lite 仍是纯本地形态
+cemlink:
+  park-code: zqqy
+  watermark-db-path: ./linkora/cemlink-watermark.db
+  collect:
+    page-size: 200
+  source:
+    url: ${PARK_DB_URL:}
+    username: ${PARK_DB_USER:}
+    password: ${PARK_DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# linkora 上行客户端：本地 sqlite 队列，先落库再发送、断线补发
+linkora:
+  client:
+    enabled: false
+    server-url: ${ERP_SERVER_URL:}
+    client-id: ${LINKORA_CLIENT_ID:}
+    db-path: ./linkora/linkora-client.db
+    payload-cipher: true
+    payload-cipher-key: ${LINKORA_PAYLOAD_CIPHER_KEY:}
+    store: sqlite
