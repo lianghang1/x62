@@ -4,18 +4,19 @@ import com.scaffold.module.cemlink.client.model.ServiceOrderData;
 import com.scaffold.module.cemlink.client.model.ServiceOrderInvoiceData;
 import com.scaffold.module.cemlink.client.model.ServiceOrderReserveData;
 import com.scaffold.module.cemlink.contract.OrderType;
+import com.scaffold.starter.http.ScaffoldHttpClient;
+import com.scaffold.starter.http.transport.TransportResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.File;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -29,6 +30,8 @@ import java.util.Map;
  */
 public class OrderDownlinkWriter {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderDownlinkWriter.class);
+
     private static final int CREATE_USER_ID = 9999;
     private static final String CREATE_USER = "系统";
     private static final String PAY_USER = "网络";
@@ -41,10 +44,13 @@ public class OrderDownlinkWriter {
     private static final String PAY_EASY_SETTLED = "2";
 
     private final JdbcTemplate jdbcTemplate;
+    private final ScaffoldHttpClient scaffoldHttpClient;
     private final String uploadPath;
 
-    public OrderDownlinkWriter(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate, String uploadPath) {
+    public OrderDownlinkWriter(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
+                               ScaffoldHttpClient scaffoldHttpClient, String uploadPath) {
         this.jdbcTemplate = jdbcTemplate;
+        this.scaffoldHttpClient = scaffoldHttpClient;
         this.uploadPath = uploadPath;
     }
 
@@ -1501,18 +1507,22 @@ public class OrderDownlinkWriter {
         return sb.toString();
     }
 
-    /** 原程序 HttpUtil.downloadFile 平移（JDK 实现，失败记录 0 字节） */
+    /** 原程序 HttpUtil.downloadFile 平移（脚手架 http 封装，失败记录 0 字节） */
     private long downloadFile(String url, String filePath, String fileName) {
         try {
+            TransportResponse response = scaffoldHttpClient.get(url);
+            if (!response.isSuccessful()) {
+                log.warn("[cemlink] 图片下载失败 url={} status={}", url, response.getStatus());
+                return 0L;
+            }
             Path dir = Paths.get(uploadPath, filePath);
             Files.createDirectories(dir);
             Path target = dir.resolve(fileName);
-            try (InputStream in = new URL(url).openStream()) {
-                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-            }
+            Files.write(target, response.getBody());
             File file = target.toFile();
             return file.exists() ? file.length() : 0L;
         } catch (Exception e) {
+            log.warn("[cemlink] 图片下载异常 url={} msg={}", url, e.getMessage());
             return 0L;
         }
     }

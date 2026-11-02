@@ -10,6 +10,7 @@ import com.scaffold.module.cemlink.client.model.ServiceOrderData;
 import com.scaffold.module.cemlink.client.model.ServiceOrderReserveData;
 import com.scaffold.module.cemlink.client.model.ServiceOrderUpdateData;
 import com.scaffold.module.cemlink.contract.OrderType;
+import com.scaffold.starter.http.ScaffoldHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,10 +41,11 @@ public class OrderDownlinkHandler implements MessageListener {
 
     public OrderDownlinkHandler(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
                                 MallLinkoraClient mallLinkoraClient,
+                                ScaffoldHttpClient scaffoldHttpClient,
                                 String uploadPath) {
         this.jdbcTemplate = jdbcTemplate;
         this.mallLinkoraClient = mallLinkoraClient;
-        this.writer = new OrderDownlinkWriter(jdbcTemplate, uploadPath);
+        this.writer = new OrderDownlinkWriter(jdbcTemplate, scaffoldHttpClient, uploadPath);
     }
 
     @Override

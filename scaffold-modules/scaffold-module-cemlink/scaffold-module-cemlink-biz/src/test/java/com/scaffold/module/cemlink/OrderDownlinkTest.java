@@ -6,6 +6,9 @@ import com.scaffold.module.cemlink.client.model.ServiceOrderData;
 import com.scaffold.module.cemlink.client.model.ServiceOrderReserveData;
 import com.scaffold.module.cemlink.client.model.ServiceOrderUpdateData;
 import com.scaffold.module.cemlink.down.OrderDownlinkHandler;
+import com.scaffold.starter.http.HttpProperties;
+import com.scaffold.starter.http.ScaffoldHttpClient;
+import com.scaffold.starter.http.transport.TransportResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,7 +60,13 @@ public class OrderDownlinkTest {
 
         recordingMallClient = new RecordingMallLinkoraClient();
         Path uploadDir = Files.createTempDirectory("cemlink-upload");
-        handler = new OrderDownlinkHandler(parkJdbc, recordingMallClient, uploadDir.toString());
+        handler = new OrderDownlinkHandler(parkJdbc, recordingMallClient, stubHttpClient(), uploadDir.toString());
+    }
+
+    /** 图片下载桩：测试未覆盖图片路径，任意 URL 返回 404 空体 */
+    private ScaffoldHttpClient stubHttpClient() {
+        return new ScaffoldHttpClient(request -> new TransportResponse(404, Collections.emptyMap(), new byte[0]),
+                new HttpProperties(), null);
     }
 
     @AfterEach

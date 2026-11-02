@@ -9,6 +9,8 @@ import com.scaffold.module.cemlink.down.DepositBindDownlinkHandler;
 import com.scaffold.module.cemlink.down.OrderDownlinkHandler;
 import com.scaffold.module.cemlink.down.ServiceItemDownlinkHandler;
 import com.scaffold.module.cemlink.down.WorkDownlinkHandler;
+import com.scaffold.starter.http.ScaffoldHttpClient;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.context.annotation.Bean;
@@ -64,8 +66,10 @@ public class CemlinkClientConfig {
     public OrderDownlinkHandler orderDownlinkHandler(
             @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
             MallLinkoraClient mallLinkoraClient,
+            ObjectProvider<ScaffoldHttpClient> scaffoldHttpClient,
             CemlinkProperties properties) {
-        return new OrderDownlinkHandler(cemlinkParkJdbc, mallLinkoraClient, properties.getUploadPath());
+        return new OrderDownlinkHandler(cemlinkParkJdbc, mallLinkoraClient,
+                scaffoldHttpClient.getIfAvailable(), properties.getUploadPath());
     }
 
     @Bean
