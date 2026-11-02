@@ -36,6 +36,7 @@ logging:
 cemlink:
   park-code: zqqy
   watermark-db-path: ./linkora/cemlink-watermark.db
+  upload-path: ./uploadFile
   collect:
     page-size: 200
   source:
