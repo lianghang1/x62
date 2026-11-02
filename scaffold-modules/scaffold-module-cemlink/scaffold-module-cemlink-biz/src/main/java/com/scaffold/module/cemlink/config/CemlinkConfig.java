@@ -8,6 +8,8 @@ import com.scaffold.module.cemlink.park.BlockParkStrategy;
 import com.scaffold.module.cemlink.park.DefaultBlockParkStrategy;
 import com.scaffold.module.cemlink.park.DefaultTombParkStrategy;
 import com.scaffold.module.cemlink.park.TombParkStrategy;
+import com.scaffold.module.cemlink.park.WeijiajiaoBlockParkStrategy;
+import com.scaffold.module.cemlink.park.WeijiajiaoTombParkStrategy;
 import com.scaffold.module.cemlink.source.BlockSourceReader;
 import com.scaffold.module.cemlink.source.TombSourceReader;
 import com.zaxxer.hikari.HikariDataSource;
@@ -55,6 +57,18 @@ public class CemlinkConfig {
     }
 
     /** 园区差异覆盖点：特殊园区声明同类型 Bean 即替换默认实现 */
+    @Bean
+    @ConditionalOnProperty(name = "cemlink.park-code", havingValue = "weijiaojiao")
+    public TombParkStrategy weijiaojiaoTombParkStrategy() {
+        return new WeijiajiaoTombParkStrategy();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "cemlink.park-code", havingValue = "weijiaojiao")
+    public BlockParkStrategy weijiaojiaoBlockParkStrategy() {
+        return new WeijiajiaoBlockParkStrategy();
+    }
+
     @Bean
     @ConditionalOnMissingBean(TombParkStrategy.class)
     public TombParkStrategy tombParkStrategy() {

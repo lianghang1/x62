@@ -12,7 +12,7 @@ import com.scaffold.module.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.module.cemlink.collect.TombDataCollectionJob;
 import com.scaffold.module.cemlink.config.CemlinkProperties;
 import com.scaffold.module.cemlink.increment.WatermarkStore;
-import com.scaffold.module.cemlink.park.DefaultTombParkStrategy;
+import com.scaffold.module.cemlink.park.WeijiajiaoTombParkStrategy;
 import com.scaffold.module.cemlink.source.TombSourceReader;
 import com.sfi.mall.contract.base.model.cemetery.TransportTomb;
 import org.junit.jupiter.api.AfterEach;
@@ -95,7 +95,7 @@ public class TombEndToEndTest {
         watermark = new WatermarkStore(watermarkDb);
 
         TombSourceReader reader =
-                new TombSourceReader(parkJdbc, new DefaultTombParkStrategy());
+                new TombSourceReader(parkJdbc, new WeijiajiaoTombParkStrategy());
         CemlinkProperties properties = new CemlinkProperties();
         job = new TombDataCollectionJob(reader, cemeteryClient, watermark, properties);
     }

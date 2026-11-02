@@ -10,7 +10,7 @@ import com.scaffold.module.cemlink.client.model.TombBlockData;
 import com.scaffold.module.cemlink.client.model.TombBlockGridData;
 import com.scaffold.module.cemlink.collect.BlockDataCollectionJob;
 import com.scaffold.module.cemlink.increment.WatermarkStore;
-import com.scaffold.module.cemlink.park.DefaultBlockParkStrategy;
+import com.scaffold.module.cemlink.park.WeijiajiaoBlockParkStrategy;
 import com.scaffold.module.cemlink.source.BlockSourceReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +87,7 @@ public class BlockEndToEndTest {
         Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
         watermark = new WatermarkStore(watermarkDb);
 
-        BlockSourceReader reader = new BlockSourceReader(parkJdbc, new DefaultBlockParkStrategy());
+        BlockSourceReader reader = new BlockSourceReader(parkJdbc, new WeijiajiaoBlockParkStrategy());
         job = new BlockDataCollectionJob(reader, cemeteryClient, watermark);
     }
 
