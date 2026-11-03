@@ -10,6 +10,7 @@ import com.scaffold.server.lite.cemlink.client.model.WorkCheckData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class WorkDownlinkHandler implements MessageListener {
 
     private static final Logger log = LoggerFactory.getLogger(WorkDownlinkHandler.class);

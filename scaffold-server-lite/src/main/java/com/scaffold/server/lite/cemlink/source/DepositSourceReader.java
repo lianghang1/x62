@@ -5,7 +5,7 @@ import com.scaffold.server.lite.cemlink.contract.AshesBusinessStatus;
 import com.scaffold.server.lite.cemlink.contract.DepositBillType;
 import com.scaffold.server.lite.cemlink.contract.DepositCharge;
 import com.scaffold.server.lite.cemlink.contract.DepositStatus;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -19,6 +19,7 @@ import java.util.Map;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class DepositSourceReader {
 
     private static final String DEPOSIT_SQL = "SELECT t.id, " +
@@ -57,7 +58,7 @@ public class DepositSourceReader {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public DepositSourceReader(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate) {
+    public DepositSourceReader(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

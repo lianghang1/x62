@@ -4,12 +4,12 @@ import com.linkora.client.LinkoraClient;
 import com.linkora.client.UplinkPublisher;
 import com.linkora.client.storage.sqlite.SqliteClientStore;
 import com.linkora.testkit.EmbeddedLinkoraServer;
+import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.client.MallLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.model.TombBlockData;
 import com.scaffold.server.lite.cemlink.client.model.TombBlockGridData;
 import com.scaffold.server.lite.cemlink.collect.BlockDataCollectionJob;
-import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.park.WeijiajiaoParkStrategy;
 import com.scaffold.server.lite.cemlink.source.BlockSourceReader;
 import org.junit.jupiter.api.AfterEach;
@@ -84,8 +84,7 @@ public class BlockEndToEndTest {
         MallLinkoraClient mallClient = new MallLinkoraClient(new UplinkPublisher(linkoraClient, clientStore));
         cemeteryClient = new RecordingCemeteryClient(mallClient);
 
-        Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
-        watermark = new WatermarkStore(watermarkDb);
+        watermark = TestWatermarkStores.inMemory();
 
         BlockSourceReader reader = new BlockSourceReader(parkJdbc, new WeijiajiaoParkStrategy());
         job = new BlockDataCollectionJob(reader, cemeteryClient, watermark);
@@ -101,9 +100,6 @@ public class BlockEndToEndTest {
         }
         if (testServer != null) {
             testServer.close();
-        }
-        if (watermark != null) {
-            watermark.close();
         }
     }
 

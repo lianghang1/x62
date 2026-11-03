@@ -11,6 +11,7 @@ import com.scaffold.server.lite.cemlink.client.model.TombServiceItemData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ import java.util.List;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class ServiceItemDownlinkHandler implements MessageListener {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceItemDownlinkHandler.class);

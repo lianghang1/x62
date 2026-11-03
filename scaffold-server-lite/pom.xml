@@ -49,10 +49,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        <!-- 墓园本地库只读采集（JdbcTemplate 独立数据源，不走 JPA） -->
+        <!-- 墓园库驱动（框架多数据源 park 源）；主库生产切 MySQL 亦复用 -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <!-- cemlink 采集端依赖脚手架公共工具与 http 封装 -->
         <dependency>
@@ -68,7 +69,7 @@
             <groupId>com.sfi.mall</groupId>
             <artifactId>contract-base</artifactId>
         </dependency>
-        <!-- linkora 客户端装配（sqlite 本地队列 + UplinkPublisher），后期切换为 contract-client -->
+        <!-- linkora 客户端装配（store=datasource 队列落主库，transactional outbox），后期切换为 contract-client -->
         <dependency>
             <groupId>io.github.lianghang1</groupId>
             <artifactId>linkora-client-spring-boot-starter</artifactId>

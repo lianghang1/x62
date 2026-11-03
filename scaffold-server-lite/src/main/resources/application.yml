@@ -4,16 +4,9 @@ server:
 spring:
   application:
     name: scaffold-server-lite
-  datasource:
-    # H2 内存库：每次重启清空（本地跑数据/联调定位）；要持久化改为
-    # jdbc:h2:file:./data/lite 并加 DB_CLOSE_ON_EXIT=FALSE
-    url: jdbc:h2:mem:lite;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
   jpa:
     hibernate:
-      # lite 形态用 ddl-auto 建表；接 MySQL/生产改 validate + Liquibase
+      # 主库建表（水位线/上行队列/执行日志）；接生产 MySQL 改 validate + Liquibase
       ddl-auto: update
     open-in-view: false
 
@@ -26,34 +19,51 @@ scaffold:
     # simple 引擎：@Job 注解扫描注册；接入 PowerJob 时改为 none 并引入 starter-powerjob
     engine: simple
     pool-size: 2
+  datasource:
+    dynamic:
+      # 启用框架动态数据源后接管全部数据源（spring.datasource 退避）
+      enabled: true
+      primary: master
+      datasources:
+        # 主库：采集端运行状态（水位线 / linkora 上行队列 / job 执行日志）
+        # 默认 H2 文件库零部署起步；生产换 MySQL 只改 url + driver
+        master:
+          url: jdbc:h2:file:./data/master;DB_CLOSE_ON_EXIT=FALSE
+          driver-class-name: org.h2.Driver
+          username: sa
+          password: ""
+        # 墓园业务库：只读采集 + 下行回写，Reader/Handler 由 @TargetDataSource("park") 路由
+        park:
+          url: ${PARK_DB_URL:jdbc:mysql://localhost:3306/park}
+          username: ${PARK_DB_USER:root}
+          password: ${PARK_DB_PASSWORD:}
+          driver-class-name: com.mysql.cj.jdbc.Driver
+
+# ==================== 墓园采集源（cemlink 业务） ====================
+# cemlink.enabled=true 才装配采集端；false 时 lite 是无采集的纯宿主
+cemlink:
+  enabled: ${CEMLINK_ENABLED:false}
+  # 单位策略路由键（weijiaojiao=卫家角专属策略，其余走默认兜底）
+  park-code: weijiaojiao
+  # 初始水位：该时间之前的存量数据不采集（首次接入时配一个历史节点），留空则首轮全量
+  initial-watermark: ""
+  # 订单图片下载根目录
+  upload-path: ./uploadFile
+  collect:
+    page-size: 200
+
+# ==================== ERP 上行通道（linkora） ====================
+# store=datasource：消息队列落主库（transactional outbox，断线补发）；
+# 不配 server-url 时仅不启动上行发送，本地队列照常落库
+linkora:
+  client:
+    enabled: ${LINKORA_ENABLED:false}
+    server-url: ${ERP_SERVER_URL:}
+    client-id: ${LINKORA_CLIENT_ID:}
+    store: datasource
+    payload-cipher: true
+    payload-cipher-key: ${LINKORA_PAYLOAD_CIPHER_KEY:}
 
 logging:
   level:
     com.scaffold: info
-
-# ==================== 墓园数据链路采集端（cemlink 业务包，随启动类扫描装配） ====================
-# 不配置 cemlink.source.url 时采集端整体不装配，lite 仍是纯本地形态
-cemlink:
-  park-code: zqqy
-  watermark-db-path: ./linkora/cemlink-watermark.db
-  # 初始水位：该时间之前的存量数据不采集（首次接入时配一个历史节点），留空则首轮全量
-  initial-watermark: ""
-  upload-path: ./uploadFile
-  collect:
-    page-size: 200
-  source:
-    url: ${PARK_DB_URL:}
-    username: ${PARK_DB_USER:}
-    password: ${PARK_DB_PASSWORD:}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-# linkora 上行客户端：本地 sqlite 队列，先落库再发送、断线补发
-linkora:
-  client:
-    enabled: false
-    server-url: ${ERP_SERVER_URL:}
-    client-id: ${LINKORA_CLIENT_ID:}
-    db-path: ./linkora/linkora-client.db
-    payload-cipher: true
-    payload-cipher-key: ${LINKORA_PAYLOAD_CIPHER_KEY:}
-    store: sqlite

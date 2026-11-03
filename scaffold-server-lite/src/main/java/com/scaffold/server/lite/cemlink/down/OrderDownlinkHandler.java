@@ -14,6 +14,7 @@ import com.scaffold.starter.http.ScaffoldHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.Map;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class OrderDownlinkHandler implements MessageListener {
 
     private static final Logger log = LoggerFactory.getLogger(OrderDownlinkHandler.class);

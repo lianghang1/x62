@@ -1,5 +1,6 @@
 package com.scaffold.server.lite.cemlink;
 
+import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.client.MallLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.model.DepositBindData;
@@ -8,7 +9,6 @@ import com.scaffold.server.lite.cemlink.client.model.WorkCheckData;
 import com.scaffold.server.lite.cemlink.collect.DepositCollectionJob;
 import com.scaffold.server.lite.cemlink.down.DepositBindDownlinkHandler;
 import com.scaffold.server.lite.cemlink.down.WorkDownlinkHandler;
-import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.source.DepositSourceReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,16 +71,12 @@ public class DepositWorkDownlinkTest {
         workHandler = new WorkDownlinkHandler(parkJdbc, recordingMallClient);
         bindHandler = new DepositBindDownlinkHandler(parkJdbc, recordingMallClient);
 
-        Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
-        watermark = new WatermarkStore(watermarkDb);
+        watermark = TestWatermarkStores.inMemory();
         depositJob = new DepositCollectionJob(new DepositSourceReader(parkJdbc), cemeteryClient, watermark, null);
     }
 
     @AfterEach
     public void tearDown() throws Exception {
-        if (watermark != null) {
-            watermark.close();
-        }
     }
 
     @Test

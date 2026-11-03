@@ -4,7 +4,7 @@ import com.scaffold.server.lite.cemlink.client.model.TombServiceItemData;
 import com.scaffold.server.lite.cemlink.contract.BillSubType;
 import com.scaffold.server.lite.cemlink.contract.OrderType;
 import com.scaffold.common.util.StringUtils;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.ArrayList;
@@ -16,6 +16,7 @@ import java.util.List;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class ServiceItemSourceReader {
 
     private static final String SERVICE_SQL = "SELECT t3.id, t3.`name`, t3.price * 100 AS price, 1 AS qty , t3.index_no AS orderNo, t3.is_validate AS STATUS, t.bill_type, t.bill_sub_type, " +
@@ -28,7 +29,7 @@ public class ServiceItemSourceReader {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public ServiceItemSourceReader(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate) {
+    public ServiceItemSourceReader(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

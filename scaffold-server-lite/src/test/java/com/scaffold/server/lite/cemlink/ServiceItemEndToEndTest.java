@@ -7,13 +7,13 @@ import com.linkora.client.UplinkPublisher;
 import com.linkora.client.storage.sqlite.SqliteClientStore;
 import com.linkora.core.message.OutboxStatus;
 import com.linkora.testkit.EmbeddedLinkoraServer;
+import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.client.MallLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.model.ServiceItemData;
 import com.scaffold.server.lite.cemlink.client.model.TombServiceItemData;
 import com.scaffold.server.lite.cemlink.collect.ServiceItemCollectionJob;
 import com.scaffold.server.lite.cemlink.down.ServiceItemDownlinkHandler;
-import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.source.ServiceItemSourceReader;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,8 +113,7 @@ public class ServiceItemEndToEndTest {
                 new MallLinkoraClient(new UplinkPublisher(linkoraClient, clientStore)));
         downlinkHandler = new ServiceItemDownlinkHandler(parkJdbc, recordingMallClient);
 
-        Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
-        watermark = new WatermarkStore(watermarkDb);
+        watermark = TestWatermarkStores.inMemory();
 
         job = new ServiceItemCollectionJob(new ServiceItemSourceReader(parkJdbc), recordingCemeteryClient, watermark, null);
     }
@@ -129,9 +128,6 @@ public class ServiceItemEndToEndTest {
         }
         if (testServer != null) {
             testServer.close();
-        }
-        if (watermark != null) {
-            watermark.close();
         }
     }
 

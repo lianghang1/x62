@@ -2,7 +2,7 @@ package com.scaffold.server.lite.cemlink.source;
 
 import com.scaffold.server.lite.cemlink.park.ParkStrategy;
 import com.sfi.mall.contract.base.model.cemetery.TransportTomb;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -16,6 +16,7 @@ import java.util.List;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class TombSourceReader {
 
     private static final String TOMB_SQL = "" +
@@ -58,7 +59,7 @@ public class TombSourceReader {
     private final JdbcTemplate jdbcTemplate;
     private final ParkStrategy parkStrategy;
 
-    public TombSourceReader(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
+    public TombSourceReader(JdbcTemplate jdbcTemplate,
                             ParkStrategy parkStrategy) {
         this.jdbcTemplate = jdbcTemplate;
         this.parkStrategy = parkStrategy;

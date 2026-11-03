@@ -7,11 +7,11 @@ import com.linkora.client.UplinkPublisher;
 import com.linkora.client.storage.sqlite.SqliteClientStore;
 import com.linkora.core.message.OutboxStatus;
 import com.linkora.testkit.EmbeddedLinkoraServer;
+import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.client.MallLinkoraClient;
 import com.scaffold.server.lite.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.server.lite.cemlink.collect.TombDataCollectionJob;
 import com.scaffold.server.lite.cemlink.config.CemlinkProperties;
-import com.scaffold.server.lite.cemlink.increment.WatermarkStore;
 import com.scaffold.server.lite.cemlink.park.WeijiajiaoParkStrategy;
 import com.scaffold.server.lite.cemlink.source.TombSourceReader;
 import com.sfi.mall.contract.base.model.cemetery.TransportTomb;
@@ -91,8 +91,7 @@ public class TombEndToEndTest {
         MallLinkoraClient mallClient = new MallLinkoraClient(new UplinkPublisher(linkoraClient, clientStore));
         cemeteryClient = new RecordingCemeteryClient(mallClient);
 
-        Path watermarkDb = Files.createTempDirectory("cemlink-wm").resolve("watermark.db");
-        watermark = new WatermarkStore(watermarkDb);
+        watermark = TestWatermarkStores.inMemory();
 
         TombSourceReader reader =
                 new TombSourceReader(parkJdbc, new WeijiajiaoParkStrategy());
@@ -110,9 +109,6 @@ public class TombEndToEndTest {
         }
         if (testServer != null) {
             testServer.close();
-        }
-        if (watermark != null) {
-            watermark.close();
         }
     }
 

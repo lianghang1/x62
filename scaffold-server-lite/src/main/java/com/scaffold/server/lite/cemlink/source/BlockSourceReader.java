@@ -3,7 +3,7 @@ package com.scaffold.server.lite.cemlink.source;
 import com.scaffold.server.lite.cemlink.client.model.TombBlockData;
 import com.scaffold.server.lite.cemlink.client.model.TombBlockGridData;
 import com.scaffold.server.lite.cemlink.park.ParkStrategy;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.scaffold.starter.data.jpa.datasource.TargetDataSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -16,6 +16,7 @@ import java.util.List;
  *
  * @author lianghang
  */
+@TargetDataSource("park")
 public class BlockSourceReader {
 
     private static final String BLOCK_SQL = "" +
@@ -43,7 +44,7 @@ public class BlockSourceReader {
     private final JdbcTemplate jdbcTemplate;
     private final ParkStrategy parkStrategy;
 
-    public BlockSourceReader(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
+    public BlockSourceReader(JdbcTemplate jdbcTemplate,
                              ParkStrategy parkStrategy) {
         this.jdbcTemplate = jdbcTemplate;
         this.parkStrategy = parkStrategy;
