@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sfi</groupId>
+        <groupId>com.sfi.scaffold</groupId>
         <artifactId>scaffold-starters</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sfi</groupId>
+            <groupId>com.sfi.scaffold</groupId>
             <artifactId>scaffold-common</artifactId>
         </dependency>
         <!-- 计算型验证码：仅引 hutool 单模块（版本走 scaffold-dependencies），不用 hutool-all -->
@@ -32,7 +32,7 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.sfi</groupId>
+            <groupId>com.sfi.scaffold</groupId>
             <artifactId>scaffold-starter-data-jpa</artifactId>
         </dependency>
 

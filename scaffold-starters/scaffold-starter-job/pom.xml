@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.sfi</groupId>
+        <groupId>com.sfi.scaffold</groupId>
         <artifactId>scaffold-starters</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -17,7 +17,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.sfi</groupId>
+            <groupId>com.sfi.scaffold</groupId>
             <artifactId>scaffold-common</artifactId>
         </dependency>
         <dependency>
@@ -25,17 +25,17 @@
             <artifactId>transmittable-thread-local</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.sfi</groupId>
+            <groupId>com.sfi.scaffold</groupId>
             <artifactId>scaffold-starter-protection</artifactId>
         </dependency>
         <!-- 执行日志落库为可选能力：无数据库场景（server-lite）下经条件装配整体退化 -->
         <dependency>
-            <groupId>com.sfi</groupId>
+            <groupId>com.sfi.scaffold</groupId>
             <artifactId>scaffold-starter-data-jpa</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.sfi</groupId>
+            <groupId>com.sfi.scaffold</groupId>
             <artifactId>scaffold-starter-security</artifactId>
         </dependency>
         <dependency>
