@@ -6,12 +6,9 @@ import com.scaffold.cemlink.collect.ServiceItemCollectionJob;
 import com.scaffold.cemlink.collect.TombDataCollectionJob;
 import com.scaffold.cemlink.client.cemetery.CemeteryLinkoraClient;
 import com.scaffold.cemlink.increment.WatermarkStore;
-import com.scaffold.cemlink.park.BlockParkStrategy;
-import com.scaffold.cemlink.park.DefaultBlockParkStrategy;
-import com.scaffold.cemlink.park.DefaultTombParkStrategy;
-import com.scaffold.cemlink.park.TombParkStrategy;
-import com.scaffold.cemlink.park.WeijiajiaoBlockParkStrategy;
-import com.scaffold.cemlink.park.WeijiajiaoTombParkStrategy;
+import com.scaffold.cemlink.park.DefaultParkStrategy;
+import com.scaffold.cemlink.park.ParkStrategy;
+import com.scaffold.cemlink.park.WeijiajiaoParkStrategy;
 import com.scaffold.cemlink.source.BlockSourceReader;
 import com.scaffold.cemlink.source.DepositSourceReader;
 import com.scaffold.cemlink.source.ServiceItemSourceReader;
@@ -40,7 +37,7 @@ import javax.sql.DataSource;
  * @author lianghang
  */
 @Configuration
-@Import({WeijiajiaoTombParkStrategy.class, WeijiajiaoBlockParkStrategy.class})
+@Import(WeijiajiaoParkStrategy.class)
 @EnableConfigurationProperties(CemlinkProperties.class)
 @ConditionalOnProperty("cemlink.source.url")
 public class CemlinkConfig {
@@ -65,30 +62,24 @@ public class CemlinkConfig {
         return new JdbcTemplate(cemlinkParkDataSource);
     }
 
-    /** 默认兜底：专属策略未激活时生效，外部声明同类型 Bean 也可覆盖 */
+    /** 默认兜底：无单位策略激活时全部走接口 default 通用行为，外部声明同类型 Bean 也可覆盖 */
     @Bean
-    @ConditionalOnMissingBean(TombParkStrategy.class)
-    public TombParkStrategy tombParkStrategy() {
-        return new DefaultTombParkStrategy();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(BlockParkStrategy.class)
-    public BlockParkStrategy blockParkStrategy() {
-        return new DefaultBlockParkStrategy();
+    @ConditionalOnMissingBean(ParkStrategy.class)
+    public ParkStrategy parkStrategy() {
+        return new DefaultParkStrategy();
     }
 
     @Bean
     public BlockSourceReader blockSourceReader(
             @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
-            BlockParkStrategy blockParkStrategy) {
-        return new BlockSourceReader(cemlinkParkJdbc, blockParkStrategy);
+            ParkStrategy parkStrategy) {
+        return new BlockSourceReader(cemlinkParkJdbc, parkStrategy);
     }
 
     @Bean
     public TombSourceReader tombSourceReader(
             @Qualifier("cemlinkParkJdbc") JdbcTemplate cemlinkParkJdbc,
-            TombParkStrategy parkStrategy) {
+            ParkStrategy parkStrategy) {
         return new TombSourceReader(cemlinkParkJdbc, parkStrategy);
     }
 

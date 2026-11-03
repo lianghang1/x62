@@ -2,7 +2,7 @@ package com.scaffold.cemlink.source;
 
 import com.scaffold.cemlink.client.model.TombBlockData;
 import com.scaffold.cemlink.client.model.TombBlockGridData;
-import com.scaffold.cemlink.park.BlockParkStrategy;
+import com.scaffold.cemlink.park.ParkStrategy;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -41,10 +41,10 @@ public class BlockSourceReader {
             "ORDER BY t.layer_code";
 
     private final JdbcTemplate jdbcTemplate;
-    private final BlockParkStrategy parkStrategy;
+    private final ParkStrategy parkStrategy;
 
     public BlockSourceReader(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
-                             BlockParkStrategy parkStrategy) {
+                             ParkStrategy parkStrategy) {
         this.jdbcTemplate = jdbcTemplate;
         this.parkStrategy = parkStrategy;
     }
@@ -63,7 +63,7 @@ public class BlockSourceReader {
 
     /** 顶层虚拟墓区（原程序每轮随变更批次一并上报），无则返回 null */
     public TombBlockData superBlock() {
-        BlockParkStrategy.SuperBlock superBlock = parkStrategy.superBlock();
+        ParkStrategy.SuperBlock superBlock = parkStrategy.superBlock();
         if (superBlock == null) {
             return null;
         }

@@ -1,6 +1,6 @@
 package com.scaffold.cemlink.source;
 
-import com.scaffold.cemlink.park.TombParkStrategy;
+import com.scaffold.cemlink.park.ParkStrategy;
 import com.sfi.mall.contract.base.model.cemetery.TransportTomb;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,10 +56,10 @@ public class TombSourceReader {
                     + " order by maint_index desc limit 1";
 
     private final JdbcTemplate jdbcTemplate;
-    private final TombParkStrategy parkStrategy;
+    private final ParkStrategy parkStrategy;
 
     public TombSourceReader(@Qualifier("cemlinkParkJdbc") JdbcTemplate jdbcTemplate,
-                            TombParkStrategy parkStrategy) {
+                            ParkStrategy parkStrategy) {
         this.jdbcTemplate = jdbcTemplate;
         this.parkStrategy = parkStrategy;
     }
