@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.scaffold</groupId>
+    <groupId>com.sfi</groupId>
     <artifactId>scaffold-dependencies</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -38,112 +38,112 @@
         <dependencies>
             <!-- 自产模块版本（与 BOM 同版发布，外部项目禁止自行写版本号） -->
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-web</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-ip</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-log</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-data-jpa</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-search</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-security</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-protection</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-redis</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-job</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-storage</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-message</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-crypto</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-powerjob</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-http</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-push</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-ws</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-starter-observability</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-module-system-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-module-system-biz</artifactId>
                 <version>${project.version}</version>
             </dependency>

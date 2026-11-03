@@ -1,2 +1,2 @@
-com.scaffold.starter.data.jpa.config.DataJpaAutoConfiguration
-com.scaffold.starter.data.jpa.config.DynamicDataSourceAutoConfiguration
+com.sfi.scaffold.starter.data.jpa.config.DataJpaAutoConfiguration
+com.sfi.scaffold.starter.data.jpa.config.DynamicDataSourceAutoConfiguration

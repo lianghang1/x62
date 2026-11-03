@@ -100,8 +100,8 @@ sign     = HMAC-SHA256(signBase, appSecret)  # hex
 字符串/集合原子操作收敛到唯一入口，**import 唯一性由 ArchUnit 规则在构建期强制**（违规直接构建失败）：
 
 ```java
-import com.scaffold.common.util.StringUtils;   // 字符串唯一入口：继承 lang3 全量方法 + camelToSnake/snakeToCamel
-import com.scaffold.common.util.CollUtils;      // 集合唯一入口：组合门面（判空/交并差集/partition/不可变集合）
+import com.sfi.scaffold.common.util.StringUtils;   // 字符串唯一入口：继承 lang3 全量方法 + camelToSnake/snakeToCamel
+import com.sfi.scaffold.common.util.CollUtils;      // 集合唯一入口：组合门面（判空/交并差集/partition/不可变集合）
 
 StringUtils.isBlank(name);                      // 底层 lang3，写法无感
 StringUtils.defaultIfEmpty(val, "-");
@@ -167,7 +167,7 @@ dev 是 H2 内存库且默认关 Liquibase，每次启动空库——`DevDataIni
    ```
 2. 停掉内置调度：`scaffold.job.engine=none`（AbstractJob 执行日志/分布式锁能力保留）；
 3. PowerJob 控制台建任务：处理器全限定类名填
-   `com.scaffold.starter.powerjob.PowerJobJobAdapter`，任务参数填 `{"jobName":"对账任务"}`
+   `com.sfi.scaffold.starter.powerjob.PowerJobJobAdapter`，任务参数填 `{"jobName":"对账任务"}`
    （与 `@Job.name` 一致）。业务任务类零改动，同一份代码可在 simple/PowerJob 两种引擎间切换。
 
 ## 出站 HTTP 客户端（starter-http）

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.scaffold</groupId>
+    <groupId>com.sfi</groupId>
     <artifactId>scaffold-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -20,13 +20,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- 与 scaffold-dependencies 中同名属性保持同步（import BOM 不传递属性，插件版本需在此声明） -->
         <spring-boot.version>2.7.18</spring-boot.version>
+        <nexus.releases>http://NEXUS_HOST/repository/maven-releases/</nexus.releases>
+        <nexus.snapshots>http://NEXUS_HOST/repository/maven-snapshots/</nexus.snapshots>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <!-- 一把梭导入：Spring Boot 官方 BOM + 三方钉版 + scaffold 自产模块版本，全部由 BOM 唯一出口 -->
             <dependency>
-                <groupId>com.scaffold</groupId>
+                <groupId>com.sfi</groupId>
                 <artifactId>scaffold-dependencies</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
@@ -71,4 +73,16 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <!-- 发布目标：nexus 私服（地址经 -D 覆盖或 settings.xml 镜像，占位默认值禁止提交真实凭据） -->
+    <distributionManagement>
+        <repository>
+            <id>sfi-releases</id>
+            <url>${nexus.releases}</url>
+        </repository>
+        <snapshotRepository>
+            <id>sfi-snapshots</id>
+            <url>${nexus.snapshots}</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>

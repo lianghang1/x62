@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.scaffold</groupId>
+        <groupId>com.sfi</groupId>
         <artifactId>scaffold-module-system</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -17,37 +17,37 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-module-system-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-security</artifactId>
         </dependency>
         <!-- 角色分页查询走动态检索 -->
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-search</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-cache</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-protection</artifactId>
         </dependency>
         <!-- 动态任务管理：SysJob 表配置经 JobConfigProvider SPI 注入 simple 引擎 -->
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-job</artifactId>
         </dependency>
 

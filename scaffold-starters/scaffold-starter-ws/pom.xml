@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.scaffold</groupId>
+        <groupId>com.sfi</groupId>
         <artifactId>scaffold-starters</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -17,17 +17,17 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-common</artifactId>
         </dependency>
         <!-- PushService / PushChannel / 多实例转发复用 -->
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-push</artifactId>
         </dependency>
         <!-- 握手鉴权复用 token 会话 -->
         <dependency>
-            <groupId>com.scaffold</groupId>
+            <groupId>com.sfi</groupId>
             <artifactId>scaffold-starter-security</artifactId>
         </dependency>
         <dependency>

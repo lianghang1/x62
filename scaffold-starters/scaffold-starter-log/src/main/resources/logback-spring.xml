@@ -115,6 +115,6 @@
     </root>
 
     <springProfile name="dev">
-        <logger name="com.scaffold" level="DEBUG"/>
+        <logger name="com.sfi.scaffold" level="DEBUG"/>
     </springProfile>
 </configuration>
