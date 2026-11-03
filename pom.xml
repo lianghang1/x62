@@ -24,7 +24,6 @@
         <module>scaffold-dependencies</module>
         <module>scaffold-common</module>
         <module>scaffold-starters</module>
-        <module>scaffold-modules</module>
     </modules>
 
     <build>

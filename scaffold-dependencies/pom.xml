@@ -137,16 +137,6 @@
                 <artifactId>scaffold-starter-observability</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.sfi</groupId>
-                <artifactId>scaffold-module-system-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.sfi</groupId>
-                <artifactId>scaffold-module-system-biz</artifactId>
-                <version>${project.version}</version>
-            </dependency>
 
             <!-- Spring Boot 官方 BOM -->
             <dependency>
