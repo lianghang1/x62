@@ -4,14 +4,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.scaffold</groupId>
+        <artifactId>scaffold-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>scaffold-parent/pom.xml</relativePath>
+    </parent>
+
     <groupId>com.scaffold</groupId>
     <artifactId>scaffold</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>scaffold</name>
-    <description>JDK8 Spring Boot 脚手架（多模块）</description>
+    <description>JDK8 Spring Boot 脚手架（多模块聚合）：properties/dependencyManagement/插件统一继承自 scaffold-parent，
+        外部项目也以 scaffold-parent 为父——框架与项目共享同一套版本与构建基线</description>
 
     <modules>
+        <module>scaffold-parent</module>
         <module>scaffold-dependencies</module>
         <module>scaffold-common</module>
         <module>scaffold-starters</module>
@@ -20,167 +29,7 @@
         <module>scaffold-server-lite</module>
     </modules>
 
-    <properties>
-        <java.version>1.8</java.version>
-        <spring-boot.version>2.7.18</spring-boot.version>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- 三方依赖版本唯一出口 -->
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-dependencies</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- 本项目模块 -->
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-common</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-web</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-ip</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-log</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-data-jpa</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-search</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-security</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-cache</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-protection</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-redis</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-job</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-storage</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-message</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-crypto</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-powerjob</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-http</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-push</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-ws</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-test</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-starter-observability</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-module-system-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.scaffold</groupId>
-                <artifactId>scaffold-module-system-biz</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                        <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.4.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.8</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <!-- 构建护栏：依赖纪律机器强制，与 ArchUnit 的代码规约同一哲学 -->
             <plugin>

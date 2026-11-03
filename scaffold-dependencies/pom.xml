@@ -9,7 +9,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>scaffold-dependencies</name>
-    <description>BOM：所有三方依赖版本的唯一出口（独立 POM，禁止挂父级，避免循环导入）</description>
+    <description>BOM：全部依赖版本的唯一出口（三方 + 自产模块；独立 POM，禁止挂父级，避免循环导入）。外部项目经 scaffold-parent 导入本 BOM。</description>
 
     <properties>
         <spring-boot.version>2.7.18</spring-boot.version>
@@ -36,6 +36,118 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- 自产模块版本（与 BOM 同版发布，外部项目禁止自行写版本号） -->
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-ip</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-data-jpa</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-search</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-cache</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-protection</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-redis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-job</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-storage</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-message</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-crypto</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-powerjob</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-http</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-push</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-ws</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-starter-observability</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-module-system-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.scaffold</groupId>
+                <artifactId>scaffold-module-system-biz</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Spring Boot 官方 BOM -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
