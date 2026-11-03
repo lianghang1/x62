@@ -12,6 +12,12 @@
     <description>BOM：全部依赖版本的唯一出口（三方 + 自产模块；独立 POM，禁止挂父级，避免循环导入）。外部项目经 scaffold-parent 导入本 BOM。</description>
 
     <properties>
+        <!-- 独立 POM 无 parent：编译基线属性需自带，否则 IDEA 模块 language level 回退默认 5 -->
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.7.18</spring-boot.version>
         <nexus.releases>http://NEXUS_HOST/repository/maven-releases/</nexus.releases>
         <nexus.snapshots>http://NEXUS_HOST/repository/maven-snapshots/</nexus.snapshots>
