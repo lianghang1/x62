@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>com.sfi.scaffold</groupId>
-    <artifactId>scaffold/artifactId>
+    <artifactId>scaffold</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>scaffold</name>
